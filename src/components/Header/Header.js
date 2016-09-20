@@ -67,7 +67,6 @@ export class Header extends Component {
 
   render() {
     const { loginErrorMsg, isAuthenticated, dispatch, ampVersions } = this.props
-    const countriesObject = { 'ES-es': 'Spain', 'TH-th': 'Thailand', 'EN-gb': 'England', 'EN-en': 'USA' }
 
     return (
       <div>
