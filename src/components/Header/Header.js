@@ -105,7 +105,7 @@ export class Header extends Component {
             </div>
           </MediaQuery>
           <div className={classes.logo}>
-            <Logo width='782' height='182' scale={(0.4 * screen.width / 1840).toString() } />
+            <Logo width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
           </div>
           <div style={{ marginLeft: 'auto' }}>
             <Autocomplete type='search' hint='Type to search versions...'
