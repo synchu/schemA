@@ -1,0 +1,36 @@
+@import '../../styles/colors';
+.activeRoute {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.logoPanel {
+    margin: 0 auto;
+    padding-left: 5px;
+}
+
+.icon {
+    color: white;
+    background-color: antiquewhite;
+}
+
+.suggestions {
+    background-color: $base-color;
+    :hover {
+        background-color: $base-color;
+    }
+}
+
+
+
+.searchInput {
+    color: white;
+    * {
+        color: ivory;
+        font-size: 1.4rem;
+    }
+}
+
+.logo {
+    margin: auto;
+}

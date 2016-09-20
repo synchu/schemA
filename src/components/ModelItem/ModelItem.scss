@@ -1,0 +1,65 @@
+@import '../../styles/colors';
+.activeRoute {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.logoPanel {
+    margin: 0 auto;
+    padding-left: 5px;
+}
+
+.icon {
+    color: white;
+    background-color: antiquewhite;
+}
+
+.menuRow {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+@media screen and (min-width: 768px) {
+    .itemCard {
+        width: 360px;
+        min-height: 400px;
+        margin: 15px;
+        overflow: hidden;
+        display: inline-block;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .itemCard {
+        width: 250px;
+        min-height: 250px;
+        margin: 15px;
+        overflow: hidden;
+        display: inline-block;
+    }
+}
+
+.itemCardActions {
+    display: inline-block;
+    min-height: 100px;
+    overflow: hidden;
+}
+
+.actionIcons {
+    color: $base-color;
+    font-size: 1.5rem;
+    padding: 3px;
+}
+
+.actionItems {
+    margin: 2px;
+    display: flex;
+    height: auto;
+    flex-flow: column nowrap;
+    margin-right: auto;
+}
+
+.tab {
+    color: $base-color;
+    font-size: 1.1rem;
+}

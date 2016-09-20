@@ -1,0 +1,29 @@
+:global {
+    @import 'base';
+    @import '~normalize.css/normalize';
+    // Some best-practice CSS that's useful for most apps
+    // Just remove them if they're not what you want
+    html {
+        box-sizing: border-box;
+        font-size: 10px;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+    *,
+    *:before,
+    *:after {
+        box-sizing: inherit;
+    }
+    /* h4 {
+        font-size: 18px;
+    }
+    footer {
+      color: #777;
+      font-size: 12px;
+    }*/
+}

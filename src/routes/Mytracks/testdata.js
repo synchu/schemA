@@ -1,0 +1,3 @@
+export const testJSON = '{"songs":[{"id":1,"trackName":"Sample song","playCount":5454,"author":"synchu","avatar_url":"testAvatar","fileName":"samplesong.mp3","src":"sscc"},{"id":2,"trackName":"Quite a bit of long name for a simple song","playCount":555,"author":"synchu","avatar_url":"testAvatar","fileName":"quite a bit of long name for a simple song.mp3","src":"sscc"},{"id":3,"trackName":"Another rather short sample","playCount":1233,"author":"synchu","fileName":"0394rfsdfff.mp3","avatar_url":"testAvatar","src":"sscc"}],"lastname":"Synchu","firstname":"Synchu","username":"synchu","userId":"synchu","useremail":"mwproj@mail.bg","usersongs":3,"password":"somehash","playblu_token":"Hello World"}'
+
+export default testJSON
