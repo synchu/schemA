@@ -7,6 +7,7 @@ import { Input } from 'react-toolbox/lib/input'
 import { clearMessage } from '../../Login/modules/loginUser'
 import SplitPane from 'react-split-pane'
 import MediaQuery from 'react-responsive'
+import VisibilitySensor from 'react-visibility-sensor'
 import classnames from 'classnames'
 
 
@@ -50,7 +51,8 @@ export class HomeView extends Component {
     navbarPinned: PropTypes.bool,
     setNavbarActive: PropTypes.func,
     ampVersions: PropTypes.object,
-    loadAmpsVersions: PropTypes.func
+    loadAmpsVersions: PropTypes.func,
+    selectedModel: PropTypes.string
   }
 
   constructor(props) {
@@ -93,22 +95,22 @@ handleBrandClicked(item, e) {
   loadItem()
 }
 
-
 renderModels(model) {
   const { selectedModel } = this.props
   let mc = this.handleModelClicked.bind(this, model)
-  const TTChip = Tooltip(Chip)
   return (
-    <Chip key={model.key} onClick={mc} className={classes.modelChips}>
-      {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '2rem' }} value='check' />}
-      <span title='Click to view items'><strong>{model[1]}</strong></span>
-      <span className={classes.modelstats}>
-        {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
-        {renderStatItem(model, 4, 'No. of layouts', 'collections') }
-        {renderStatItem(model, 3, 'No. of photos', 'photo') }
-        {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
-      </span>
-    </Chip>
+    <VisibilitySensor key={model.key} containment={this.refs.modelsPanel} minTopValue={100} onChange={(e) => console.log(e) } >
+      <Chip key={model.key} onClick={mc} className={classes.modelChips} >
+        {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '2rem' }} value='check' />}
+        <span title='Click to view items'><strong>{model[1]}</strong></span>
+        <span className={classes.modelstats}>
+          {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
+          {renderStatItem(model, 4, 'No. of layouts', 'collections') }
+          {renderStatItem(model, 3, 'No. of photos', 'photo') }
+          {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
+        </span>
+      </Chip>
+    </VisibilitySensor>
   )
 }
 
@@ -216,7 +218,7 @@ render() {
             pane2Style={{ overflowY: 'auto', flexDirection: 'row' }}>
             <Panel scrollY className={classes.Panes}>
               <Panel scrollY style={{ flexDirection: 'row' }}>
-                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }}>
+                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }} ref='modelsPanel'>
                   <div style={{ color: 'blue' }}>
                     THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
                   </div>
@@ -302,6 +304,6 @@ render() {
     </Layout >
   )
 }
-}
+      }
 
 export default HomeView
