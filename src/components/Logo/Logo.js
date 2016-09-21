@@ -36,7 +36,8 @@ export class Logo extends React.Component {
     ctx.lineJoin = 'miter'
     ctx.lineCap = 'butt'
     ctx.lineWidth = 1.000000
-    ctx.fillStyle = 'rgba(48, 97, 195, 0.8)'
+    // was 'rgba(48, 97, 195, 0.8)'
+    ctx.fillStyle = 'rgba(255, 255, 240, 0.8)'
     ctx.font = 'normal normal ' + 180 * ds + "px 'Chelsea Market'"
     ctx.fillText(logotext, 42.857140 * ds, 249.505070 * ds)
 
@@ -45,7 +46,8 @@ export class Logo extends React.Component {
     ctx.lineJoin = 'miter'
     ctx.lineCap = 'butt'
     ctx.lineWidth = 1.000000
-    ctx.fillStyle = 'rgba(48, 97, 195, 0.5)'
+    // was 'rgba(48, 97, 195, 0.5)'
+    ctx.fillStyle = 'rgba(255, 255, 240, 0.5)'
     ctx.globalAlpha = 0.7
     ctx.font = 'normal normal ' + 180 * ds + "px 'Chelsea Market'"
     ctx.fillText(logotext, 43.698383 * ds, 250.090940 * ds)

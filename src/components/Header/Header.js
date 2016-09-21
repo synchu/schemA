@@ -104,19 +104,22 @@ export class Header extends Component {
             </div>
           </MediaQuery>
           <div className={classes.logo}>
-            <Logo width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
+            <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
           </div>
           <div style={{ marginLeft: 'auto' }}>
-            <Autocomplete type='search' hint='Type to search versions...'
-              direction='down'
-              icon='search' className={classes.searchInput}
-              source={ampVersions}
-              multiple={false}
-              value={this.state.multiple}
-              onChange={this.handleMultipleChange}
-              theme={classes}
-              suggestionMatch='anywhere'
-              />
+            <span style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+              <Autocomplete type='search' hint='Type to search versions...'
+                direction='down'
+                icon='search' className={classes.searchInput}
+                source={ampVersions}
+                multiple={false}
+                value={this.state.multiple}
+                onChange={this.handleMultipleChange}
+                theme={classes}
+                suggestionMatch='anywhere'
+                />
+              <IconButton title='Click to clear...' inverse style={{ margin: 'auto', fontSize: '1.3rem' }}icon='clear' onClick={() => this.setState({ multiple: '' }) } />
+            </span>
           </div>
         </AppBar>
       </div >

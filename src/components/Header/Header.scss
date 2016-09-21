@@ -17,6 +17,7 @@
 }
 
 .searchInput {
+    display: flex;
     color: white;
     * {
         color: ivory;
@@ -26,4 +27,5 @@
 
 .logo {
     margin: auto;
+    padding-top: 5px;
 }

@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
@@ -26,7 +27,7 @@ export const renderStatItem = (brandItem, index, tooltip, icon) => {
 }
 
 export class HomeView extends Component {
-  state = { loggedout: false }
+  state = { loggedout: false, modelsPanel: {}, invisibleChip: false }
 
   static propTypes = {
     routes: PropTypes.array,
@@ -95,13 +96,20 @@ handleBrandClicked(item, e) {
   loadItem()
 }
 
+handleAddModelsArrow = (refString, isVisible) => {
+  this.setState({...this.state, invisibleChip: !isVisible})
+}
+
 renderModels(model) {
   const { selectedModel } = this.props
   let mc = this.handleModelClicked.bind(this, model)
+  let hac = this.handleAddModelsArrow.bind(this, 'chip' + model.key)
   return (
-    <VisibilitySensor key={model.key} containment={this.refs.modelsPanel} minTopValue={100} onChange={(e) => console.log(e) } >
+    <VisibilitySensor key={model.key} containment={this.state.modelsPanel || undefined}
+      minTopValue={100} delay={2500} onChange={hac}
+      ref={'chip' + model.key} >
       <Chip key={model.key} onClick={mc} className={classes.modelChips} >
-        {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '2rem' }} value='check' />}
+        {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '1.6rem' }} value='check' />}
         <span title='Click to view items'><strong>{model[1]}</strong></span>
         <span className={classes.modelstats}>
           {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
@@ -174,6 +182,8 @@ componentDidMount() {
   } else {
     setNavbarPinned(true)
   }
+
+  this.setState({...this.state, modelsPanel: ReactDOM.findDOMNode(this.refs.modelsPanel)})
 }
 
 localSetNavbarActive = () => {
@@ -181,11 +191,14 @@ localSetNavbarActive = () => {
   setNavbarActive(!navbarActive)
 }
 
+scrollDown = (e) => {
+  ReactDOM.findDOMNode(this.refs.subModelsPanel).scrollTop += 50
+}
+
 render() {
   const { snackMessage, dispatch, brands, filterBrand, filterModels, models, item } = this.props
   const { navbarPinned, navbarActive, isFetching, isAuthenticated } = this.props
   let { filteredBrand, filteredModels } = this.props
-  let mql = window.matchMedia('(min-width: 767px)')
   return (
     <Layout classes={classes.mainContainer}>
       <NavDrawer pinned={navbarPinned} active={navbarActive}
@@ -216,9 +229,9 @@ render() {
           <MediaQuery minDeviceWidth={668} component={SplitPane} split='horizontal' minSize={200} defaultSize={'33%'}
             maxSize={400} resizerStyle={classes.Resizer}
             pane2Style={{ overflowY: 'auto', flexDirection: 'row' }}>
-            <Panel scrollY className={classes.Panes}>
-              <Panel scrollY style={{ flexDirection: 'row' }}>
-                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }} ref='modelsPanel'>
+            <Panel scrollY className={classes.Panes} ref='modelsPanel'>
+              <Panel scrollY style={{ flexDirection: 'row' }} ref='subModelsPanel'>
+                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }} ref>
                   <div style={{ color: 'blue' }}>
                     THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
                   </div>
@@ -236,6 +249,9 @@ render() {
                     {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
                   </span>
                 </div>
+                <div style={{ bottom: '10px', right: '10px', position: 'absolute' }}>
+                  {this.state.invisibleChip && <IconButton icon='arrow_downward' primary onClick={this.scrollDown} />}
+                </div>
               </Panel>
             </Panel>
             <Panel scrollY className={classes.Panes}>
@@ -245,7 +261,7 @@ render() {
               </Panel>
             </Panel>
           </MediaQuery>
-          <MediaQuery maxDeviceWidth={667} component={SplitPane} split='horizontal' minSize={200} defaultSize={'45%'}
+          <MediaQuery maxDeviceWidth={667} component={SplitPane} split='horizontal' minSize={200} defaultSize={'40%'}
             maxSize={400} resizerStyle={classes.Resizer}
             pane2Style={{ overflowY: 'auto', flexDirection: 'row' }}>
             <Panel scrollY className={classes.Panes}>
