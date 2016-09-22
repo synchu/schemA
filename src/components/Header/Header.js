@@ -106,7 +106,7 @@ export class Header extends Component {
           <div className={classes.logo}>
             <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
           </div>
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', minWidth: '26rem' }}>
             <span style={{ display: 'flex', flexFlow: 'row nowrap' }}>
               <Autocomplete type='search' hint='Type to search versions...'
                 direction='down'

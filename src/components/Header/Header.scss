@@ -1,37 +1,43 @@
-    @import '../../styles/colors';
-    .activeRoute {
-        font-weight: bold;
-        text-decoration: underline;
-    }
-    
-    .icon {
-        color: white;
-        background-color: antiquewhite;
-    }
-    
-    .suggestions {
-        background-color: $base-color;
-        list-style: none;
-        margin-top: 6rem;
-        padding: 0;
-        :hover {
-            background-color: $base-color;
-        }
-        &:not(.up) {
-            margin-top: 6rem;
-        }
-    }
-    
-    .searchInput {
-        display: flex;
-        color: white;
-        * {
-            color: ivory;
-            font-size: 1.4rem;
-        }
-    }
-    
-    .logo {
-        margin: auto;
-        padding-top: 5px;
-    }
+ @import '../../styles/colors';
+ .activeRoute {
+     font-weight: bold;
+     text-decoration: underline;
+ }
+ 
+ .icon {
+     color: white;
+     background-color: antiquewhite;
+ }
+ 
+ .suggestions {
+     display: inline;
+     //     margin-right: auto;
+     background-color: $base-color;
+     list-style: none;
+     right: 0;
+     padding: 0;
+      :hover {
+         background-color: $base-color;
+     }
+     &:not(.up) {
+         margin-top: 7rem;
+     }
+     overflow: hidden;
+ }
+ 
+ .searchInput {
+     display: flex;
+     color: white;
+     * {
+         color: ivory;
+         font-size: 1.3rem;
+     }
+      ::-webkit-scrollbar {
+         display: none;
+     }
+ }
+ 
+ .logo {
+     margin: auto;
+     padding-top: 5px;
+ }
