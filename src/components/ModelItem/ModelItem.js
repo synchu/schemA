@@ -186,11 +186,18 @@ export class ModelItem extends Component {
 
   }
 
+
+
+  /**
+   * makeTabLabel - generates labels for the card tabs, <br /> used to force IE render
+   * tab label on a new line on larger screen devices
+   * @memberOf ModelItem
+   */
   makeTabLabel = (text, stats, icon) => {
     return (
       <span>
         <MediaQuery minDeviceWidth={769}>
-          <span className={classes.tab} title={text}><FontIcon value={icon} />{text}<i>({stats}) </i></span>
+          <span className={classes.tab} title={text}><FontIcon value={icon} /><br />{text}<i>({stats}) </i></span>
         </MediaQuery>
         <MediaQuery maxDeviceWidth={768}>
           <span className={classes.tab} title={text}><FontIcon value={icon} /><i>({stats}) </i></span>
@@ -202,12 +209,11 @@ export class ModelItem extends Component {
   renderModelsCard = (itemData) => {
     return (
       <Card key={itemData.version} raised className={classes.itemCard} >
-        <CardTitle avatar={itemData.photos.length > 0 ? itemData.photos[0].photo : ''} title={itemData.version} subtitle={'by ' + itemData.contributor + ' ' + itemData.descriptionDate}/>
+        <CardTitle title={itemData.model + ' ' + itemData.version} />
         <MediaQuery minDeviceWidth={768}>
           <CardMedia aspectRatio='wide'>
             {this.getMedia(itemData) }
           </CardMedia>
-          <CardTitle subtitle={itemData.model + ' - ' + itemData.version} />
         </MediaQuery>
         <CardText> {itemData.description} </CardText>
         <CardActions className={classes.itemCardActions} >

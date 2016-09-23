@@ -1,13 +1,13 @@
 import React, { Component, PropTypes } from 'react'
 import { IndexLink, Link } from 'react-router'
-import { IconButton, Button, AppBar, Input, Autocomplete } from 'react-toolbox'
+import { IconButton, Button, AppBar, Autocomplete, Snackbar } from 'react-toolbox'
 import {logoutUser} from '../../routes/Login/modules/loginUser'
 import Logo from '../Logo'
 import MediaQuery from 'react-responsive'
 import classes from './Header.scss'
 
 export class Header extends Component {
-  state = { multiple: '' }
+  state = { multiple: '', renderSnack: true }
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     dispatch: PropTypes.func,
@@ -29,102 +29,121 @@ export class Header extends Component {
     super(props)
     this.handleClick = this.handleClick.bind(this)
     this.changeNavDrawerVisibility = this.changeNavDrawerVisibility.bind(this)
+    this.hideSnack = this.hideSnack.bind(this)
   }
 
   handleClick = (e) => {
     // console.log(e.target.id)
   }
 
-  changeNavDrawerVisibility = (e) => {
-    const {navbarPinned, navbarActive, setNavbarActive, setNavbarPinned} = this.props
+  hideSnack = (e) => {
+    this.setState({...this.state, renderSnack: false})
+}
 
-    let mql = window.matchMedia('(min-width: 450px)')
+changeNavDrawerVisibility = (e) => {
+  const {navbarPinned, navbarActive, setNavbarActive, setNavbarPinned} = this.props
 
-    if (!mql.matches) {
-      setNavbarPinned(false)
-      setNavbarActive(!navbarActive)
-    } else {
-      setNavbarPinned(!navbarPinned)
-      setNavbarActive(false)
-    }
+  let mql = window.matchMedia('(min-width: 450px)')
+
+  if (!mql.matches) {
+    setNavbarPinned(false)
+    setNavbarActive(!navbarActive)
+  } else {
+    setNavbarPinned(!navbarPinned)
+    setNavbarActive(false)
   }
+}
 
 
-  handleMultipleChange = (value) => {
-    const { ampVersions, selectBrand, loadModels, selectModel, loadItem } = this.props
-    this.setState({ multiple: value })
-    let selected = ampVersions[value].split(' ')
+handleMultipleChange = (value) => {
+  const { ampVersions, selectBrand, loadModels, selectModel, loadItem } = this.props
+  this.setState({ multiple: value })
+  let selected = ampVersions[value].split(' ')
 
-    selectBrand(selected[2])
-    loadModels()
-    selectModel(selected[1])
-    loadItem()
-  }
+  selectBrand(selected[2])
+  loadModels()
+  selectModel(selected[1])
+  loadItem()
+}
 
-  componentDidMount() {
-    this.props.loadAmpsVersions()
-  }
+componentDidMount() {
+  this.props.loadAmpsVersions()
+}
 
-  render() {
-    const { loginErrorMsg, isAuthenticated, dispatch, ampVersions } = this.props
+render() {
+  const { loginErrorMsg, isAuthenticated, dispatch, ampVersions } = this.props
 
-    return (
+  return (
+    <div>
+      <AppBar fixed flat type='horizontal' theme={classes}>
+        <IconButton icon='menu' title='Open Brands selection...' inverse onClick={this.changeNavDrawerVisibility} />
+        <MediaQuery minDeviceWidth={768}>
+          <div style={{ display: 'flex' }}>
+            <IndexLink to='/' activeClassName={classes.activeRoute}>
+              <Button label='Home' id='home' inverse onClick={this.handleClick} />
+            </IndexLink>
+            {isAuthenticated &&
+              <div>
+                <Link to='/upload' activeClassName={classes.activeRoute}>
+                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick} />
+                </Link>
+              </div>
+            }
+            {!isAuthenticated &&
+              <div>
+                {' · '}
+                <Link to='/login' activeClassName={classes.activeRoute}>
+                  <Button disabled label='Login' id='login' raised inverse flat onClick={this.handleClick} />
+                </Link>
+                {loginErrorMsg && <span>loginErrorMsg</span>}
+              </div>
+            }
+            {isAuthenticated &&
+              <div>
+                {' · '}
+                <Link to='/' activeClassName={classes.activeRoute}>
+                  <Button label='Logout' id='logout' raised inverse flat onClick={() => { dispatch(logoutUser()) } } />
+                </Link>
+              </div>
+            }
+          </div>
+        </MediaQuery>
+        <div className={classes.logo}>
+          <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
+        </div>
+        <div style={{ marginLeft: 'auto', minWidth: '26rem' }}>
+          <span style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+            <Autocomplete type='search' hint='Type to search versions...'
+              direction='down'
+              icon='search' className={classes.searchInput}
+              source={ampVersions}
+              multiple={false}
+              value={this.state.multiple}
+              onChange={this.handleMultipleChange}
+              theme={classes}
+              suggestionMatch='anywhere'
+              />
+            <IconButton title='Click to clear...' inverse style={{ margin: 'auto', fontSize: '1.3rem' }}icon='clear' onClick={() => this.setState({ multiple: '' }) } />
+          </span>
+        </div>
+      </AppBar>
       <div>
-        <AppBar fixed flat type='horizontal' theme={classes}>
-          <IconButton icon='menu' title='Open Brands selection...' inverse onClick={this.changeNavDrawerVisibility} />
-          <MediaQuery minDeviceWidth={768}>
-            <div style={{ display: 'flex' }}>
-              <IndexLink to='/' activeClassName={classes.activeRoute}>
-                <Button label='Home' id='home' inverse onClick={this.handleClick} />
-              </IndexLink>
-              {isAuthenticated &&
-                <div>
-                  <Link to='/upload' activeClassName={classes.activeRoute}>
-                    <Button label='Upload' id='upload' inverse flat onClick={this.handleClick} />
-                  </Link>
-                </div>
-              }
-              {!isAuthenticated &&
-                <div>
-                  {' · '}
-                  <Link to='/login' activeClassName={classes.activeRoute}>
-                    <Button disabled label='Login' id='login' raised inverse flat onClick={this.handleClick} />
-                  </Link>
-                  {loginErrorMsg && <span>loginErrorMsg</span>}
-                </div>
-              }
-              {isAuthenticated &&
-                <div>
-                  {' · '}
-                  <Link to='/' activeClassName={classes.activeRoute}>
-                    <Button label='Logout' id='logout' raised inverse flat onClick={() => { dispatch(logoutUser()) } } />
-                  </Link>
-                </div>
-              }
-            </div>
-          </MediaQuery>
-          <div className={classes.logo}>
-            <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
-          </div>
-          <div style={{ marginLeft: 'auto', minWidth: '26rem' }}>
-            <span style={{ display: 'flex', flexFlow: 'row nowrap' }}>
-              <Autocomplete type='search' hint='Type to search versions...'
-                direction='down'
-                icon='search' className={classes.searchInput}
-                source={ampVersions}
-                multiple={false}
-                value={this.state.multiple}
-                onChange={this.handleMultipleChange}
-                theme={classes}
-                suggestionMatch='anywhere'
-                />
-              <IconButton title='Click to clear...' inverse style={{ margin: 'auto', fontSize: '1.3rem' }}icon='clear' onClick={() => this.setState({ multiple: '' }) } />
-            </span>
-          </div>
-        </AppBar>
-      </div >
-    )
-  }
+        <Snackbar
+          className={classes.snack}
+          action='X'
+          icon='menu'
+          label={'<- click or tap top Menu button to toggle the Navigation menu'}
+          active={this.state.renderSnack}
+          onTimeout={this.hideSnack}
+          onClick={this.hideSnack}
+          timeout={2000}
+          ref='snackbar'
+          type='accept'
+          />
+      </div>
+    </div>
+  )
+}
 }
 
 export default Header
