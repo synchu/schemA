@@ -200,7 +200,7 @@ export class ModelItem extends Component {
           <span className={classes.tab} title={text}><FontIcon value={icon} /><br />{text}<i>({stats}) </i></span>
         </MediaQuery>
         <MediaQuery maxDeviceWidth={768}>
-          <span className={classes.tab} title={text}><FontIcon value={icon} /><i>({stats}) </i></span>
+          <span className={classes.tab} title={text}><FontIcon value={icon} /><br /><i>({stats}) </i></span>
         </MediaQuery>
       </span>
     )
@@ -217,8 +217,7 @@ export class ModelItem extends Component {
         </MediaQuery>
         <CardText> {itemData.description} </CardText>
         <CardActions className={classes.itemCardActions} >
-
-          <Tabs index={this.state[itemData.version]} onChange={(e) => this.handleFixedTabChange(e, itemData.version) }>
+          <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) }>
             <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board') }>
               <div className={classes.actionItems}>
                 {itemData.schematics.map((s) => this.renderSchematics(s)) }
