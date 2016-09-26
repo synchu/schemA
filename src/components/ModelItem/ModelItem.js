@@ -119,8 +119,8 @@ export class ModelItem extends Component {
     this.setState({ ...this.state, [version]: index })
 }
 
-handleTabListSwitch = (value) => {
-  this.setState({...this.state, switch: value})
+handleTabListSwitch = (value, version) => {
+  this.setState({...this.state, ['switch' + version]: value})
   }
 
 getMedia = (itemData) => {
@@ -249,10 +249,10 @@ renderModelsCard = (itemData) => {
       </MediaQuery>
       <CardText> {itemData.description} </CardText>
       <CardActions className={classes.itemCardActions} >
-        <Switch theme={classes} checked={this.state.switch}
-          label='Switch tab/list view'
-          onChange={this.handleTabListSwitch} />
-        {this.state.switch ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData) }
+        <Switch theme={classes} checked={this.state['switch' + itemData.version]}
+          label='Tab/list view'
+          onChange={(e) => this.handleTabListSwitch(e, itemData.version) } />
+        {this.state['switch' + itemData.version] ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData) }
       </CardActions>
     </Card>
 

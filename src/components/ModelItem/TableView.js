@@ -1,8 +1,7 @@
 import React, { Component, PropTypes } from 'react'
-import { Tab, Switch, Tabs, FontIcon, Card, CardMedia, CardTitle, CardText, CardActions, IconButton } from 'react-toolbox'
+import { FontIcon } from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './TableView.scss'
-import MediaQuery from 'react-responsive'
 import classnames from 'classnames'
 
 const DESCRIPTION = 'Description'
@@ -14,7 +13,7 @@ const OTHER = 'Other'
 const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp/))
 
 const makeDownloadLink = (linkData) => {
-  const {href, text, activeLinkClass, ...other} = linkData
+  const {href, text, activeLinkClass} = linkData
   return (
     <Link to={href} activeClassName={activeLinkClass} target='_blank'>
       {text}
@@ -94,7 +93,7 @@ compareT = (a, b) => {
 
 sortByField = (field, ascValue) => {
   const { tableData } = this.state
-  // synchronous set
+  // synchronous set state
   this.state = Object.assign({}, this.state, { sort: { by: field, asc: ascValue } })
   return (tableData.sort(this.compareT))
 }
@@ -102,21 +101,19 @@ sortByField = (field, ascValue) => {
 sortTable = (e) => {
   const {sort} = this.state
 
+  let sortedData = []
+
   if ((sort) && (sort.by === e)) {
     if (sort.asc) {
-      this.setState({...this.state,
-        tableData: this.sortByField(e, false).reverse()})
+      sortedData = this.sortByField(e, false).reverse()
+    }
+    else {
+      sortedData = this.sortByField(e, true)
+    }
+  } else {
+    sortedData = this.sortByField(e, true)
   }
-  else {
-    this.setState({...this.state,
-      tableData: this.sortByField(e, true)})
-}
-
-} else {
-  this.setState({...this.state,
-    tableData: this.sortByField(e, true)})
-}
-console.log(this.state)
+  this.setState({ ...this.state, tableData: sortedData })
 }
 
 
@@ -147,7 +144,7 @@ renderTabView = () => {
               {i.by}
             </td>
           </tr>)
-        }) }
+        })}
       </tbody>
     </table>
   )

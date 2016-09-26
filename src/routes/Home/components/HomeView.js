@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
-import { Snackbar, List, Panel, NavDrawer, Layout, ListItem, Tooltip, IconButton, Chip, FontIcon } from 'react-toolbox'
+import { Snackbar, Switch, List, Panel, NavDrawer, Layout, ListItem, Tooltip, IconButton, Chip, FontIcon } from 'react-toolbox'
 import { Input } from 'react-toolbox/lib/input'
 import { clearMessage } from '../../Login/modules/loginUser'
 import SplitPane from 'react-split-pane'
@@ -219,6 +219,11 @@ render() {
               {(brands) && brands.filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1).map(this.renderBrands) }
             </List>
           </Panel>
+        </div>
+        <div style={{ bottom: '10px', maxHeight: '3rem' }}>
+          {false && <Switch theme={classes} checked={this.state.switch}
+            label='Model tab/list view'
+            onChange={this.handleTabListSwitch} />}
         </div>
       </NavDrawer>
 
