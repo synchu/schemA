@@ -77,11 +77,13 @@ render() {
     <div>
       <AppBar fixed flat type='horizontal' theme={classes}>
         <IconButton icon='menu' title='Open Brands selection...' inverse onClick={this.changeNavDrawerVisibility} />
+        <IndexLink to='/' activeClassName={classes.activeRoute}>
+          <div className={classes.logo}>
+            <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString() } />
+          </div>
+        </IndexLink>
         <MediaQuery minDeviceWidth={768}>
           <div style={{ display: 'flex' }}>
-            <IndexLink to='/' activeClassName={classes.activeRoute}>
-              <Button label='Home' id='home' inverse onClick={this.handleClick} />
-            </IndexLink>
             {isAuthenticated &&
               <div>
                 <Link to='/upload' activeClassName={classes.activeRoute}>
@@ -89,11 +91,11 @@ render() {
                 </Link>
               </div>
             }
-            {!isAuthenticated &&
+            {!isAuthenticated && false &&
               <div>
                 {' · '}
-                <Link to='/login' activeClassName={classes.activeRoute}>
-                  <Button disabled label='Login' id='login' raised inverse flat onClick={this.handleClick} />
+                <Link to='/login' activeClassName={classes.activeRoute} onClick={(e) => e.preventDefault() }>
+                  <Button disabled label='Login' id='login' raised inverse flat />
                 </Link>
                 {loginErrorMsg && <span>loginErrorMsg</span>}
               </div>
@@ -108,9 +110,7 @@ render() {
             }
           </div>
         </MediaQuery>
-        <div className={classes.logo}>
-          <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.3 * screen.width / 1980).toString() } />
-        </div>
+
         <div style={{ marginLeft: 'auto', minWidth: '26rem' }}>
           <span style={{ display: 'flex', flexFlow: 'row nowrap' }}>
             <Autocomplete type='search' hint='Type to search versions...'

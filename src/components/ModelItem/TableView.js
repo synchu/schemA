@@ -126,9 +126,9 @@ renderTabView = () => {
     <table className={classnames('table', 'table-stripped', 'table-condensed') }>
       <thead className={classes.tableHeader}>
         <tr>
-          <th onClick={scType}>Type</th>
-          <th onClick={scText}>Item</th>
-          <th onClick={scBy}>Contributor</th>
+          <th title='Click or tap to sort' onClick={scType}>Type</th>
+          <th title='Click or tap to sort' onClick={scText}>Item</th>
+          <th title='Click or tap to sort' onClick={scBy}>Contributor</th>
         </tr>
       </thead>
       <tbody>
@@ -144,7 +144,7 @@ renderTabView = () => {
               {i.by}
             </td>
           </tr>)
-        })}
+        }) }
       </tbody>
     </table>
   )

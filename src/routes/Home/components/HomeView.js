@@ -122,6 +122,7 @@ renderModels(model) {
   )
 }
 
+
 renderBrands(b) {
   const { selectedBrand } = this.props
 
@@ -139,7 +140,11 @@ renderBrands(b) {
               {renderStatItem(b, 4, 'No. of other docs', 'attachment') }
             </span>
           }
-          onClick={bc} />
+          onClick={bc}>
+          <div style={{ display: 'none' }}>
+            {'test'}
+          </div>
+        </ListItem>
       </MediaQuery>
       <MediaQuery maxDeviceWidth={767}>
         <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0]) } className={classes.brandItem}

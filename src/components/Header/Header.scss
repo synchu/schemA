@@ -9,9 +9,12 @@
      background-color: antiquewhite;
  }
  
+ .appBar{
+     padding: 0;
+ }
+
  .suggestions {
      display: inline;
-     //     margin-right: auto;
      background-color: $base-color;
      list-style: none;
      right: 0;
@@ -38,7 +41,8 @@
  }
  
  .logo {
-     margin: auto;
+     margin-right: auto;
+     margin-bottom: auto;
      padding-top: 5px;
  }
 

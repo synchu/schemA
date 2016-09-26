@@ -2,7 +2,7 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+    Niki Nyagolov -- SchemA developer -- <twitter>
 
 # THANKS
 
