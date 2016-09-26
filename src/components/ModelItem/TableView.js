@@ -116,20 +116,22 @@ sortTable = (e) => {
   this.setState({...this.state,
     tableData: this.sortByField(e, true)})
 }
-  console.log(this.state)
+console.log(this.state)
 }
 
 
 
 renderTabView = () => {
-  let sc = this.sortTable.bind(this)
+  let scType = this.sortTable.bind(this, 'type')
+  let scText = this.sortTable.bind(this, 'text')
+  let scBy = this.sortTable.bind(this, 'by')
   return (
     <table className={classnames('table', 'table-stripped', 'table-condensed') }>
       <thead className={classes.tableHeader}>
         <tr>
-          <th onClick={(e) => sc('type') }>Type</th>
-          <th onClick={(e) => sc('text') }>Item</th>
-          <th onClick={(e) => sc('by') }>Contributor</th>
+          <th onClick={scType}>Type</th>
+          <th onClick={scText}>Item</th>
+          <th onClick={scBy}>Contributor</th>
         </tr>
       </thead>
       <tbody>
