@@ -63,3 +63,17 @@
     color: $base-color;
     font-size: 1.1rem;
 }
+
+.field {
+    margin: 0;
+    * {
+        font-size: 1.1rem;
+        font-weight: 350;
+    }
+}
+
+table {
+    li {
+        list-style: none;
+    }
+}

@@ -105,20 +105,20 @@ renderModels(model) {
   let mc = this.handleModelClicked.bind(this, model)
   let hac = this.handleAddModelsArrow.bind(this, 'chip' + model.key)
   return (
-    <VisibilitySensor key={model.key} containment={this.state.modelsPanel || undefined}
+    /* VisibilitySensor key={model.key} containment={this.state.modelsPanel || (<span></span>)}
       minTopValue={100} delay={2500} onChange={hac}
-      ref={'chip' + model.key} >
-      <Chip key={model.key} onClick={mc} className={classes.modelChips} >
-        {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '1.6rem' }} value='check' />}
-        <span title='Click to view items'><strong>{model[1]}</strong></span>
-        <span className={classes.modelstats}>
-          {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
-          {renderStatItem(model, 4, 'No. of layouts', 'collections') }
-          {renderStatItem(model, 3, 'No. of photos', 'photo') }
-          {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
-        </span>
-      </Chip>
-    </VisibilitySensor>
+      ref={'chip' + model.key} */
+    <Chip key={model.key} onClick={mc} className={classes.modelChips} >
+      {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '1.6rem' }} value='check' />}
+      <span title='Click to view items'><strong>{model[1]}</strong></span>
+      <span className={classes.modelstats}>
+        {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
+        {renderStatItem(model, 4, 'No. of layouts', 'collections') }
+        {renderStatItem(model, 3, 'No. of photos', 'photo') }
+        {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
+      </span>
+    </Chip>
+    /* VisibilitySensor*/
   )
 }
 

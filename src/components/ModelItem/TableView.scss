@@ -1,0 +1,31 @@
+@import '../../styles/colors';
+.activeRoute {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.actionIcons {
+    color: $base-color;
+    font-size: 1.5rem;
+    padding: 3px;
+}
+
+.actionItems {
+    margin: 2px;
+    display: flex;
+    height: auto;
+    flex-flow: column nowrap;
+    margin-right: auto;
+}
+
+.tableHeader {
+     :hover {
+        cursor: pointer;
+    }
+}
+
+table {
+    li {
+        list-style: none;
+    }
+}

@@ -132,7 +132,7 @@ render() {
           className={classes.snack}
           action='X'
           icon='menu'
-          label={'<- click or tap top Menu button to toggle the Navigation menu'}
+          label={'click or tap the top left Menu button to toggle the Brands navigation menu'}
           active={this.state.renderSnack}
           onTimeout={this.hideSnack}
           onClick={this.hideSnack}

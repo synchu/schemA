@@ -1,8 +1,9 @@
 import React, { Component, PropTypes } from 'react'
-import { Panel, Tab, Tabs, FontIcon, Card, CardMedia, CardTitle, CardText, CardActions, IconButton } from 'react-toolbox'
+import { Tab, Switch, Tabs, FontIcon, Card, CardMedia, CardTitle, CardText, CardActions, IconButton } from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './ModelItem.scss'
 import MediaQuery from 'react-responsive'
+import TableView from './TableView'
 
 const DESCRIPTION = 'Description'
 const LAYOUT = 'Layout'
@@ -115,154 +116,166 @@ export class ModelItem extends Component {
   }
 
   handleFixedTabChange = (index, version) => {
-    this.setState({ [version]: index })
+    this.setState({ ...this.state, [version]: index })
+}
+
+handleTabListSwitch = (value) => {
+  this.setState({...this.state, switch: value})
   }
 
-  getMedia = (itemData) => {
-    let media = ''
-    if (itemData) {
-      media = itemData.photos.length > 0 ? itemData.photos[0].photo : itemData.layouts.length > 0 ? itemData.layouts[0].layout : itemData.others.length > 0 ? itemData.others[0].other : ''
-    }
-    if (isImageByExt(media)) {
-      return (
-        <img src={media} title={itemData.photos[0] ? itemData.photos[0].photoName : itemData.version}
-          alt={itemData.photos[0] ? itemData.photos[0].photoName : itemData.version} />
-      )
-    } else if (media !== '') {
-      return (
-        makeDownloadLink({ href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute })
-      )
-    } else {
-      return (
-        <h5 style={{ padding: '1rem', marginBottom: 'auto' }}>
-          <strong>No photos or layouts to display yet.
-            Please, contact us, if you would like to contribute.
-          </strong>
-        </h5>
-      )
-    }
+getMedia = (itemData) => {
+  let media = ''
+  if (itemData) {
+    media = itemData.photos.length > 0 ? itemData.photos[0].photo : itemData.layouts.length > 0 ? itemData.layouts[0].layout : itemData.others.length > 0 ? itemData.others[0].other : ''
   }
-
-  renderPhotos = (photo) => {
+  if (isImageByExt(media)) {
     return (
-      makeDownloadLink({
-        key: photo.id, href: photo.photo,
-        icon: (<img src={photo.photo} alt={photo.photoName} height='48' width='48' />),
-        text: photo.photoName + ' by ' + photo.photoContributor,
-        activeLinkClass: classes.activeRoute,
-        style: { marginRight: 'auto', padding: '3px' }
-      })
+      <img src={media} title={itemData.photos[0] ? itemData.photos[0].photoName : itemData.version}
+        alt={itemData.photos[0] ? itemData.photos[0].photoName : itemData.version} />
+    )
+  } else if (media !== '') {
+    return (
+      makeDownloadLink({ href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute })
+    )
+  } else {
+    return (
+      <h5 style={{ padding: '1rem', marginBottom: 'auto' }}>
+        <strong>No photos or layouts to display yet.
+          Please, contact us, if you would like to contribute.
+        </strong>
+      </h5>
     )
   }
+}
 
-  renderLayouts = (layout) => {
-    return (
-      makeDownloadLink({
-        key: layout.id, href: layout.layout, icon: 'file_download',
-        text: layout.layoutName + ' by ' + layout.layoutContributor, activeLinkClass: classes.activeRoute
-      })
-    )
-  }
+renderPhotos = (photo) => {
+  return (
+    makeDownloadLink({
+      key: photo.id, href: photo.photo,
+      icon: (<img src={photo.photo} alt={photo.photoName} height='48' width='48' />),
+      text: photo.photoName + ' by ' + photo.photoContributor,
+      activeLinkClass: classes.activeRoute,
+      style: { marginRight: 'auto', padding: '3px' }
+    })
+  )
+}
 
-  renderSchematics = (schematic) => {
-    return (
-      makeDownloadLink({
-        key: schematic.id, href: schematic.schematic, icon: 'file_download',
-        text: schematic.schematicName + ' by ' + schematic.schematicContributor, activeLinkClass: classes.activeRoute
-      })
-    )
-  }
+renderLayouts = (layout) => {
+  return (
+    makeDownloadLink({
+      key: layout.id, href: layout.layout, icon: 'file_download',
+      text: layout.layoutName + ' by ' + layout.layoutContributor, activeLinkClass: classes.activeRoute
+    })
+  )
+}
 
-  renderOthers = (other) => {
-    return (
-      makeDownloadLink({
-        key: other.id, href: other.other, icon: 'file_download',
-        text: other.otherName + ' by ' + other.otherContributor, activeLinkClass: classes.activeRoute
-      })
-    )
-  }
+renderSchematics = (schematic) => {
+  return (
+    makeDownloadLink({
+      key: schematic.id, href: schematic.schematic, icon: 'file_download',
+      text: schematic.schematicName + ' by ' + schematic.schematicContributor, activeLinkClass: classes.activeRoute
+    })
+  )
+}
 
-  openPhotoLibrary = (itemData) => {
+renderOthers = (other) => {
+  return (
+    makeDownloadLink({
+      key: other.id, href: other.other, icon: 'file_download',
+      text: other.otherName + ' by ' + other.otherContributor, activeLinkClass: classes.activeRoute
+    })
+  )
+}
 
-  }
+openPhotoLibrary = (itemData) => {
+
+}
 
 
 
-  /**
-   * makeTabLabel - generates labels for the card tabs, <br /> used to force IE render
-   * tab label on a new line on larger screen devices
-   * @memberOf ModelItem
-   */
-  makeTabLabel = (text, stats, icon) => {
-    return (
-      <span>
-        <MediaQuery minDeviceWidth={769}>
-          <span className={classes.tab} title={text}><FontIcon value={icon} /><br />{text}<i>({stats}) </i></span>
-        </MediaQuery>
-        <MediaQuery maxDeviceWidth={768}>
-          <span className={classes.tab} title={text}><FontIcon value={icon} /><br /><i>({stats}) </i></span>
-        </MediaQuery>
-      </span>
-    )
-  }
+/**
+ * makeTabLabel - generates labels for the card tabs, <br /> used to force IE render
+ * tab label on a new line on larger screen devices
+ * @memberOf ModelItem
+ */
+makeTabLabel = (text, stats, icon) => {
+  return (
+    <span>
+      <MediaQuery minDeviceWidth={769}>
+        <span className={classes.tab} title={text}><FontIcon value={icon} /><br />{text}<i>({stats}) </i></span>
+      </MediaQuery>
+      <MediaQuery maxDeviceWidth={768}>
+        <span className={classes.tab} title={text}><FontIcon value={icon} /><br /><i>({stats}) </i></span>
+      </MediaQuery>
+    </span>
+  )
+}
 
-  renderModelsCard = (itemData) => {
-    return (
-      <Card key={itemData.version} raised className={classes.itemCard} >
-        <CardTitle title={itemData.model + ' ' + itemData.version} />
-        <MediaQuery minDeviceWidth={768}>
-          <CardMedia aspectRatio='wide'>
-            {this.getMedia(itemData) }
-          </CardMedia>
-        </MediaQuery>
-        <CardText> {itemData.description} </CardText>
-        <CardActions className={classes.itemCardActions} >
-          <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) }>
-            <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board') }>
-              <div className={classes.actionItems}>
-                {itemData.schematics.map((s) => this.renderSchematics(s)) }
-              </div>
-            </Tab>
-            <Tab label={this.makeTabLabel('Layouts', itemData.layouts.length, 'collections') }>
-              <div className={classes.actionItems}>
-                {itemData.layouts.map((l) => this.renderLayouts(l)) }
-              </div>
-            </Tab>
-            <Tab label={this.makeTabLabel('Photos', itemData.photos.length, 'photo') }>
-              <div className={classes.actionItems}>
-                {itemData.photos.map((p) => this.renderPhotos(p)) }
-              </div>
-            </Tab>
-            <Tab label={this.makeTabLabel('Other', itemData.others.length, 'attachment') }>
-              <div className={classes.actionItems}>
-                {itemData.others.map((o) => this.renderOthers(o)) }
-              </div>
-            </Tab>
-          </Tabs>
+renderTabbedView = (itemData) => {
+  return (
+    <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) }>
+      <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board') }>
+        <div className={classes.actionItems}>
+          {itemData.schematics.map((s) => this.renderSchematics(s)) }
+        </div>
+      </Tab>
+      <Tab label={this.makeTabLabel('Layouts', itemData.layouts.length, 'collections') }>
+        <div className={classes.actionItems}>
+          {itemData.layouts.map((l) => this.renderLayouts(l)) }
+        </div>
+      </Tab>
+      <Tab label={this.makeTabLabel('Photos', itemData.photos.length, 'photo') }>
+        <div className={classes.actionItems}>
+          {itemData.photos.map((p) => this.renderPhotos(p)) }
+        </div>
+      </Tab>
+      <Tab label={this.makeTabLabel('Other', itemData.others.length, 'attachment') }>
+        <div className={classes.actionItems}>
+          {itemData.others.map((o) => this.renderOthers(o)) }
+        </div>
+      </Tab>
+    </Tabs>
+  )
+}
 
-        </CardActions>
-      </Card>
+renderModelsCard = (itemData) => {
+  return (
+    <Card key={itemData.version} raised className={classes.itemCard} >
+      <CardTitle title={itemData.model + ' ' + itemData.version} />
+      <MediaQuery minDeviceWidth={768}>
+        <CardMedia aspectRatio='wide'>
+          {this.getMedia(itemData) }
+        </CardMedia>
+      </MediaQuery>
+      <CardText> {itemData.description} </CardText>
+      <CardActions className={classes.itemCardActions} >
+        <Switch theme={classes} checked={this.state.switch}
+          label='Switch tab/list view'
+          onChange={this.handleTabListSwitch} />
+        {this.state.switch ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData) }
+      </CardActions>
+    </Card>
 
-    )
-  }
+  )
+}
 
-  extractDescriptions = (item) => {
-    if (item.length <= 0) return
-    let descriptions = []
-    item.filter((i) => i.type === DESCRIPTION).map((j) => descriptions.push(j))
-    return descriptions
-  }
+extractDescriptions = (item) => {
+  if (item.length <= 0) return
+  let descriptions = []
+  item.filter((i) => i.type === DESCRIPTION).map((j) => descriptions.push(j))
+  return descriptions
+}
 
-  render() {
-    const { items } = this.props
-    let itemObjects = transformData(items)
+render() {
+  const { items } = this.props
+  let itemObjects = transformData(items)
 
-    return (
-      <div>
-        {itemObjects.map(this.renderModelsCard) }
-      </div>
-    )
-  }
+  return (
+    <div>
+      {itemObjects.map(this.renderModelsCard) }
+    </div>
+  )
+}
 }
 
 
