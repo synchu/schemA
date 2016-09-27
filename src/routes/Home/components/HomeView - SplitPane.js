@@ -87,10 +87,7 @@ handleModelClicked(item, e) {
 }
 
 handleBrandClicked(item, e) {
-  const { loadModels, selectBrand, selectModel, loadItem, selectedBrand } = this.props
-
-  if (selectedBrand && selectedBrand === item['0']) { return }
-
+  const { loadModels, selectBrand, selectModel, loadItem } = this.props
   localStorage.setItem('selected_brand', item['0'])
   selectBrand(item['0'])
   loadModels()
@@ -112,16 +109,15 @@ renderModels(model) {
       minTopValue={100} delay={2500} onChange={hac}
       ref={'chip' + model.key} */
     <Chip key={model.key} onClick={mc} className={classes.modelChips} >
-      {(selectedModel === model[1]) &&
-        <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '1.6rem' }} value='check' />}
+      {(selectedModel === model[1]) && <FontIcon style={{ color: 'green', marginBottom: 'auto', fontSize: '1.6rem' }} value='check' />}
       <span title='Click to view items'><strong>{model[1]}</strong></span>
       {false &&
-        <span className={classes.modelstats}>
-          {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
-          {renderStatItem(model, 4, 'No. of layouts', 'collections') }
-          {renderStatItem(model, 3, 'No. of photos', 'photo') }
-          {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
-        </span>}
+      <span className={classes.modelstats}>
+        {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
+        {renderStatItem(model, 4, 'No. of layouts', 'collections') }
+        {renderStatItem(model, 3, 'No. of photos', 'photo') }
+        {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
+      </span>}
     </Chip>
     /* VisibilitySensor*/
   )
@@ -154,10 +150,6 @@ renderBrands(b) {
       <MediaQuery maxDeviceWidth={767}>
         <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0]) } className={classes.brandItem}
           onClick={bc} />
-        {(b[0] === selectedBrand) &&
-          <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
-            {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
-          </div>}
       </MediaQuery>
     </span>
   )
@@ -242,18 +234,70 @@ render() {
       </NavDrawer>
 
       <Panel>
-        <Header isAuthenticated={isAuthenticated} dispatch={dispatch} className={classes.heading}
-          drawer={this.refs.navdrawer} {...this.props} />
+        <Header isAuthenticated={isAuthenticated} dispatch={dispatch} className={classes.heading} drawer={this.refs.navdrawer}
+          {...this.props} />
         <Panel className={classes.content}>
-          <Panel style={{ overflowY: 'auto', flexDirection: 'row' }} scrollY className={classes.Panes}>
-            <div style={{ color: 'blue' }}>
-              THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
-            </div>
-            <Panel scrollY style={{ flexFlow: 'row wrap' }}>
-              {isFetching && this.renderFetching() }
-              {!isFetching && <ModelItem items={item} />}
+          <MediaQuery minDeviceWidth={668} component={SplitPane} split='horizontal' minSize={200} defaultSize={'33%'}
+            maxSize={400} resizerStyle={classes.Resizer}
+            pane2Style={{ overflowY: 'auto', flexDirection: 'row' }}>
+            <Panel scrollY className={classes.Panes} ref='modelsPanel'>
+              <Panel scrollY style={{ flexDirection: 'row' }} ref='subModelsPanel'>
+                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }} ref>
+                  <div style={{ color: 'blue' }}>
+                    THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
+                  </div>
+                  {!this.props.selectedBrand && <h5>Select a model on the left</h5>}
+                  <Input type='search' hint='Type to filter models' label='Filter' icon='filter_list'
+                    name='filterModels'
+                    value={filteredModels}
+                    onChange={this.handleChange}
+                    className={classes.filterInputs}
+                    style={{ width: '30%' }} />
+                  {filteredModels &&
+                    <IconButton icon='close' onClick={() => filterModels('') } style={{ marginTop: '2rem', opacity: 0.5 }} />
+                  }
+                  <span style={{ flexWrap: 'wrap' }}>
+                    {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
+                  </span>
+                </div>
+                <div style={{ bottom: '10px', right: '10px', position: 'absolute' }}>
+                  {this.state.invisibleChip && <IconButton icon='arrow_downward' primary onClick={this.scrollDown} />}
+                </div>
+              </Panel>
             </Panel>
-          </Panel>
+            <Panel scrollY className={classes.Panes}>
+              <Panel scrollY style={{ flexFlow: 'row wrap' }}>
+                {isFetching && this.renderFetching() }
+                {!isFetching && <ModelItem items={item} />}
+              </Panel>
+            </Panel>
+          </MediaQuery>
+          <MediaQuery maxDeviceWidth={667} component={SplitPane} split='horizontal' minSize={200} defaultSize={'40%'}
+            maxSize={400} resizerStyle={classes.Resizer}
+            pane2Style={{ overflowY: 'auto', flexDirection: 'row' }}>
+            <Panel scrollY className={classes.Panes}>
+              <Panel scrollY style={{ flexDirection: 'row' }}>
+                <div style={{ marginBottom: 'auto', marginRight: 'auto', marginTop: '6rem' }}>
+                  <div style={{ color: 'blue' }}>
+                    THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
+                  </div>
+                  {!this.props.selectedBrand && <h5>Select a model on the left</h5>}
+                  {filteredModels &&
+                    <IconButton icon='close' onClick={() => filterModels('') } style={{ marginTop: '2rem', opacity: 0.5 }} />
+                  }
+                  <span style={{ flexWrap: 'wrap' }}>
+                    {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
+                  </span>
+                </div>
+              </Panel>
+            </Panel>
+            <Panel scrollY className={classes.Panes}>
+              <Panel scrollY style={{ flexFlow: 'row wrap' }}>
+                {isFetching && this.renderFetching() }
+                {!isFetching && <ModelItem items={item} />}
+              </Panel>
+            </Panel>
+          </MediaQuery>
         </Panel>
 
         {(snackMessage) &&
