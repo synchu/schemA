@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
+import SocialShare from '../../../components/SocialShare'
 import { Snackbar, Switch, List, Panel, NavDrawer, Layout, ListItem, Tooltip, IconButton, Chip, FontIcon } from 'react-toolbox'
 import { Input } from 'react-toolbox/lib/input'
 import { clearMessage } from '../../Login/modules/loginUser'
@@ -278,8 +279,9 @@ render() {
           </div>
         }
         <footer>
-          <div>
+          <div style={{ display: 'flex', flexFlow: 'row nowrap' }}>
             <small>Navigation Software Copyright© 2016 <a href='http://www.synchu.com' target='_blank'>synchu.com.</a> <div> <span>Read</span> <a href='http://www.synchu.com' target='_blank' >our privacy policy</a> <span>and</span> <a href='http://www.synchu.com' target='_blank'>terms of use</a> </div></small>
+            <SocialShare />
           </div>
         </footer>
       </Panel >

@@ -132,11 +132,11 @@ render() {
           className={classes.snack}
           action='X'
           icon='menu'
-          label={'click or tap the top left Menu button to toggle the Brands navigation menu'}
+          label={'click or tap the top left Menu button to toggle Amps brands navigation menu'}
           active={this.state.renderSnack}
           onTimeout={this.hideSnack}
           onClick={this.hideSnack}
-          timeout={2000}
+          timeout={2500}
           ref='snackbar'
           type='accept'
           />
