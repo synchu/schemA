@@ -24,7 +24,8 @@ const makeDownloadLink = (linkData) => {
 export class TableView extends Component {
   state = {}
   static propTypes = {
-    itemData: PropTypes.object
+    itemData: PropTypes.object,
+    cardsAsList: PropTypes.bool
   }
 
   constructor(props) {
@@ -119,6 +120,7 @@ sortTable = (e) => {
 
 
 renderTabView = () => {
+  const { cardsAsList, itemData } = this.props
   let scType = this.sortTable.bind(this, 'type')
   let scText = this.sortTable.bind(this, 'text')
   let scBy = this.sortTable.bind(this, 'by')
@@ -126,6 +128,11 @@ renderTabView = () => {
     <table className={classnames('table', 'table-stripped', 'table-condensed') }>
       <thead className={classes.tableHeader}>
         <tr>
+          {cardsAsList &&
+            <th>
+              Version
+            </th>
+          }
           <th title='Click or tap to sort' onClick={scType}>Type</th>
           <th title='Click or tap to sort' onClick={scText}>Item</th>
           <th title='Click or tap to sort' onClick={scBy}>Contributor</th>
@@ -134,6 +141,11 @@ renderTabView = () => {
       <tbody>
         {this.state.tableData.map((i) => {
           return (<tr key={i.key}>
+            {cardsAsList &&
+              <td>
+                {itemData.version}
+              </td>
+            }
             <td>
               <FontIcon value={i.icon} title={i.type} className={classes.actionIcons} />
             </td>

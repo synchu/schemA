@@ -36,6 +36,9 @@ $stats-font-size-factor: 0.9;
 
 @media screen and (min-width: 769px) {
     $stats-font-size-factor: 0.8;
+    .statsFontScale {
+        font-size: 1.4rem * $stats-font-size-factor;
+    }
     .brandstats {
         position: absolute;
         top: 5px;
@@ -52,6 +55,7 @@ $stats-font-size-factor: 0.9;
             padding-top: 6rem;
             flex-direction: column;
             flex: 1;
+            height: auto;
         }
         .brands {
             flex-direction: column;
@@ -70,6 +74,9 @@ $stats-font-size-factor: 0.9;
 
 @media screen and (max-width: 449px) {
     $stats-font-size-factor: 0.5;
+    .statsFontScale {
+        font-size: 1.4rem * $stats-font-size-factor;
+    }
     .drawerContent {
         width: 15rem !important;
     }
@@ -77,6 +84,7 @@ $stats-font-size-factor: 0.9;
         position: absolute;
         top: 5px;
         right: 5px;
+        font-size: 1.4rem * $stats-font-size-factor;
     }
     .navigation {
         flex: 0 0 auto;
@@ -105,6 +113,9 @@ $stats-font-size-factor: 0.9;
 
 @media screen and (min-width: 450px) and (max-width: 768px) {
     $stats-font-size-factor: 0.6;
+    .statsFontScale {
+        font-size: 1.4rem * $stats-font-size-factor;
+    }
     .drawerContent {
         width: 15rem !important;
     }
@@ -112,6 +123,7 @@ $stats-font-size-factor: 0.9;
         position: absolute;
         top: 5px;
         right: 5px;
+        font-size: 1.4rem * $stats-font-size-factor;
     }
     .navigation {
         flex: 0 0 auto;
@@ -201,7 +213,7 @@ $stats-font-size-factor: 0.9;
 }
 
 .field {
-    margin: 0;
+    margin: 5px;
     * {
         font-size: 1.1rem;
         font-weight: 350;

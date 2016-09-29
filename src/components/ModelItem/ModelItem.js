@@ -103,7 +103,8 @@ const makeDownloadLink = (linkData) => {
 export class ModelItem extends Component {
   state = {}
   static propTypes = {
-    items: PropTypes.array
+    items: PropTypes.array,
+    cardsAsList: PropTypes.bool
   }
 
   constructor(props) {
@@ -267,12 +268,22 @@ extractDescriptions = (item) => {
 }
 
 render() {
-  const { items } = this.props
+  const { items, cardsAsList } = this.props
   let itemObjects = transformData(items)
 
   return (
     <div>
-      {itemObjects.map(this.renderModelsCard) }
+      {!cardsAsList && itemObjects.map(this.renderModelsCard)}
+      {cardsAsList && itemObjects.map((i) => {
+        return (
+          <div key={i.version}>
+            <h4> {i.version}</h4>
+            <TableView key={i.version} itemData={i} {...this.props} />
+          </div>
+        )
+      }
+      )
+      }
     </div>
   )
 }
