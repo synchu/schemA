@@ -214,7 +214,7 @@ makeTabLabel = (text, stats, icon) => {
 
 renderTabbedView = (itemData) => {
   return (
-    <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) }>
+    <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) } className={classes.tabs}>
       <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board') }>
         <div className={classes.actionItems}>
           {itemData.schematics.map((s) => this.renderSchematics(s)) }

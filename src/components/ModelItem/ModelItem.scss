@@ -64,6 +64,11 @@
     font-size: 1.1rem;
 }
 
+.tabs{
+    display: flex;
+    align-items: stretch;
+}
+
 .field {
     margin: 0;
     * {
