@@ -1,6 +1,10 @@
 /* @flow*/
 import { connect } from 'react-redux'
-import { loadBrands, loadModels, selectBrand, filterBrand, loadAmpsVersions, filterModels, selectModel, loadItem, setNavbarActive, setNavbarPinned } from '../modules/Home'
+import { loadBrands, loadModels,
+         selectBrand, filterBrand,
+         loadAmpsVersions, filterModels,
+         selectModel, loadItem,
+         setNavbarActive, setNavbarPinned } from '../modules/Home'
 // import { userObject } from '../interfaces/user'
 
 /*  This is a container component. Notice it does not contain any JSX,

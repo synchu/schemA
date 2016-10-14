@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { FontIcon } from 'react-toolbox'
+import { FontIcon, Tooltip } from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './TableView.scss'
 import classnames from 'classnames'
@@ -124,6 +124,7 @@ renderTabView = () => {
   let scType = this.sortTable.bind(this, 'type')
   let scText = this.sortTable.bind(this, 'text')
   let scBy = this.sortTable.bind(this, 'by')
+  let TTFontIcon = Tooltip(FontIcon)
   return (
     <table className={classnames('table', 'table-stripped', 'table-condensed') }>
       <thead className={classes.tableHeader}>
@@ -147,7 +148,7 @@ renderTabView = () => {
               </td>
             }
             <td>
-              <FontIcon value={i.icon} title={i.type} className={classes.actionIcons} />
+              <TTFontIcon value={i.icon} tooltip={i.type} title={i.type} className={classes.actionIcons} />
             </td>
             <td>
               {makeDownloadLink({ href: i.href, text: i.text, activeLinkClass: classes.activeRoute }) }

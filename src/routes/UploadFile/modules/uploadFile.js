@@ -1,6 +1,7 @@
 /* @flow*/
 
-import {fileObject} from '../interfaces/files.js'
+import {fileObject, emptyAmpItem} from '../interfaces/files.js'
+import _ from 'lodash'
 
 // ------------------------------------
 // Constants
@@ -9,57 +10,122 @@ export const UPLOAD_REQUEST = 'UPLOAD_REQUEST'
 export const UPLOAD_PUSH = 'UPLOAD_PUSH'
 export const UPLOAD_SAVE = 'UPLOAD_SAVE'
 
+export const BRANDS_DROPDOWN_REQUEST = 'BRANDS_DROPDOWN_REQUEST'
+export const BRANDS_DROPDOWN_SUCCESS = 'BRANDS_DROPDOWN_SUCCESS'
+export const BRANDS_DROPDOWN_ERROR = 'BRANDS_DROPDOWN_ERROR'
+
+export const SET_DESCRIPTION = 'SET_DESCRIPTION'
+
+// ------------------------------------
+// Utils
+// ------------------------------------
+
+const addKey = (item) => {
+  let j = 0
+
+  let resultsArray = []
+  item.map((i) => {
+    let c
+    c = i.constructor === Array ? Object.assign({}, i) : Object.assign({}, [i])
+    c = Object.defineProperty(c, 'key', {
+      enumerable: true,
+      configurable: false,
+      writable: false,
+      value: j++
+    })
+
+    resultsArray.push(c)
+  })
+  return resultsArray
+  // return item.map((i) => Object.assign({}, i, { key: j++ }))
+}
+
+const transformAmpsToDropdown = (ampsWithKeys, fromItem, tillItem) => {
+  let c = {}
+  const transformToAutocomplete = (v) => {
+    let b = ''
+    for (var i = fromItem; i < tillItem + 1; i++) {
+      b = b + v[i] + ' '
+    }
+    return b.trim()
+  }
+
+  ampsWithKeys.map((a) => {
+    c = Object.defineProperty(c, a['key'].toString(), {
+      enumerable: true,
+      configurable: false,
+      writable: false,
+      value: transformToAutocomplete(a)
+    })
+  })
+  return c
+}
 // ------------------------------------
 // Actions
 // ------------------------------------
 
-export function uploadRequest () {
+export function requestBrandsDropdown() {
   return {
-    type: UPLOAD_REQUEST
+    type: BRANDS_DROPDOWN_REQUEST,
+    isFetching: true
   }
 }
 
-export function uploadFile (value: fileObject) {
+export function errorBrandsDropdown(message: string) {
   return {
-    type: UPLOAD_PUSH
+    type: BRANDS_DROPDOWN_ERROR,
+    errorMessage: message,
+    snackMessage: message,
+    isFetching: false
   }
 }
 
-export function uploadSave () {
+
+
+export function successAmpsDropdown(amps) {
   return {
-    type: UPLOAD_SAVE
+    type: BRANDS_DROPDOWN_SUCCESS,
+    amps: transformAmpsToDropdown(addKey(_.uniq(amps.versions.records.map(i => (i[2])))), 0, 0),
+    ampVersions: transformAmpsToDropdown(addKey(amps.versions.records), 0, 2),
+    rawdata: amps.versions.records
   }
 }
 
-export function increment (value = 1) {
-  return {
-    type: UPLOAD_REQUEST,
-    payload: value
+export const fetchBrandsDropdown = () => {
+  return (dispatch) => {
+    dispatch(requestBrandsDropdown())
+    return (
+      fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc')
+        .then((response) => response.json())
+        .then((json) => {
+          dispatch(successAmpsDropdown(json))
+        }))
   }
 }
 
-/*  This is a thunk, meaning it is a function that immediately
-    returns a function for lazy evaluation. It is incredibly useful for
-    creating async actions, especially when combined with redux-thunk!
-
-    NOTE: This is solely for demonstration purposes. In a real application,
-    you'd probably want to dispatch an action of COUNTER_DOUBLE and let the
-    reducer take care of this logic.  */
-
-export const doubleAsync = () => {
+export const loadBrandsDropdown = () => {
+  // TODO: caching and pagination
   return (dispatch, getState) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        dispatch(increment(getState().counter))
-        resolve()
-      }, 200)
-    })
+    if (getState().Home.ampVersions && (getState().Home.ampVersions.length > 0)) {
+      console.log('amp versions cache hit')
+      return
+    }
+    return dispatch(fetchBrandsDropdown())
+  }
+}
+
+export const setDescription = (value) => {
+  return (dispatch) => {
+    dispatch(
+      {
+        type: SET_DESCRIPTION,
+        description: value
+      })
   }
 }
 
 export const actions = {
-  increment,
-  doubleAsync
+  loadBrandsDropdown
 }
 
 // ------------------------------------
@@ -68,14 +134,32 @@ export const actions = {
 const ACTION_HANDLERS = {
   [UPLOAD_REQUEST]: (state, action) => state + action.payload,
   [UPLOAD_PUSH]: (state, action) => state,
-  [UPLOAD_SAVE]: (state, action) => state
+  [UPLOAD_SAVE]: (state, action) => state,
+  [BRANDS_DROPDOWN_REQUEST]: (state, action) => Object.assign({}, state,
+    { isFetching: true }),
+  [SET_DESCRIPTION]: (state, action) => Object.assign({}, state,
+    { description: action.description }),
+  [BRANDS_DROPDOWN_ERROR]: (state, action) => Object.assign({}, state,
+    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
+  [BRANDS_DROPDOWN_SUCCESS]: (state, action) => Object.assign({}, state,
+    { isFetching: false, ampVersions: action.ampVersions, amps: action.amps, rawdata: action.rawdata })
 }
 
 // ------------------------------------
 // Reducer
 // ------------------------------------
-const initialState = {}
-export default function uploadFileReducer (state = initialState, action) {
+const initialState = {
+  isFetching: false,
+  snackMessage: '',
+  errorMessage: '',
+  amps: [],
+  models: [],
+  versions: [],
+  rawdata: [],
+  ampVersions: []
+}
+
+export default function uploadFileReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
   return handler ? handler(state, action) : state
 }

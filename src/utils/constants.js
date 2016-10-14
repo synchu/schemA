@@ -1,0 +1,5 @@
+export const DESCRIPTION = 'Description'
+export const LAYOUT = 'Layout'
+export const SCHEMATIC = 'Schematic'
+export const PHOTO = 'Photo'
+export const OTHER = 'Other'

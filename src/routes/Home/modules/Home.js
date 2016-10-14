@@ -42,14 +42,14 @@ const addKey = (item) => {
 // Actions
 // ------------------------------------
 
-export function requestBrands() {
+export function requestBrands () {
   return {
     type: BRANDS_REQUEST,
     isFetching: true
   }
 }
 
-export function errorBrands(message: string) {
+export function errorBrands (message: string) {
   return {
     type: BRANDS_FAILURE,
     errorMessage: message,
@@ -59,7 +59,7 @@ export function errorBrands(message: string) {
 }
 
 
-export function successBrands(brands) {
+export function successBrands (brands) {
   return {
     type: BRANDS_SUCCESS,
     brands: addKey(brands)
@@ -77,7 +77,7 @@ export const fetchBrands = () => {
             dispatch(successBrands(json.brand_stats.records))
           }))
     } else {
-      console.warn('Fetch API not available!')
+      console.warn('Fetch API not available! Attempt to load brands anyway. Other data may not be available!')
       if (window.XMLHttpRequest) {
         let xhttp = new XMLHttpRequest()
         xhttp.open('GET', 'http://thesubjectmatter.com/api.php/brand_stats', false)
@@ -225,7 +225,7 @@ const transformAmpsToAutocomplete = (ampsWithKeys) => {
       enumerable: true,
       configurable: false,
       writable: false,
-      value: a[0] + ' ' + a[1] + ' ' + a[2]
+      value: a[0] + ', ' + a[1] + ', ' + a[2]
     })
   })
   return c

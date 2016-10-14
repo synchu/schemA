@@ -4,10 +4,12 @@ import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
 import SocialShare from '../../../components/SocialShare'
-import { Snackbar, Switch,
+import {
+  Snackbar, Switch,
   List, Panel, NavDrawer,
   Layout, ListItem, Tooltip,
-  IconButton, Chip, FontIcon } from 'react-toolbox'
+  IconButton, Chip, FontIcon, Dialog
+} from 'react-toolbox'
 import { Input } from 'react-toolbox/lib/input'
 import { clearMessage } from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
@@ -29,7 +31,12 @@ export const renderStatItem = (brandItem, index, tooltip, icon) => {
 }
 
 export class HomeView extends Component {
-  state = { loggedout: false, modelsPanel: {}, invisibleChip: false, modelsAsList: false, cardsAsList: false, showStats: true }
+  state = {
+    loggedout: false, modelsPanel: {},
+    invisibleChip: false, modelsAsList: false,
+    cardsAsList: false, showStats: true,
+    welcomeActive: true
+  }
 
   static propTypes = {
     routes: PropTypes.array,
@@ -67,6 +74,7 @@ export class HomeView extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.renderModels = this.renderModels.bind(this)
     this.renderFetching = this.renderFetching.bind(this)
+    this.handleWelcome = this.handleWelcome.bind(this)
   }
 
   updateShowLogout() {
@@ -120,10 +128,10 @@ renderModels(model) {
           <span title='Click to view items'><strong>{model[1]}</strong></span>
           {false &&
             <span className={classes.modelstats}>
-              {renderStatItem(model, 2, 'No. of schematics', 'developer_board') }
-              {renderStatItem(model, 4, 'No. of layouts', 'collections') }
-              {renderStatItem(model, 3, 'No. of photos', 'photo') }
-              {renderStatItem(model, 5, 'No. of other docs', 'attachment') }
+              {renderStatItem(model, 2, 'No. of schematics', 'developer_board')}
+              {renderStatItem(model, 4, 'No. of layouts', 'collections')}
+              {renderStatItem(model, 3, 'No. of photos', 'photo')}
+              {renderStatItem(model, 5, 'No. of other docs', 'attachment')}
             </span>}
         </Chip>
       }
@@ -136,6 +144,30 @@ renderModels(model) {
   )
 }
 
+handleWelcome = () => {
+  localStorage.setItem('welcome_active', JSON.stringify(this.state.welcomeActive))
+  this.setState({...this.state, welcomeActive: !this.state.welcomeActive})
+}
+
+renderWelcome = () => {
+  let actions = [
+    { label: 'OK', onClick: this.handleWelcome }
+  ]
+  return (
+    <Dialog
+      actions={actions}
+      active={this.state.welcomeActive}
+      onEscKeyDown={this.handleWelcome}
+      onOverlayClick={this.handleWelcome}
+      title='Welcome to SchemA'
+      >
+      <p>SchemA is <a href='http://diyguitaramps.prophpbb.com/' target='_blank'>http://diyguitaramps.prophpbb.com/</a> supported
+      (mostly) guitar tube amps schematics, layouts, build photos and other useful documents archive.
+        <br />In order to provide this archive application functionality, we do store some data on your local device. <br />Please, make
+      sure to read or privacy policy and terms of use to find out more.</p>
+    </Dialog>
+  )
+}
 
 renderBrands(b) {
   const { selectedBrand, models, filteredModels } = this.props
@@ -149,10 +181,10 @@ renderBrands(b) {
         <ListItem key={b.key} caption={b[0]} className={classes.brandItem} leftIcon={selectedBrand === b[0] ? 'star' : 'subject'}
           rightIcon={showStats ?
             <span className={classes.brandstats}>
-              {renderStatItem(b, 1, 'No. of schematics', 'developer_board') }
-              {renderStatItem(b, 3, 'No. of layouts', 'collections') }
-              {renderStatItem(b, 2, 'No. of photos', 'photo') }
-              {renderStatItem(b, 4, 'No. of other docs', 'attachment') }
+              {renderStatItem(b, 1, 'No. of schematics', 'developer_board')}
+              {renderStatItem(b, 3, 'No. of layouts', 'collections')}
+              {renderStatItem(b, 2, 'No. of photos', 'photo')}
+              {renderStatItem(b, 4, 'No. of other docs', 'attachment')}
             </span>
             : <span></span>
           }
@@ -161,7 +193,7 @@ renderBrands(b) {
           <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
             {modelsAsList &&
               <List>
-                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
+                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
               </List>}
             {!modelsAsList &&
               (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
@@ -169,13 +201,13 @@ renderBrands(b) {
           </div>}
       </MediaQuery>
       <MediaQuery maxDeviceWidth={767}>
-        <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0]) } className={classes.brandItem}
+        <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0])} className={classes.brandItem}
           onClick={bc} />
         {(b[0] === selectedBrand) &&
           <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
             {modelsAsList &&
               <List>
-                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels) }
+                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
               </List>}
             {!modelsAsList &&
               (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
@@ -197,10 +229,11 @@ renderFetching() {
       timeout={1000}
       label='Loading...'
       ref='loadingSnack'
-      onClick={() => this.refs.loadingSnack.hide() }
+      onClick={() => this.refs.loadingSnack.hide()}
       />
   )
 }
+
 
 componentDidMount() {
   const { loadBrands, loadModels, selectBrand, setNavbarActive, setNavbarPinned } = this.props
@@ -211,12 +244,14 @@ componentDidMount() {
     loadModels()
   }
 
-  const modelsAsList = localStorage.getItem('modelsAsList')
-  this.setState({...this.state, modelsAsList: modelsAsList === '1'})
-const cardsAsList = localStorage.getItem('cardsAsList')
-this.setState({...this.state, cardsAsList: cardsAsList === '1'})
-const showStats = localStorage.getItem('showStats')
-this.setState({...this.state, showStats: showStats === '1'})
+  const _modelsAsList = JSON.parse(localStorage.getItem('models_as_list'))
+  this.setState({...this.state, modelsAsList: _modelsAsList})
+const cardsAsList = JSON.parse(localStorage.getItem('cards_as_list'))
+this.setState({...this.state, cardsAsList: cardsAsList})
+const showStats = JSON.parse(localStorage.getItem('show_stats'))
+this.setState({ ...this.state, showStats: showStats })
+const welcomeActive = JSON.parse(localStorage.getItem('welcome_active'))
+this.setState({ ...this.state, welcomeActive: welcomeActive })
 
 this.updateShowLogout()
 let mql = window.matchMedia('(min-width: 450px)')
@@ -227,8 +262,8 @@ if (!mql.matches) {
   setNavbarPinned(true)
 }
 
-this.setState({...this.state, modelsPanel: ReactDOM.findDOMNode(this.refs.modelsPanel) })
-        }
+this.setState({ ...this.state, modelsPanel: ReactDOM.findDOMNode(this.refs.modelsPanel) })
+}
 
 localSetNavbarActive = () => {
   const {navbarActive, setNavbarActive} = this.props
@@ -242,18 +277,18 @@ scrollDown = (e) => {
 handleTabListSwitch = (e, which) => {
   switch (which) {
     case 'models':
-      localStorage.setItem('modelsAsList', e ? '1' : '0')
+      localStorage.setItem('models_as_list', JSON.stringify(e))
       this.setState({...this.state, modelsAsList: e})
-  break
-        case 'cards':
-  localStorage.setItem('cardsAsList', e ? '1' : '0')
-  this.setState({...this.state, cardsAsList: e})
-break
-case 'stats':
-localStorage.setItem('showStats', e ? '1' : '0')
+      break
+    case 'cards':
+      localStorage.setItem('cards_as_list', JSON.stringify(e))
+      this.setState({...this.state, cardsAsList: e})
+      break
+    case 'stats':
+localStorage.setItem('show_stats', JSON.stringify(e))
 this.setState({...this.state, showStats: e})
-        default:
-break
+    default:
+   break
         }
         }
 
@@ -263,10 +298,10 @@ render() {
   let { filteredBrand, filteredModels } = this.props
 
   return (
-    <Layout classes={classes.mainContainer}>
+    <Layout className={classes.mainContainer}>
       <NavDrawer pinned={navbarPinned} active={navbarActive}
         scrollY width='normal' ref='navdrawer'>
-        <div className={classnames(classes.navigation) } >
+        <div className={classnames(classes.navigation)} >
           <Panel className={classes.navtitle}>
             <div style={{ flexFlow: 'row wrap', display: 'flex' }}>
               <Input type='text' hint='Type to filter brands' label='Filter' icon='filter_list'
@@ -274,13 +309,13 @@ render() {
                 name='filterBrand'
                 value={filteredBrand}
                 onChange={this.handleChange} />
-              {filteredBrand && <IconButton icon='close' onClick={() => filterBrand('') }
+              {filteredBrand && <IconButton icon='close' onClick={() => filterBrand('')}
                 style={{ position: 'absolute', right: '0.5rem', marginTop: '2rem', opacity: 0.5, padding: '0', width: '15%' }} />}
             </div>
           </Panel>
           <Panel className={classes.brands}>
             <List selectable>
-              {(brands) && brands.filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1).map(this.renderBrands) }
+              {(brands) && brands.filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1).map(this.renderBrands)}
             </List>
           </Panel>
         </div>
@@ -289,25 +324,19 @@ render() {
           <span style={{ display: 'flex', flexFlow: 'row wrap' }}>
             <Switch theme={classes} checked={this.state.modelsAsList}
               label='Models as list'
-              onChange={(e) => this.handleTabListSwitch(e, 'models') } />
+              onChange={(e) => this.handleTabListSwitch(e, 'models')} />
             <Switch theme={classes} checked={this.state.cardsAsList}
               label='Cards as list'
-              onChange={(e) => this.handleTabListSwitch(e, 'cards') } />
+              onChange={(e) => this.handleTabListSwitch(e, 'cards')} />
             <Switch theme={classes} checked={this.state.showStats}
               label='Show stats'
-              onChange={(e) => this.handleTabListSwitch(e, 'stats') } />
+              onChange={(e) => this.handleTabListSwitch(e, 'stats')} />
           </span>
         </footer>
-        {false &&
-          <div style={{ bottom: '10px', maxHeight: '3rem' }}>
-            <Switch theme={classes} checked={this.state.switch}
-              label='Model tab/list view'
-              onChange={this.handleTabListSwitch} />
-          </div>}
-
       </NavDrawer>
 
       <Panel>
+        {false && this.renderWelcome()}
         <Header isAuthenticated={isAuthenticated} dispatch={dispatch} className={classes.heading}
           drawer={this.refs.navdrawer} {...this.props} />
         <Panel className={classes.content}>
@@ -316,7 +345,7 @@ render() {
               THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
             </div>
             <Panel scrollY style={{ flexFlow: 'row wrap' }}>
-              {isFetching && this.renderFetching() }
+              {isFetching && this.renderFetching()}
               {!isFetching && <ModelItem items={item} cardsAsList={this.state.cardsAsList} />}
             </Panel>
           </Panel>
@@ -343,7 +372,7 @@ render() {
               />
           </div>
         }
-        <footer>
+        <footer id='pageFooter'>
           <div style={{ display: 'flex', flexFlow: 'row nowrap' }}>
             <small>Navigation Software Copyright© 2016 <a href='http://www.synchu.com' target='_blank'>synchu.com.</a>
               <div>

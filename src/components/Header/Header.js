@@ -58,7 +58,7 @@ changeNavDrawerVisibility = (e) => {
 handleMultipleChange = (value) => {
   const { ampVersions, selectBrand, loadModels, selectModel, loadItem } = this.props
   this.setState({ multiple: value })
-  let selected = ampVersions[value].split(' ')
+  let selected = ampVersions[value].split(', ')
 
   selectBrand(selected[2])
   loadModels()
