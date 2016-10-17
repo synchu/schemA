@@ -1,13 +1,15 @@
 import React, { Component, PropTypes } from 'react'
-import { Tab, Switch, Tabs,
-         FontIcon, Card, CardMedia,
-         CardTitle, CardText, CardActions,
-         IconButton } from 'react-toolbox'
+import {
+  Tab, Switch, Tabs,
+  FontIcon, Card, CardMedia,
+  CardTitle, CardText, CardActions,
+  IconButton
+} from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './ModelItem.scss'
 import MediaQuery from 'react-responsive'
 import TableView from './TableView'
-import {DESCRIPTION, SCHEMATIC, LAYOUT, OTHER, PHOTO} from 'utils/constants'
+import { DESCRIPTION, SCHEMATIC, LAYOUT, OTHER, PHOTO } from 'utils/constants'
 
 
 const transformData = (item) => {
@@ -88,7 +90,7 @@ const transformData = (item) => {
   return itemObjects
 }
 
-const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp/))
+const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/))
 
 const makeDownloadLink = (linkData) => {
   const {href, icon, text, activeLinkClass, ...other} = linkData
@@ -213,26 +215,26 @@ makeTabLabel = (text, stats, icon) => {
 
 renderTabbedView = (itemData) => {
   return (
-    <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version) }
+    <Tabs index={this.state[itemData.version]} fixed onChange={(e) => this.handleFixedTabChange(e, itemData.version)}
       className={classes.tabs}>
-      <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board') }>
+      <Tab label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board')}>
         <div className={classes.actionItems}>
-          {itemData.schematics.map((s) => this.renderSchematics(s)) }
+          {itemData.schematics.map((s) => this.renderSchematics(s))}
         </div>
       </Tab>
-      <Tab label={this.makeTabLabel('Layouts', itemData.layouts.length, 'collections') }>
+      <Tab label={this.makeTabLabel('Layouts', itemData.layouts.length, 'collections')}>
         <div className={classes.actionItems}>
-          {itemData.layouts.map((l) => this.renderLayouts(l)) }
+          {itemData.layouts.map((l) => this.renderLayouts(l))}
         </div>
       </Tab>
-      <Tab label={this.makeTabLabel('Photos', itemData.photos.length, 'photo') }>
+      <Tab label={this.makeTabLabel('Photos', itemData.photos.length, 'photo')}>
         <div className={classes.actionItems}>
-          {itemData.photos.map((p) => this.renderPhotos(p)) }
+          {itemData.photos.map((p) => this.renderPhotos(p))}
         </div>
       </Tab>
-      <Tab label={this.makeTabLabel('Other', itemData.others.length, 'attachment') }>
+      <Tab label={this.makeTabLabel('Other', itemData.others.length, 'attachment')}>
         <div className={classes.actionItems}>
-          {itemData.others.map((o) => this.renderOthers(o)) }
+          {itemData.others.map((o) => this.renderOthers(o))}
         </div>
       </Tab>
     </Tabs>
@@ -245,15 +247,15 @@ renderModelsCard = (itemData) => {
       <CardTitle title={itemData.model + ' ' + itemData.version} />
       <MediaQuery minDeviceWidth={768}>
         <CardMedia aspectRatio='wide'>
-          {this.getMedia(itemData) }
+          {this.getMedia(itemData)}
         </CardMedia>
       </MediaQuery>
       <CardText> {itemData.description} </CardText>
       <CardActions className={classes.itemCardActions} >
         <Switch theme={classes} checked={this.state['switch' + itemData.version]}
           label='Tab/list view'
-          onChange={(e) => this.handleTabListSwitch(e, itemData.version) } />
-        {this.state['switch' + itemData.version] ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData) }
+          onChange={(e) => this.handleTabListSwitch(e, itemData.version)} />
+        {this.state['switch' + itemData.version] ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData)}
       </CardActions>
     </Card>
 
@@ -273,7 +275,7 @@ render() {
 
   return (
     <div>
-      {!cardsAsList && itemObjects.map(this.renderModelsCard) }
+      {!cardsAsList && itemObjects.map(this.renderModelsCard)}
       {cardsAsList && itemObjects.map((i) => {
         return (
           <div key={i.version}>

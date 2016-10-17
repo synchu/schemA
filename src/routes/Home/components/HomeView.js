@@ -69,8 +69,6 @@ export class HomeView extends Component {
 
   constructor(props) {
     super(props)
-    this.renderFetching = this.renderFetching.bind(this)
-
     this.state.cardsAsList = JSON.parse(localStorage.getItem('cards_as_list')) || false
     this.state.modelsAsList = JSON.parse(localStorage.getItem('models_as_list')) || false
     this.state.showStats = JSON.parse(localStorage.getItem('show_stats')) === null
@@ -81,11 +79,9 @@ export class HomeView extends Component {
       : JSON.parse(localStorage.getItem('welcome_active'))
   }
 
-  updateShowLogout = () => {
-    this.setState({ ...this.state, loggedout: !this.state.loggedout })
-}
+  updateShowLogout: void = () => this.setState({ ...this.state, loggedout: !this.state.loggedout })
 
-handleChange = (value, item) => {
+handleChange = (value: string, item: Object) => {
   const {filterBrand, filterModels} = this.props
   if (item.target.name === 'filterBrand') {
     filterBrand(value)
@@ -192,16 +188,21 @@ renderBrands = (b) => {
         }
       </MediaQuery>
       <MediaQuery maxDeviceWidth={767}>
-        <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0])} className={classes.brandItem}
+        <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0])}
+          className={classes.brandItem}
           onClick={bc} />
         {(b[0] === selectedBrand) &&
           <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
             {modelsAsList && !isFetchingModels &&
               <List>
-                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
+                {(models) && models.filter((i) => i[1].toLowerCase()
+                  .indexOf(filteredModels.toLowerCase()) !== -1)
+                  .map(this.renderModels)}
               </List>}
             {!modelsAsList && !isFetchingModels &&
-              (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
+              (models) && models.filter((i) => i[1].toLowerCase()
+                .indexOf(filteredModels.toLowerCase()) !== -1)
+                .map(this.renderModels)
             }
             {isFetchingModels && <FontIcon style={{ margin: 'auto' }} key={b.key} value='hourglass_empty' />}
           </div>}
@@ -211,7 +212,7 @@ renderBrands = (b) => {
   )
 }
 
-renderFetching() {
+renderFetching = () => {
   const hide = () => this.refs.loadingSnack.hide()
   return (
     <Snackbar
@@ -258,17 +259,17 @@ handleTabListSwitch = (e, which) => {
       localStorage.setItem('models_as_list', JSON.stringify(e))
       this.setState({...this.state, modelsAsList: e})
   break
-    case 'cards':
+      case 'cards':
   localStorage.setItem('cards_as_list', JSON.stringify(e))
   this.setState({...this.state, cardsAsList: e})
 break
-    case 'stats':
+      case 'stats':
 localStorage.setItem('show_stats', JSON.stringify(e))
 this.setState({...this.state, showStats: e})
 break
-    default:
+      default:
 break
-  }
+    }
   }
 
 render() {

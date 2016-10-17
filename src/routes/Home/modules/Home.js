@@ -42,14 +42,14 @@ const addKey = (item) => {
 // Actions
 // ------------------------------------
 
-export function requestBrands() {
+export const requestBrands = () => {
   return {
     type: BRANDS_REQUEST,
     isFetching: true
   }
 }
 
-export function errorBrands(message: string) {
+export const errorBrands = (message: string) => {
   return {
     type: BRANDS_FAILURE,
     errorMessage: message,
@@ -59,7 +59,7 @@ export function errorBrands(message: string) {
 }
 
 
-export function successBrands(brands) {
+export const successBrands = (brands) => {
   return {
     type: BRANDS_SUCCESS,
     brands: addKey(brands)
@@ -154,14 +154,14 @@ export const loadModels = () => {
 }
 
 
-export function requestItem() {
+export const requestItem = () => {
   return {
     type: ITEM_REQUEST,
     isFetching: true
   }
 }
 
-export function errorItem(message: string) {
+export const errorItem = (message: string) => {
   return {
     type: ITEM_FAILURE,
     errorMessage: message,
@@ -171,7 +171,7 @@ export function errorItem(message: string) {
 }
 
 
-export function successItem(item) {
+export const successItem = (item) => {
   return {
     type: ITEM_SUCCESS,
     item: addKey(item)
@@ -203,14 +203,14 @@ export const loadItem = () => {
   }
 }
 
-export function requestAmps() {
+export const requestAmps = () => {
   return {
     type: AMPS_REQUEST,
     isFetching: true
   }
 }
 
-export function errorAmps(message: string) {
+export const errorAmps = (message: string) => {
   return {
     type: AMPS_FAILURE,
     errorMessage: message,
@@ -232,7 +232,7 @@ const transformAmpsToAutocomplete = (ampsWithKeys) => {
   return c
 }
 
-export function successAmps(amps) {
+export const successAmps = (amps) => {
   return {
     type: AMPS_SUCCESS,
     ampVersions: transformAmpsToAutocomplete(addKey(amps))
