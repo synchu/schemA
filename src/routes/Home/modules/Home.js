@@ -42,14 +42,14 @@ const addKey = (item) => {
 // Actions
 // ------------------------------------
 
-export function requestBrands () {
+export function requestBrands() {
   return {
     type: BRANDS_REQUEST,
     isFetching: true
   }
 }
 
-export function errorBrands (message: string) {
+export function errorBrands(message: string) {
   return {
     type: BRANDS_FAILURE,
     errorMessage: message,
@@ -59,7 +59,7 @@ export function errorBrands (message: string) {
 }
 
 
-export function successBrands (brands) {
+export function successBrands(brands) {
   return {
     type: BRANDS_SUCCESS,
     brands: addKey(brands)
@@ -102,27 +102,28 @@ export const loadBrands = () => {
 }
 
 
-export function requestModels() {
+export const requestModels = () => {
   return {
     type: MODELS_REQUEST,
-    isFetching: true
+    isFetchingModels: true
   }
 }
 
-export function errorModels(message: string) {
+export const errorModels = (message: string) => {
   return {
     type: MODELS_FAILURE,
     errorMessage: message,
     snackMessage: message,
-    isFetching: false
+    isFetchingModels: false
   }
 }
 
 
-export function successModels(models) {
+export const successModels = (models) => {
   return {
     type: MODELS_SUCCESS,
-    models: addKey(models)
+    models: addKey(models),
+    isFetchingModels: false
   }
 }
 
@@ -350,11 +351,11 @@ const ACTION_HANDLERS = {
   [BRANDS_SUCCESS]: (state, action) => Object.assign({}, state,
     { isFetching: false, brands: action.brands }),
   [MODELS_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetching: true }),
+    { isFetchingModels: true }),
   [MODELS_FAILURE]: (state, action) => Object.assign({}, state,
-    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
+    { isFetchingModels: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
   [MODELS_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetching: false, models: action.models }),
+    { isFetchingModels: false, models: action.models }),
   [ITEM_REQUEST]: (state, action) => Object.assign({}, state,
     { isFetching: true }),
   [ITEM_FAILURE]: (state, action) => Object.assign({}, state,
@@ -400,7 +401,8 @@ const initialState = {
   item: [],
   navbarActive: false,
   navbarPinned: true,
-  ampVersions: {}
+  ampVersions: {},
+  isFetchingModels: false
 }
 export default function BrandsReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]

@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react'
-import ReactDOM from 'react-dom'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
@@ -8,13 +7,13 @@ import {
   Snackbar, Switch,
   List, Panel, NavDrawer,
   Layout, ListItem, Tooltip,
-  IconButton, Chip, FontIcon, Dialog
+  IconButton, Chip, FontIcon
 } from 'react-toolbox'
 import { Input } from 'react-toolbox/lib/input'
 import { clearMessage } from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
+import WelcomeDialog from './WelcomeDialog'
 import classnames from 'classnames'
-
 
 export const renderStatItem = (brandItem, index, tooltip, icon) => {
   const TTStats = Tooltip(IconButton)
@@ -32,9 +31,10 @@ export const renderStatItem = (brandItem, index, tooltip, icon) => {
 
 export class HomeView extends Component {
   state = {
-    loggedout: false, modelsPanel: {},
+    loggedout: false,
     invisibleChip: false, modelsAsList: false,
-    cardsAsList: false, showStats: true,
+    cardsAsList: false,
+    showStats: true,
     welcomeActive: true
   }
 
@@ -63,25 +63,29 @@ export class HomeView extends Component {
     ampVersions: PropTypes.object,
     loadAmpsVersions: PropTypes.func,
     selectedModel: PropTypes.string,
-    setNavbarPinned: PropTypes.func
+    setNavbarPinned: PropTypes.func,
+    isFetchingModels: PropTypes.bool
   }
 
   constructor(props) {
     super(props)
-    this.updateShowLogout = this.updateShowLogout.bind(this)
-    this.handleBrandClicked = this.handleBrandClicked.bind(this)
-    this.renderBrands = this.renderBrands.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.renderModels = this.renderModels.bind(this)
     this.renderFetching = this.renderFetching.bind(this)
-    this.handleWelcome = this.handleWelcome.bind(this)
+
+    this.state.cardsAsList = JSON.parse(localStorage.getItem('cards_as_list')) || false
+    this.state.modelsAsList = JSON.parse(localStorage.getItem('models_as_list')) || false
+    this.state.showStats = JSON.parse(localStorage.getItem('show_stats')) === null
+      ? true
+      : JSON.parse(localStorage.getItem('show_stats'))
+    this.state.welcomeActive = JSON.parse(localStorage.getItem('welcome_active')) === null
+      ? true
+      : JSON.parse(localStorage.getItem('welcome_active'))
   }
 
-  updateShowLogout() {
+  updateShowLogout = () => {
     this.setState({ ...this.state, loggedout: !this.state.loggedout })
 }
 
-handleChange(value, item) {
+handleChange = (value, item) => {
   const {filterBrand, filterModels} = this.props
   if (item.target.name === 'filterBrand') {
     filterBrand(value)
@@ -90,14 +94,14 @@ handleChange(value, item) {
   }
 }
 
-handleModelClicked(item, e) {
+handleModelClicked = (item, e) => {
   const { loadItem, selectModel } = this.props
   localStorage.setItem('selected_model', item['1'])
   selectModel(item['1'])
   loadItem()
 }
 
-handleBrandClicked(item, e) {
+handleBrandClicked = (item, e) => {
   const { loadModels, selectBrand, selectModel, loadItem, selectedBrand } = this.props
 
   if (selectedBrand && selectedBrand === item['0']) { return }
@@ -112,9 +116,9 @@ handleBrandClicked(item, e) {
 
 handleAddModelsArrow = (refString, isVisible) => {
   this.setState({...this.state, invisibleChip: !isVisible})
-}
+  }
 
-renderModels(model) {
+renderModels = (model) => {
   const { selectedModel } = this.props
   let mc = this.handleModelClicked.bind(this, model)
   let hac = this.handleAddModelsArrow.bind(this, 'chip' + model.key)
@@ -142,35 +146,11 @@ renderModels(model) {
       }
     </span>
   )
+
 }
 
-handleWelcome = () => {
-  localStorage.setItem('welcome_active', JSON.stringify(this.state.welcomeActive))
-  this.setState({...this.state, welcomeActive: !this.state.welcomeActive})
-}
-
-renderWelcome = () => {
-  let actions = [
-    { label: 'OK', onClick: this.handleWelcome }
-  ]
-  return (
-    <Dialog
-      actions={actions}
-      active={this.state.welcomeActive}
-      onEscKeyDown={this.handleWelcome}
-      onOverlayClick={this.handleWelcome}
-      title='Welcome to SchemA'
-      >
-      <p>SchemA is <a href='http://diyguitaramps.prophpbb.com/' target='_blank'>http://diyguitaramps.prophpbb.com/</a> supported
-      (mostly) guitar tube amps schematics, layouts, build photos and other useful documents archive.
-        <br />In order to provide this archive application functionality, we do store some data on your local device. <br />Please, make
-      sure to read or privacy policy and terms of use to find out more.</p>
-    </Dialog>
-  )
-}
-
-renderBrands(b) {
-  const { selectedBrand, models, filteredModels } = this.props
+renderBrands = (b) => {
+  const { selectedBrand, models, filteredModels, isFetchingModels } = this.props
   const { modelsAsList, showStats } = this.state
 
   let bc = this.handleBrandClicked.bind(this, b)
@@ -178,9 +158,10 @@ renderBrands(b) {
   return (
     <span key={b.key}>
       <MediaQuery minDeviceWidth={768}>
-        <ListItem key={b.key} caption={b[0]} className={classes.brandItem} leftIcon={selectedBrand === b[0] ? 'star' : 'subject'}
-          rightIcon={showStats ?
-            <span className={classes.brandstats}>
+        <ListItem key={b.key} caption={b[0]} className={classes.brandItem}
+          leftIcon={selectedBrand === b[0] ? 'star' : 'subject'}
+          rightIcon={showStats
+            ? <span className={classes.brandstats}>
               {renderStatItem(b, 1, 'No. of schematics', 'developer_board')}
               {renderStatItem(b, 3, 'No. of layouts', 'collections')}
               {renderStatItem(b, 2, 'No. of photos', 'photo')}
@@ -189,36 +170,49 @@ renderBrands(b) {
             : <span></span>
           }
           onClick={bc} />
-        {(b[0] === selectedBrand) &&
+        {
+          (b[0] === selectedBrand) &&
           <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
-            {modelsAsList &&
+            {
+              modelsAsList && !isFetchingModels &&
               <List>
-                {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
-              </List>}
-            {!modelsAsList &&
-              (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
+                {(models) && models.filter((i) => i[1].toLowerCase()
+                  .indexOf(filteredModels.toLowerCase()) !== -1)
+                  .map(this.renderModels)}
+              </List>
             }
-          </div>}
+            {
+              !modelsAsList && !isFetchingModels &&
+              (models) && models.filter((i) => i[1].toLowerCase()
+                .indexOf(filteredModels.toLowerCase()) !== -1)
+                .map(this.renderModels)
+            }
+            {isFetchingModels && <FontIcon style={{ margin: 'auto' }} key={b.key} value='hourglass_empty' />}
+          </div>
+        }
       </MediaQuery>
       <MediaQuery maxDeviceWidth={767}>
         <ListItem key={b.key} caption={(selectedBrand === b[0] ? String.fromCharCode(10003) + ' ' + b[0] : b[0])} className={classes.brandItem}
           onClick={bc} />
         {(b[0] === selectedBrand) &&
           <div style={{ display: 'flex', flexFlow: 'row wrap', marginLeft: '1rem' }}>
-            {modelsAsList &&
+            {modelsAsList && !isFetchingModels &&
               <List>
                 {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
               </List>}
-            {!modelsAsList &&
+            {!modelsAsList && !isFetchingModels &&
               (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
             }
+            {isFetchingModels && <FontIcon style={{ margin: 'auto' }} key={b.key} value='hourglass_empty' />}
           </div>}
       </MediaQuery>
+
     </span>
   )
 }
 
 renderFetching() {
+  const hide = () => this.refs.loadingSnack.hide()
   return (
     <Snackbar
       theme={classes}
@@ -229,11 +223,10 @@ renderFetching() {
       timeout={1000}
       label='Loading...'
       ref='loadingSnack'
-      onClick={() => this.refs.loadingSnack.hide()}
+      onClick={hide}
       />
   )
 }
-
 
 componentDidMount() {
   const { loadBrands, loadModels, selectBrand, setNavbarActive, setNavbarPinned } = this.props
@@ -244,25 +237,14 @@ componentDidMount() {
     loadModels()
   }
 
-  const _modelsAsList = JSON.parse(localStorage.getItem('models_as_list'))
-  this.setState({...this.state, modelsAsList: _modelsAsList})
-const cardsAsList = JSON.parse(localStorage.getItem('cards_as_list'))
-this.setState({...this.state, cardsAsList: cardsAsList})
-const showStats = JSON.parse(localStorage.getItem('show_stats'))
-this.setState({ ...this.state, showStats: showStats })
-const welcomeActive = JSON.parse(localStorage.getItem('welcome_active'))
-this.setState({ ...this.state, welcomeActive: welcomeActive })
-
-this.updateShowLogout()
-let mql = window.matchMedia('(min-width: 450px)')
-if (!mql.matches) {
-  setNavbarPinned(false)
-  setNavbarActive(false)
-} else {
-  setNavbarPinned(true)
-}
-
-this.setState({ ...this.state, modelsPanel: ReactDOM.findDOMNode(this.refs.modelsPanel) })
+  this.updateShowLogout()
+  let mql = window.matchMedia('(min-width: 450px)')
+  if (!mql.matches) {
+    setNavbarPinned(false)
+    setNavbarActive(false)
+  } else {
+    setNavbarPinned(true)
+  }
 }
 
 localSetNavbarActive = () => {
@@ -270,27 +252,24 @@ localSetNavbarActive = () => {
   setNavbarActive(!navbarActive)
 }
 
-scrollDown = (e) => {
-  ReactDOM.findDOMNode(this.refs.subModelsPanel).scrollTop += 50
-}
-
 handleTabListSwitch = (e, which) => {
   switch (which) {
     case 'models':
       localStorage.setItem('models_as_list', JSON.stringify(e))
       this.setState({...this.state, modelsAsList: e})
-      break
+  break
     case 'cards':
-      localStorage.setItem('cards_as_list', JSON.stringify(e))
-      this.setState({...this.state, cardsAsList: e})
-      break
+  localStorage.setItem('cards_as_list', JSON.stringify(e))
+  this.setState({...this.state, cardsAsList: e})
+break
     case 'stats':
 localStorage.setItem('show_stats', JSON.stringify(e))
 this.setState({...this.state, showStats: e})
+break
     default:
-   break
-        }
-        }
+break
+  }
+  }
 
 render() {
   const { snackMessage, dispatch, brands, filterBrand, filterModels, models, item } = this.props
@@ -336,7 +315,14 @@ render() {
       </NavDrawer>
 
       <Panel>
-        {false && this.renderWelcome()}
+        {<WelcomeDialog welcomeActive={this.state.welcomeActive ? this.state.welcomeActive : false}
+          handleWelcome={(e, type) => {
+            if (type === 'from_switch') {
+              localStorage.setItem('welcome_active', JSON.stringify(e))
+            }
+            this.setState({ ...this.state, welcomeActive: e })
+          }
+      } />}
         <Header isAuthenticated={isAuthenticated} dispatch={dispatch} className={classes.heading}
           drawer={this.refs.navdrawer} {...this.props} />
         <Panel className={classes.content}>

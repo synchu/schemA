@@ -50,7 +50,8 @@ const mapStateToProps = (state) => ({
   selectedModelsList: state.Home.selectedModelsList,
   navbarPinned: state.Home.navbarPinned,
   navbarActive: state.Home.navbarActive,
-  ampVersions: state.Home.ampVersions
+  ampVersions: state.Home.ampVersions,
+  isFetchingModels: state.Home.isFetchingModels
 })
 
 /*  Note: mapStateToProps is where you should use `reselect` to create selectors, ie:

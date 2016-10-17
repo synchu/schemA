@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { IndexLink, Link } from 'react-router'
 import { IconButton, Button, AppBar, Autocomplete, Snackbar } from 'react-toolbox'
-import {logoutUser} from '../../routes/Login/modules/loginUser'
+import { logoutUser } from '../../routes/Login/modules/loginUser'
 import Logo from '../Logo'
 import MediaQuery from 'react-responsive'
 import classes from './Header.scss'
@@ -64,6 +64,10 @@ handleMultipleChange = (value) => {
   loadModels()
   selectModel(selected[1])
   loadItem()
+  setTimeout(
+    () => this.setState({ multiple: '' }),
+    1500
+  )
 }
 
 componentDidMount() {
@@ -79,7 +83,7 @@ render() {
         <IconButton icon='menu' title='Open Brands selection...' inverse onClick={this.changeNavDrawerVisibility} />
         <IndexLink to='/' activeClassName={classes.activeRoute}>
           <div className={classes.logo}>
-            <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString() } />
+            <Logo title='SchemA - the ultimate tube amps schematics archive' width='782' height='182' scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString()} />
           </div>
         </IndexLink>
         <MediaQuery minDeviceWidth={768}>
@@ -94,7 +98,7 @@ render() {
             {!isAuthenticated && false &&
               <div>
                 {' · '}
-                <Link to='/login' activeClassName={classes.activeRoute} onClick={(e) => e.preventDefault() }>
+                <Link to='/login' activeClassName={classes.activeRoute} onClick={(e) => e.preventDefault()}>
                   <Button disabled label='Login' id='login' raised inverse flat />
                 </Link>
                 {loginErrorMsg && <span>loginErrorMsg</span>}
@@ -123,7 +127,7 @@ render() {
               theme={classes}
               suggestionMatch='anywhere'
               />
-            <IconButton title='Click to clear...' inverse style={{ margin: 'auto', fontSize: '1.3rem' }}icon='clear' onClick={() => this.setState({ multiple: '' }) } />
+            <IconButton title='Click to clear...' inverse style={{ margin: 'auto', fontSize: '1.3rem' }} icon='clear' onClick={() => this.setState({ multiple: '' })} />
           </span>
         </div>
       </AppBar>
