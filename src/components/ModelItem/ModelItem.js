@@ -114,7 +114,12 @@ export class ModelItem extends Component {
   }
 
   handleClick = (e) => {
-    //console.log(e.target.id)
+    // console.log(e.target.id)
+  }
+
+  handleEditClick = (value) => (e) => {
+    console.log(e)
+    console.log(value)
   }
 
   handleFixedTabChange = (index, version) => {
@@ -241,21 +246,39 @@ renderTabbedView = (itemData) => {
   )
 }
 
+renderEditButton = (field) => {
+  return (
+    <IconButton icon='mode_edit' className={classes.actionButtons}
+      onClick={this.handleEditClick(field)} />
+  )
+}
+
+renderTitleField = (field, itemData) => {
+  return (
+    <span className={classes.flexDisplay} style={{ paddingRight: '5px' }}>{itemData[field]}{this.renderEditButton(field)}</span>
+  )
+}
+
 renderModelsCard = (itemData) => {
+  let arr = [itemData]
   return (
     <Card key={itemData.version} raised className={classes.itemCard} >
-      <CardTitle title={itemData.model + ' ' + itemData.version} />
+      <CardTitle title={this.renderTitleField('version', itemData)} subtitle={this.renderTitleField('model', itemData)} />
       <MediaQuery minDeviceWidth={768}>
         <CardMedia aspectRatio='wide'>
           {this.getMedia(itemData)}
         </CardMedia>
       </MediaQuery>
-      <CardText> {itemData.description} </CardText>
+      <CardText>
+        <div className={classes.flexDisplay}>
+          <span>{itemData.description}{this.renderEditButton('description')}</span>
+        </div>
+      </CardText>
       <CardActions className={classes.itemCardActions} >
         <Switch theme={classes} checked={this.state['switch' + itemData.version]}
           label='Tab/list view'
           onChange={(e) => this.handleTabListSwitch(e, itemData.version)} />
-        {this.state['switch' + itemData.version] ? <TableView itemData={itemData} {...this.props} /> : this.renderTabbedView(itemData)}
+        {this.state['switch' + itemData.version] ? <TableView itemData={arr} {...this.props} /> : this.renderTabbedView(itemData)}
       </CardActions>
     </Card>
 
@@ -276,15 +299,8 @@ render() {
   return (
     <div>
       {!cardsAsList && itemObjects.map(this.renderModelsCard)}
-      {cardsAsList && itemObjects.map((i) => {
-        return (
-          <div key={i.version}>
-            <h4> {i.version}</h4>
-            <TableView key={i.version} itemData={i} {...this.props} />
-          </div>
-        )
-      }
-      )
+      {cardsAsList &&
+        <TableView itemData={itemObjects} {...this.props} />
       }
     </div>
   )

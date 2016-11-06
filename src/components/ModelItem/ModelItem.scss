@@ -64,8 +64,23 @@
     font-size: 1.1rem;
 }
 
-.tabs{
-    
+.flexDisplay {
+    display: flex;
+    flex-flow: row nowrap;
+    .actionButtons {
+        display: none;
+        * {
+            color: $base-color;
+            font-size: 1.5rem;
+        }
+    }
+     :hover {
+        .actionButtons {
+            display: inline;
+            bottom: 5px;
+            padding: 0;
+        }
+    }
 }
 
 .field {

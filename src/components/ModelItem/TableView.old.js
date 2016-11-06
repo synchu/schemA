@@ -24,7 +24,7 @@ const makeDownloadLink = (linkData) => {
 export class TableView extends Component {
   state = {}
   static propTypes = {
-    itemData: PropTypes.array,
+    itemData: PropTypes.object,
     cardsAsList: PropTypes.bool
   }
 
@@ -42,47 +42,42 @@ export class TableView extends Component {
     let tableSource = []
     let key = 0
 
-    itemData.map((a) => {
-      a.schematics.forEach((i) => {
-        tableSource.push({
-          key: key++,
-          type: SCHEMATIC, icon: 'developer_board',
-          text: i.schematicName, by: i.schematicContributor,
-          href: i.schematic,
-          version: a.version
-        })
-      })
-
-      a.layouts.forEach((i) => {
-        tableSource.push({
-          key: key++,
-          type: LAYOUT, icon: 'collections',
-          text: i.layoutName, by: i.layoutContributor,
-          href: i.layout,
-          version: a.version
-        })
-      })
-
-      a.others.forEach((i) => {
-        tableSource.push({
-          key: key++,
-          type: OTHER, icon: 'attachment',
-          text: i.otherName, by: i.otherContributor,
-          href: i.other,
-          version: a.version
-        })
-      })
-
-      a.photos.forEach((i) => {
-        tableSource.push({
-          key: key++,
-          type: PHOTO, icon: (<img src={i.photo} alt={i.photoName} height='36' width='36' />),
-          text: i.photoName, by: i.photoContributor,
-          href: i.photo,
-          version: a.version
-        })
+    itemData.schematics.forEach((i) => {
+      tableSource.push({
+        key: key++,
+        type: SCHEMATIC, icon: 'developer_board',
+        text: i.schematicName, by: i.schematicContributor,
+        href: i.schematic
       })
     })
+
+    itemData.layouts.forEach((i) => {
+      tableSource.push({
+        key: key++,
+        type: LAYOUT, icon: 'collections',
+        text: i.layoutName, by: i.layoutContributor,
+        href: i.layout
+      })
+    })
+
+    itemData.others.forEach((i) => {
+      tableSource.push({
+        key: key++,
+        type: OTHER, icon: 'attachment',
+        text: i.otherName, by: i.otherContributor,
+        href: i.other
+      })
+    })
+
+    itemData.photos.forEach((i) => {
+      tableSource.push({
+        key: key++,
+        type: PHOTO, icon: (<img src={i.photo} alt={i.photoName} height='36' width='36' />),
+        text: i.photoName, by: i.photoContributor,
+        href: i.photo
+      })
+    })
+
     this.setState({ ...this.state, tableData: tableSource })
 }
 
@@ -149,7 +144,7 @@ renderTabView = () => {
           return (<tr key={i.key}>
             {cardsAsList &&
               <td>
-                {i.version}
+                {itemData.version}
               </td>
             }
             <td>

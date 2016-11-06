@@ -35,7 +35,8 @@ export class HomeView extends Component {
     invisibleChip: false, modelsAsList: false,
     cardsAsList: false,
     showStats: true,
-    welcomeActive: true
+    welcomeActive: true,
+    showSettings: true
   }
 
   static propTypes = {
@@ -253,6 +254,10 @@ localSetNavbarActive = () => {
   setNavbarActive(!navbarActive)
 }
 
+showSettings = () => {
+  this.setState({...this.state, showSettings: !this.state.showSettings})
+}
+
 handleTabListSwitch = (e, which) => {
   switch (which) {
     case 'models':
@@ -275,7 +280,7 @@ break
 render() {
   const { snackMessage, dispatch, brands, filterBrand, filterModels, models, item } = this.props
   const { navbarPinned, navbarActive, isFetching, isAuthenticated } = this.props
-  let { filteredBrand, filteredModels } = this.props
+  let { filteredBrand, filteredModels, selectedBrand, selectedModel } = this.props
 
   return (
     <Layout className={classes.mainContainer}>
@@ -284,6 +289,27 @@ render() {
         <div className={classnames(classes.navigation)} >
           <Panel className={classes.navtitle}>
             <div style={{ flexFlow: 'row wrap', display: 'flex' }}>
+              <span style={{ display: 'flex', flexFlow: 'row wrap' }}>
+                {this.state.showSettings &&
+                  <span style={{ display: 'flex', flexFlow: 'row wrap' }}>
+                    <Switch theme={classes} checked={this.state.modelsAsList}
+                      label='Models as list'
+                      onChange={(e) => this.handleTabListSwitch(e, 'models')} />
+                    <Switch theme={classes} checked={this.state.cardsAsList}
+                      label='Cards as list'
+                      onChange={(e) => this.handleTabListSwitch(e, 'cards')} />
+                    <Switch theme={classes} checked={this.state.showStats}
+                      label='Show stats'
+                      onChange={(e) => this.handleTabListSwitch(e, 'stats')} />
+                  </span>
+                }
+                <span style={{ margin: 'auto' }}>
+                  <IconButton icon={this.state.showSettings ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
+                    onClick={this.showSettings}
+                    title='Click to toggle settings panel'
+                    style={{ opacity: 0.5 }} />
+                </span>
+              </span>
               <Input type='text' hint='Type to filter brands' label='Filter' icon='filter_list'
                 className={classes.filterInputs}
                 name='filterBrand'
@@ -301,17 +327,7 @@ render() {
         </div>
 
         <footer>
-          <span style={{ display: 'flex', flexFlow: 'row wrap' }}>
-            <Switch theme={classes} checked={this.state.modelsAsList}
-              label='Models as list'
-              onChange={(e) => this.handleTabListSwitch(e, 'models')} />
-            <Switch theme={classes} checked={this.state.cardsAsList}
-              label='Cards as list'
-              onChange={(e) => this.handleTabListSwitch(e, 'cards')} />
-            <Switch theme={classes} checked={this.state.showStats}
-              label='Show stats'
-              onChange={(e) => this.handleTabListSwitch(e, 'stats')} />
-          </span>
+
         </footer>
       </NavDrawer>
 
@@ -328,8 +344,11 @@ render() {
           drawer={this.refs.navdrawer} {...this.props} />
         <Panel className={classes.content}>
           <Panel style={{ overflowY: 'auto', flexDirection: 'row' }} scrollY className={classes.Panes}>
-            <div style={{ color: 'blue' }}>
+            <div style={{ display: 'flex', color: 'blue' }}>
               THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
+            </div>
+            <div style={{ display: 'flex', marginRight: 'auto' }}>
+              <h4>{selectedBrand} - {selectedModel}</h4>
             </div>
             <Panel scrollY style={{ flexFlow: 'row wrap' }}>
               {isFetching && this.renderFetching()}

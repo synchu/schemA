@@ -182,10 +182,10 @@ export const fetchItem = (brand, model) => {
   return (dispatch) => {
     dispatch(requestItem())
     return (
-      fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq,' + brand.trim() + '&filter=model,eq,' + model.trim() + '&transform=1')
+      fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq,' + brand.trim() + '&transform=1')
         .then((response) => response.json())
         .then((json) => {
-          dispatch(successItem(json.schematics))
+          dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
         }))
   }
 }

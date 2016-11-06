@@ -205,6 +205,10 @@ $stats-font-size-factor: 0.9;
     }
 }
 
+.noDisplay {
+    display: none;
+}
+
 .filterInputs {
     width: 80%;
     font-size: 1rem;

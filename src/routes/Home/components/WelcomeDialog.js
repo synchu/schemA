@@ -2,11 +2,9 @@ import React, { PropTypes } from 'react'
 import { Dialog, Switch, Button } from 'react-toolbox'
 import classes from './HomeView.scss'
 
-var switchValue = false
-
 export const WelcomeDialog = (props) => {
     const { welcomeActive, handleWelcome } = props
-    switchValue = !welcomeActive
+    let switchValue = !welcomeActive
 
     return (
         <Dialog
