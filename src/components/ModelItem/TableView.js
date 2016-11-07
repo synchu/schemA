@@ -125,7 +125,7 @@ sortTable = (e) => {
 
 
 renderTabView = () => {
-  const { cardsAsList, itemData } = this.props
+  const { cardsAsList } = this.props
   let scType = this.sortTable.bind(this, 'type')
   let scText = this.sortTable.bind(this, 'text')
   let scBy = this.sortTable.bind(this, 'by')

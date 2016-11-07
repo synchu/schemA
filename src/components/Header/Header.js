@@ -68,6 +68,17 @@ handleMultipleChange = (value) => {
     () => this.setState({ multiple: '' }),
     1500
   )
+  // auto scroll to the element- after it is presumably loaded
+  // promise based implementation would have been much better (after items are loaded)
+  setTimeout(
+    () => {
+      let element = document.getElementById(selected[0].trim())
+      if (element) {
+        element.scrollIntoViewIfNeeded()
+      }
+    },
+    1500
+  )
 }
 
 componentDidMount() {

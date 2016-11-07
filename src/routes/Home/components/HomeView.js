@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
 import ModelItem from '../../../components/ModelItem'
@@ -146,6 +147,27 @@ renderModels = (model) => {
 
 }
 
+animate = (elem, style, unit, from, to, time, prop) => {
+  if (!elem) return
+  let start = new Date().getTime()
+  let timer = setInterval(function () {
+    var step = Math.min(1, (new Date().getTime() - start) / time)
+    if (prop) {
+      elem[style] = (from + step * (to - from)) + unit
+    } else {
+      elem.style[style] = (from + step * (to - from)) + unit
+    }
+    if (step === 1) clearInterval(timer)
+  }, 25)
+  elem.style[style] = from + unit
+}
+
+/* window.onload = function () {
+    var target = document.getElementById("div9");
+    animate(document.body, "scrollTop", "", 0, target.offsetTop, 2000, true);
+};*/
+
+
 renderBrands = (b) => {
   const { selectedBrand, models, filteredModels, isFetchingModels } = this.props
   const { modelsAsList, showStats } = this.state
@@ -153,7 +175,7 @@ renderBrands = (b) => {
   let bc = this.handleBrandClicked.bind(this, b)
 
   return (
-    <span key={b.key}>
+    <span key={b.key} id={b[0]} ref={b[0]}>
       <MediaQuery minDeviceWidth={768}>
         <ListItem key={b.key} caption={b[0]} className={classes.brandItem}
           leftIcon={selectedBrand === b[0] ? 'star' : 'subject'}
@@ -230,12 +252,12 @@ renderFetching = () => {
   )
 }
 
-componentDidMount() {
-  const { loadBrands, loadModels, selectBrand, setNavbarActive, setNavbarPinned } = this.props
+componentDidMount = () => {
+  const { loadBrands, loadModels, selectBrand, setNavbarActive, setNavbarPinned, selectedBrand } = this.props
   loadBrands()
-  const selectedBrand = localStorage.getItem('selected_brand')
-  if (selectedBrand) {
-    selectBrand(selectedBrand)
+  const selectedBrandLocal = localStorage.getItem('selected_brand')
+  if (selectedBrandLocal) {
+    selectBrand(selectedBrandLocal)
     loadModels()
   }
 
@@ -246,6 +268,15 @@ componentDidMount() {
     setNavbarActive(false)
   } else {
     setNavbarPinned(true)
+  }
+
+}
+
+componentDidUpdate = (prevProps) => {
+  const selectedBrandLocal = localStorage.getItem('selected_brand')
+  var target = document.getElementById(selectedBrandLocal)
+  if (target) {
+    target.scrollIntoViewIfNeeded({ block: 'start', behavior: 'smooth' })
   }
 }
 
@@ -348,7 +379,7 @@ render() {
               THIS IS STILL A TEST!A lot of features may not yet work or may not work as expected, including the file links.
             </div>
             <div style={{ display: 'flex', marginRight: 'auto' }}>
-              <h4>{selectedBrand} - {selectedModel}</h4>
+              <h4>{selectedBrand}- {selectedModel}</h4>
             </div>
             <Panel scrollY style={{ flexFlow: 'row wrap' }}>
               {isFetching && this.renderFetching()}

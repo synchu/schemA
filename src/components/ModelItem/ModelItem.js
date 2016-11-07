@@ -3,7 +3,7 @@ import {
   Tab, Switch, Tabs,
   FontIcon, Card, CardMedia,
   CardTitle, CardText, CardActions,
-  IconButton
+  IconButton, Input
 } from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './ModelItem.scss'
@@ -120,10 +120,11 @@ export class ModelItem extends Component {
   handleEditClick = (value) => (e) => {
     console.log(e)
     console.log(value)
-  }
+    this.setState({...this.state, [value]: true})
+}
 
-  handleFixedTabChange = (index, version) => {
-    this.setState({ ...this.state, [version]: index })
+handleFixedTabChange = (index, version) => {
+  this.setState({ ...this.state, [version]: index })
 }
 
 handleTabListSwitch = (value, version) => {
@@ -262,7 +263,7 @@ renderTitleField = (field, itemData) => {
 renderModelsCard = (itemData) => {
   let arr = [itemData]
   return (
-    <Card key={itemData.version} raised className={classes.itemCard} >
+    <Card key={itemData.version} raised className={classes.itemCard} id={itemData.version}>
       <CardTitle title={this.renderTitleField('version', itemData)} subtitle={this.renderTitleField('model', itemData)} />
       <MediaQuery minDeviceWidth={768}>
         <CardMedia aspectRatio='wide'>
@@ -271,7 +272,12 @@ renderModelsCard = (itemData) => {
       </MediaQuery>
       <CardText>
         <div className={classes.flexDisplay}>
-          <span>{itemData.description}{this.renderEditButton('description')}</span>
+          {this.state['description'] &&
+            <Input label='' value={this.state['descriptionValue']} />}
+          {!this.state['description'] &&
+            <span>{itemData.description ? itemData.description : 'No description yet'} {this.renderEditButton('description')}
+            </span>
+          }
         </div>
       </CardText>
       <CardActions className={classes.itemCardActions} >
