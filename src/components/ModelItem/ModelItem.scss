@@ -71,14 +71,15 @@
         display: none;
         * {
             color: $base-color;
-            font-size: 1.5rem;
+            //font-size: 1.5rem;
         }
     }
      :hover {
         .actionButtons {
-            display: inline;
-            bottom: 5px;
-            padding: 0;
+            display: inline-block;
+            box-sizing: border-box;
+            position: absolute;
+            height: inherit;
         }
     }
 }

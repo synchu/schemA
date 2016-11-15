@@ -25,6 +25,7 @@ export class Header extends Component {
     loadModels: PropTypes.func,
     loadItem: PropTypes.func
   }
+  
   constructor(props) {
     super(props)
     this.handleClick = this.handleClick.bind(this)

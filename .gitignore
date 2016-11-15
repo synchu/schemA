@@ -1,6 +1,6 @@
 .DS_STORE
 *.log
-
+synchu8c_schemarch.sql.gz
 node_modules
 
 dist

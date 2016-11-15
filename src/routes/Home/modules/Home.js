@@ -190,11 +190,11 @@ export const fetchItem = (brand, model) => {
   }
 }
 
-export const loadItem = () => {
+export const loadItem = (forceLoad = false) => {
   // TODO: caching and pagination
   return (dispatch, getState) => {
-    if (getState().Home.item && (getState().Home.item.length > 0)) {
-      //check first record model against the selected one
+    if (getState().Home.item && (getState().Home.item.length > 0) && !forceLoad) {
+      // check first record model against the selected one
       if (getState().Home.item[0].model === getState().Home.selectedModel) {
         return
       }

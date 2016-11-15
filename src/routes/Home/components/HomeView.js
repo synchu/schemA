@@ -275,7 +275,7 @@ componentDidMount = () => {
 componentDidUpdate = (prevProps) => {
   const selectedBrandLocal = localStorage.getItem('selected_brand')
   var target = document.getElementById(selectedBrandLocal)
-  if (target) {
+  if (target && target.scrollIntoViewIfNeeded) {
     target.scrollIntoViewIfNeeded({ block: 'start', behavior: 'smooth' })
   }
 }
@@ -311,7 +311,7 @@ break
 render() {
   const { snackMessage, dispatch, brands, filterBrand, filterModels, models, item } = this.props
   const { navbarPinned, navbarActive, isFetching, isAuthenticated } = this.props
-  let { filteredBrand, filteredModels, selectedBrand, selectedModel } = this.props
+  let { filteredBrand, filteredModels, selectedBrand, selectedModel, loadItem } = this.props
 
   return (
     <Layout className={classes.mainContainer}>
@@ -383,7 +383,7 @@ render() {
             </div>
             <Panel scrollY style={{ flexFlow: 'row wrap' }}>
               {isFetching && this.renderFetching()}
-              {!isFetching && <ModelItem items={item} cardsAsList={this.state.cardsAsList} />}
+              {!isFetching && <ModelItem items={item} cardsAsList={this.state.cardsAsList} loadItem={loadItem} />}
             </Panel>
           </Panel>
         </Panel>

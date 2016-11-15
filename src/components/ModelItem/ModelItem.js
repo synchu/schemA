@@ -3,7 +3,7 @@ import {
   Tab, Switch, Tabs,
   FontIcon, Card, CardMedia,
   CardTitle, CardText, CardActions,
-  IconButton, Input
+  IconButton, Input, Button
 } from 'react-toolbox'
 import { Link } from 'react-router'
 import classes from './ModelItem.scss'
@@ -16,13 +16,15 @@ const transformData = (item) => {
   let itemObjects = []
 
   let j = 0
-
+  let maxDataId = 0
 
   item.map((i) => {
     let bFound = false
     let itemObject = {
       model: '', version: '', description: '', contributor: '', descriptionDate: new Date(),
-      layouts: [], schematics: [], photos: [], others: []
+      layouts: [], schematics: [], photos: [], others: [], brand: '', bid: '',
+      descriptionId: 0,
+      maxDataId: 0
     }
 
     for (j = 0; j < itemObjects.length; j++) {
@@ -37,13 +39,18 @@ const transformData = (item) => {
     } else {
       itemObject.version = i.version
       itemObject.model = i.model
+      itemObject.brand = i.brand
+      itemObject.bid = i.bid
     }
+
+    maxDataId = i.data_id > maxDataId ? i.data_id : maxDataId
 
     switch (i.type) {
       case DESCRIPTION:
         itemObject.description = i.data
         itemObject.contributor = i.contributor
         itemObject.descriptionDate = i.datestamp
+        itemObject.descriptionId = i.id
         break
       case LAYOUT:
         itemObject.layouts.push({
@@ -51,8 +58,10 @@ const transformData = (item) => {
           layout: i.data,
           layoutName: i.filename,
           layoutDate: i.datestamp,
-          layoutContributor: i.contributor
+          layoutContributor: i.contributor,
+          updateId: i.id
         })
+        // itemObject.layoutsMaxId = i.id > itemObject.layoutsMaxId ? i.id : itemObject.layoutsMaxId
         break
       case SCHEMATIC:
         itemObject.schematics.push({
@@ -60,8 +69,10 @@ const transformData = (item) => {
           schematic: i.data,
           schematicName: i.filename,
           schematicDate: i.datestamp,
-          schematicContributor: i.contributor
+          schematicContributor: i.contributor,
+          updateId: i.id
         })
+        // itemObject.schematicsMaxId = i.id > itemObject.schematicsMaxId ? i.id : itemObject.schematicsMaxId
         break
       case PHOTO:
         itemObject.photos.push({
@@ -69,8 +80,10 @@ const transformData = (item) => {
           photo: i.data,
           photoName: i.filename,
           photoDate: i.datestamp,
-          photoContributor: i.contributor
+          photoContributor: i.contributor,
+          updateId: i.id
         })
+        // itemObject.photosMaxId = i.id > itemObject.photosMaxId ? i.id : itemObject.photosMaxId
         break
       case OTHER:
         itemObject.others.push({
@@ -78,13 +91,19 @@ const transformData = (item) => {
           other: i.data,
           otherName: i.filename,
           otherDate: i.datestamp,
-          otherContributor: i.contributor
+          otherContributor: i.contributor,
+          updateId: i.id
         })
+        // itemObject.othersMaxId = i.id > itemObject.othersMaxId ? i.id : itemObject.othersMaxId
         break
       default:
         break
     }
     if (!bFound) { itemObjects.push(itemObject) }
+  })
+
+  itemObjects.forEach(function (value) {
+    value.maxDataId = maxDataId
   })
 
   return itemObjects
@@ -105,7 +124,8 @@ export class ModelItem extends Component {
   state = {}
   static propTypes = {
     items: PropTypes.array,
-    cardsAsList: PropTypes.bool
+    cardsAsList: PropTypes.bool,
+    loadItem: PropTypes.func
   }
 
   constructor(props) {
@@ -117,14 +137,8 @@ export class ModelItem extends Component {
     // console.log(e.target.id)
   }
 
-  handleEditClick = (value) => (e) => {
-    console.log(e)
-    console.log(value)
-    this.setState({...this.state, [value]: true})
-}
-
-handleFixedTabChange = (index, version) => {
-  this.setState({ ...this.state, [version]: index })
+  handleFixedTabChange = (index, version) => {
+    this.setState({ ...this.state, [version]: index })
 }
 
 handleTabListSwitch = (value, version) => {
@@ -247,24 +261,131 @@ renderTabbedView = (itemData) => {
   )
 }
 
-renderEditButton = (field) => {
+handleEditClick = (value, content) => (e) => {
+  this.setState({...this.state, [value]: content === '' ? ' ' : content})
+}
+
+handleEditChange = (field) => (value) => {
+  this.setState({...this.state, [field]: value, [field.split('_')[0] + '_changed']: true})
+}
+
+handleErrors = (response) => {
+  if (!response.ok) {
+    throw Error(response.statusText)
+  }
+  return response
+}
+
+handleEditBlur = (field, itemData) => {
+  console.log(itemData)
+  if (this.state[field]) {
+    console.log(field)
+    console.log(this.state[field])
+    if (itemData.descriptionId > 0) {
+      this.setState({...this.state, saving: true, error: false})
+    fetch('http://thesubjectmatter.com/api.php/schematics/' + itemData.descriptionId, {
+      method: 'PUT',
+      dataType: 'json',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ data: this.state[field] })
+    })
+      .then(response => this.handleErrors(response))
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        this.setState({...this.state, saving: false, error: json < 1, [itemData.version + '_changed']: false})
+  })
+  .then(this.props.loadItem(true))
+    .catch(error => {
+      console.log(error)
+      this.setState({...this.state, saving: false, error: true})
+})
+} else {
+  this.setState({...this.state, saving: true, error: false})
+fetch('http://thesubjectmatter.com/api.php/schematics', {
+  method: 'POST',
+  dataType: 'json',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    bid: itemData.bid,
+    data_id: parseInt(itemData.maxDataId) + 1,
+    brand: itemData.brand,
+    model: itemData.model,
+    version: itemData.version,
+    type: 'Description',
+    data: this.state[field].trim(),
+    contributor: 'System',
+    isFile: 0,
+    filename: '',
+    thumbnail: ''
+  })
+})
+  .then(response => this.handleErrors(response))
+  .then(response => response.json())
+  .then(json => {
+    console.log(json)
+    this.setState({...this.state, saving: false, error: json < 1, [itemData.version + '_changed']: false})
+  })
+  .then(this.props.loadItem(false))
+  .catch(error => {
+    console.log(error)
+    this.setState({...this.state, saving: false, error: true})
+})
+}
+// this.setState({ itemObjects: transformData(this.props.items) })
+}
+}
+
+renderEditComponent = (itemData) => {
+  let field = itemData.version + '_description'
+  let content = itemData.description
+
+  return (
+    <span style={{ display: 'inline-block', width: '100%', minWidth: '200px' }}>
+      <Input label=''
+        multiline
+        value={this.state[field]}
+        onChange={this.handleEditChange(field)}
+        onBlur={() => this.handleEditBlur(field, itemData)}
+        hint={content}
+        style={{ fontSize: '1.5rem' }}
+        />
+    </span>
+  )
+}
+
+renderEditButton = (field, content) => {
   return (
     <IconButton icon='mode_edit' className={classes.actionButtons}
-      onClick={this.handleEditClick(field)} />
+      onClick={this.handleEditClick(field, content)} />
   )
 }
 
 renderTitleField = (field, itemData) => {
   return (
-    <span className={classes.flexDisplay} style={{ paddingRight: '5px' }}>{itemData[field]}{this.renderEditButton(field)}</span>
+    <span className={classes.flexDisplay} style={{ paddingRight: '5px' }}>
+      {itemData[field]}{this.renderEditButton(field, itemData[field])}
+    </span>
   )
 }
+
+
 
 renderModelsCard = (itemData) => {
   let arr = [itemData]
   return (
-    <Card key={itemData.version} raised className={classes.itemCard} id={itemData.version}>
-      <CardTitle title={this.renderTitleField('version', itemData)} subtitle={this.renderTitleField('model', itemData)} />
+    <Card key={itemData.version} raised className={classes.itemCard} id={itemData.version}
+      style={!this.state[itemData.version + '_changed'] ? {} : { backgroundColor: 'lavender' }}
+      >
+      <CardTitle title={this.renderTitleField('version', itemData)}
+        subtitle={this.renderTitleField('model', itemData)}
+        />
       <MediaQuery minDeviceWidth={768}>
         <CardMedia aspectRatio='wide'>
           {this.getMedia(itemData)}
@@ -272,10 +393,12 @@ renderModelsCard = (itemData) => {
       </MediaQuery>
       <CardText>
         <div className={classes.flexDisplay}>
-          {this.state['description'] &&
-            <Input label='' value={this.state['descriptionValue']} />}
-          {!this.state['description'] &&
-            <span>{itemData.description ? itemData.description : 'No description yet'} {this.renderEditButton('description')}
+          {this.state[itemData.version + '_description'] &&
+            this.renderEditComponent(itemData)
+          }
+          {!this.state[itemData.version + '_description'] &&
+            <span>{itemData.description ? itemData.description : 'No description yet'}
+              {this.renderEditButton(itemData.version + '_description', itemData.description)}
             </span>
           }
         </div>
@@ -298,9 +421,15 @@ extractDescriptions = (item) => {
   return descriptions
 }
 
+
+
+componentWillMount = (prevProps) => {
+  this.setState({ itemObjects: transformData(this.props.items) })
+}
+
 render() {
-  const { items, cardsAsList } = this.props
-  let itemObjects = transformData(items)
+  const { cardsAsList } = this.props
+  const { itemObjects } = this.state
 
   return (
     <div>
