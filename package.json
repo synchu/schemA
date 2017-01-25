@@ -74,9 +74,10 @@
     "type": "git",
     "url": "git+https://github.com/davezuko/react-redux-starter-kit.git"
   },
-  "author": "David Zukowski <david@zuko.me> (http://zuko.me)",
+  "author": "Niki Nyagolov synchu@synchu.com thesubjectmatter.com",
   "license": "MIT",
   "dependencies": {
+    "auth0-lock": "^10.9.2",
     "babel-cli": "^6.5.1",
     "babel-core": "^6.3.17",
     "babel-loader": "^6.2.0",
@@ -104,6 +105,7 @@
     "ip": "^1.1.2",
     "isomorphic-fetch": "^2.2.1",
     "json-loader": "^0.5.4",
+    "jwt-decode": "^2.1.0",
     "koa": "^2.0.0-alpha.3",
     "koa-connect-history-api-fallback": "^0.3.0",
     "koa-convert": "^1.2.0",

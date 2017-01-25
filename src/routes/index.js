@@ -3,18 +3,25 @@ import CoreLayout from '../layouts/CoreLayout/CoreLayout'
 import Home from './Home'
 import uploadFileRoute from './UploadFile'
 import LoginRoute from './Login'
-import SignUpRoute from './Signup'
+import AuthService from 'utils/AuthService.js'
+import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from 'authid'
+
 // import DownloadFileRoute from './DownloadFile'
 
 /*  Note: Instead of using JSX, we recommend using react-router
     PlainRoute objects to build route definitions.   */
 
-import { injectReducer } from '../store/reducers'
+import {injectReducer} from '../store/reducers'
+
+const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__)
 
 export const homeReducer = (store) => {
   const reducer = require('./Home/modules/Home').default
   /*  Add the reducer to the store on key  */
-  injectReducer(store, {key: 'Home', reducer})
+  injectReducer(store, {
+    key: 'Home',
+    reducer
+  })
 }
 
 export const createRoutes = (store) => {
@@ -22,9 +29,12 @@ export const createRoutes = (store) => {
     // Now you can access the store object here.
     const state = store.getState()
     const schemarchToken = localStorage.getItem('schemarch_token')
+    if (!auth.loggedIn()) {
+      auth.login()
+    } else {}
     if (state.globalReducer && !state.globalReducer.isAuthenticated) {
       console.log('not yet authenticated')
-    // replace({ nextPathname: nextState.location.pathname }, '/login')
+      // replace({ nextPathname: nextState.location.pathname }, '/login')
     }
   }
 
@@ -36,9 +46,8 @@ export const createRoutes = (store) => {
     indexRoute: Home,
     onEnter: authRequired,
     childRoutes: [
-      uploadFileRoute(store),
-      LoginRoute(store),
-      SignUpRoute(store)
+      uploadFileRoute(store), LoginRoute(store)
+      //  SignUpRoute(store)
     ]
   }
 }

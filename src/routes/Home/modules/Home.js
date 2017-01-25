@@ -1,8 +1,7 @@
 /* @flow*/
 
 import fetch from 'isomorphic-fetch'
-// ------------------------------------
-// Constants
+// ------------------------------------ Constants
 // ------------------------------------
 export const BRANDS_REQUEST = 'BRANDS_REQUEST'
 export const BRANDS_SUCCESS = 'BRANDS_SUCCESS'
@@ -28,62 +27,51 @@ export const FILTER_MODELS = 'FILTER_MODELS'
 export const SET_PIN_NAVBAR = 'SET_PIN_NAVBAR'
 export const SET_ACTIVE_NAVBAR = 'SET_ACTIVE_NAVBAR'
 
+// ------------------------------------ Utils
 // ------------------------------------
-// Utils
-// ------------------------------------
-
 
 const addKey = (item) => {
   let j = 0
-  return item.map((i) => Object.assign({}, i, { key: j++ }))
+  return item.map((i) => Object.assign({}, i, {
+    key: j++
+  }))
 }
 
-// ------------------------------------
-// Actions
+// ------------------------------------ Actions
 // ------------------------------------
 
 export const requestBrands = () => {
-  return {
-    type: BRANDS_REQUEST,
-    isFetching: true
-  }
+  return {type: BRANDS_REQUEST, isFetching: true}
 }
 
-export const errorBrands = (message: string) => {
-  return {
-    type: BRANDS_FAILURE,
-    errorMessage: message,
-    snackMessage: message,
-    isFetching: false
-  }
+export const errorBrands = (message : string) => {
+  return {type: BRANDS_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
-
 
 export const successBrands = (brands) => {
-  return {
-    type: BRANDS_SUCCESS,
-    brands: addKey(brands)
-  }
+  return {type: BRANDS_SUCCESS, brands: addKey(brands)}
 }
 
 export const fetchBrands = () => {
   return (dispatch) => {
     dispatch(requestBrands())
     if (self.fetch) {
-      return (
-        fetch('http://thesubjectmatter.com/api.php/brand_stats')
-          .then((response) => response.json())
-          .then((json) => {
-            dispatch(successBrands(json.brand_stats.records))
-          }))
+      return (fetch('http://thesubjectmatter.com/api.php/brand_stats').then((response) => response.json()).then((json) => {
+        dispatch(successBrands(json.brand_stats.records))
+      }))
     } else {
-      console.warn('Fetch API not available! Attempt to load brands anyway. Other data may not be available!')
+      console.warn('Fetch API not available! Attempt to load brands anyway. Other data may not be av' +
+          'ailable!')
       if (window.XMLHttpRequest) {
         let xhttp = new XMLHttpRequest()
         xhttp.open('GET', 'http://thesubjectmatter.com/api.php/brand_stats', false)
         xhttp.send()
-        let json = xhttp.responseText.json()
-        if (json) { dispatch(successBrands(json.brand_stats.records)) }
+        let json = xhttp
+          .responseText
+          .json()
+        if (json) {
+          dispatch(successBrands(json.brand_stats.records))
+        }
       } else {
         console.warn('Sad days are comming. NO server request API available at all!')
       }
@@ -101,41 +89,24 @@ export const loadBrands = () => {
   }
 }
 
-
 export const requestModels = () => {
-  return {
-    type: MODELS_REQUEST,
-    isFetchingModels: true
-  }
+  return {type: MODELS_REQUEST, isFetchingModels: true}
 }
 
-export const errorModels = (message: string) => {
-  return {
-    type: MODELS_FAILURE,
-    errorMessage: message,
-    snackMessage: message,
-    isFetchingModels: false
-  }
+export const errorModels = (message : string) => {
+  return {type: MODELS_FAILURE, errorMessage: message, snackMessage: message, isFetchingModels: false}
 }
-
 
 export const successModels = (models) => {
-  return {
-    type: MODELS_SUCCESS,
-    models: addKey(models),
-    isFetchingModels: false
-  }
+  return {type: MODELS_SUCCESS, models: addKey(models), isFetchingModels: false}
 }
 
 export const fetchModels = (brand) => {
   return (dispatch) => {
     dispatch(requestModels())
-    return (
-      fetch('http://thesubjectmatter.com/api.php/brand_models_stats?filter=brand,eq,' + brand.trim())
-        .then((response) => response.json())
-        .then((json) => {
-          dispatch(successModels(json.brand_models_stats.records))
-        }))
+    return (fetch('http://thesubjectmatter.com/api.php/brand_models_stats?filter=brand,eq,' + brand.trim()).then((response) => response.json()).then((json) => {
+      dispatch(successModels(json.brand_models_stats.records))
+    }))
   }
 }
 
@@ -153,40 +124,25 @@ export const loadModels = () => {
   }
 }
 
-
 export const requestItem = () => {
-  return {
-    type: ITEM_REQUEST,
-    isFetching: true
-  }
+  return {type: ITEM_REQUEST, isFetching: true}
 }
 
-export const errorItem = (message: string) => {
-  return {
-    type: ITEM_FAILURE,
-    errorMessage: message,
-    snackMessage: message,
-    isFetching: false
-  }
+export const errorItem = (message : string) => {
+  return {type: ITEM_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
-
 
 export const successItem = (item) => {
-  return {
-    type: ITEM_SUCCESS,
-    item: addKey(item)
-  }
+  return {type: ITEM_SUCCESS, item: addKey(item)}
 }
 
 export const fetchItem = (brand, model) => {
   return (dispatch) => {
     dispatch(requestItem())
-    return (
-      fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq,' + brand.trim() + '&transform=1')
-        .then((response) => response.json())
-        .then((json) => {
-          dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
-        }))
+    return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
+        ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
+      dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
+    }))
   }
 }
 
@@ -204,19 +160,11 @@ export const loadItem = (forceLoad = false) => {
 }
 
 export const requestAmps = () => {
-  return {
-    type: AMPS_REQUEST,
-    isFetching: true
-  }
+  return {type: AMPS_REQUEST, isFetching: true}
 }
 
-export const errorAmps = (message: string) => {
-  return {
-    type: AMPS_FAILURE,
-    errorMessage: message,
-    snackMessage: message,
-    isFetching: false
-  }
+export const errorAmps = (message : string) => {
+  return {type: AMPS_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
 
 const transformAmpsToAutocomplete = (ampsWithKeys) => {
@@ -242,12 +190,9 @@ export const successAmps = (amps) => {
 export const fetchAmpsVersions = () => {
   return (dispatch) => {
     dispatch(requestAmps())
-    return (
-      fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc')
-        .then((response) => response.json())
-        .then((json) => {
-          dispatch(successAmps(json.versions.records))
-        }))
+    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
+      dispatch(successAmps(json.versions.records))
+    }))
   }
 }
 
@@ -264,61 +209,37 @@ export const loadAmpsVersions = () => {
 
 export const selectBrand = (brand) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: SELECT_BRAND,
-        selectedBrand: brand
-      })
+    dispatch({type: SELECT_BRAND, selectedBrand: brand})
   }
 }
 
 export const selectModel = (model) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: SELECT_MODEL,
-        selectedModel: model
-      })
+    dispatch({type: SELECT_MODEL, selectedModel: model})
   }
 }
 
 export const filterBrand = (value) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: FILTER_BRAND,
-        filteredBrand: value
-      })
+    dispatch({type: FILTER_BRAND, filteredBrand: value})
   }
 }
 
 export const filterModels = (value) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: FILTER_MODELS,
-        filteredModels: value
-      })
+    dispatch({type: FILTER_MODELS, filteredModels: value})
   }
 }
 
 export const setNavbarPinned = (value) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: SET_PIN_NAVBAR,
-        navbarPinned: value
-      })
+    dispatch({type: SET_PIN_NAVBAR, navbarPinned: value})
   }
 }
 
 export const setNavbarActive = (value) => {
   return (dispatch) => {
-    dispatch(
-      {
-        type: SET_ACTIVE_NAVBAR,
-        navbarActive: value
-      })
+    dispatch({type: SET_ACTIVE_NAVBAR, navbarActive: value})
   }
 }
 
@@ -340,55 +261,74 @@ export const actions = {
   loadAmpsVersions
 }
 
-// ------------------------------------
-// Action Handlers
+// ------------------------------------ Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [BRANDS_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetching: true }),
-  [BRANDS_FAILURE]: (state, action) => Object.assign({}, state,
-    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
-  [BRANDS_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetching: false, brands: action.brands }),
-  [MODELS_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetchingModels: true }),
-  [MODELS_FAILURE]: (state, action) => Object.assign({}, state,
-    { isFetchingModels: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
-  [MODELS_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetchingModels: false, models: action.models }),
-  [ITEM_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetching: true }),
-  [ITEM_FAILURE]: (state, action) => Object.assign({}, state,
-    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
-  [ITEM_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetching: false, item: action.item }),
-  [AMPS_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetching: true }),
-  [AMPS_FAILURE]: (state, action) => Object.assign({}, state,
-    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
-  [AMPS_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetching: false, ampVersions: action.ampVersions }),
-  [SELECT_BRAND]: (state, action) => Object.assign({}, state,
-    { selectedBrand: action.selectedBrand }),
-  [FILTER_BRAND]: (state, action) => Object.assign({}, state,
-    { filteredBrand: action.filteredBrand }),
-  [FILTER_MODELS]: (state, action) => Object.assign({}, state,
-    { filteredModels: action.filteredModels }),
-  [SELECT_MODEL]: (state, action) => Object.assign({}, state,
-    { selectedModel: action.selectedModel, selectedModelsList: addToSelectedModels(state, action.selectedModel) }),
-  [SET_PIN_NAVBAR]: (state, action) => Object.assign({}, state,
-    { navbarPinned: action.navbarPinned }),
-  [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state,
-    { navbarActive: action.navbarActive })
+  [BRANDS_REQUEST]: (state, action) => Object.assign({}, state, {isFetching: true}),
+  [BRANDS_FAILURE]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    errorMessage: action.errorMessage,
+    snackMessage: action.snackMessage
+  }),
+  [BRANDS_SUCCESS]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    brands: action.brands
+  }),
+  [MODELS_REQUEST]: (state, action) => Object.assign({}, state, {isFetchingModels: true}),
+  [MODELS_FAILURE]: (state, action) => Object.assign({}, state, {
+    isFetchingModels: false,
+    errorMessage: action.errorMessage,
+    snackMessage: action.snackMessage
+  }),
+  [MODELS_SUCCESS]: (state, action) => Object.assign({}, state, {
+    isFetchingModels: false,
+    models: action.models
+  }),
+  [ITEM_REQUEST]: (state, action) => Object.assign({}, state, {isFetching: true}),
+  [ITEM_FAILURE]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    errorMessage: action.errorMessage,
+    snackMessage: action.snackMessage
+  }),
+  [ITEM_SUCCESS]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    item: action.item
+  }),
+  [AMPS_REQUEST]: (state, action) => Object.assign({}, state, {isFetching: true}),
+  [AMPS_FAILURE]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    errorMessage: action.errorMessage,
+    snackMessage: action.snackMessage
+  }),
+  [AMPS_SUCCESS]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    ampVersions: action.ampVersions
+  }),
+  [SELECT_BRAND]: (state, action) => Object.assign({}, state, {selectedBrand: action.selectedBrand}),
+  [FILTER_BRAND]: (state, action) => Object.assign({}, state, {filteredBrand: action.filteredBrand}),
+  [FILTER_MODELS]: (state, action) => Object.assign({}, state, {filteredModels: action.filteredModels}),
+  [SELECT_MODEL]: (state, action) => Object.assign({}, state, {
+    selectedModel: action.selectedModel,
+    selectedModelsList: addToSelectedModels(state, action.selectedModel)
+  }),
+  [SET_PIN_NAVBAR]: (state, action) => Object.assign({}, state, {navbarPinned: action.navbarPinned}),
+  [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state, {navbarActive: action.navbarActive})
 }
 
-// ------------------------------------
-// Reducer
+// ------------------------------------ Reducer
 // ------------------------------------
 const initialState = {
   isFetching: false,
-  isAuthenticated: localStorage.getItem('schemarch_token') ? true : false,
-  user: { userId: '', email: '', firstname: '', lastname: '', username: '' },
+  isAuthenticated: localStorage.getItem('schemarch_token')
+    ? true
+    : false,
+  user: {
+    userId: '',
+    email: '',
+    firstname: '',
+    lastname: '',
+    username: ''
+  },
   brands: [],
   errorMessage: '',
   snackMessage: '',
@@ -406,5 +346,7 @@ const initialState = {
 }
 export default function BrandsReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
-  return handler ? handler(state, action) : state
+  return handler
+    ? handler(state, action)
+    : state
 }
