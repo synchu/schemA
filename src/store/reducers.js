@@ -2,8 +2,6 @@ import { combineReducers } from 'redux'
 import { routerReducer as router } from 'react-router-redux'
 import { reducer as formReducer } from 'redux-form'
 import {LOGIN_SUCCESS, LOGOUT_SUCCESS} from '../routes/Login/modules/loginUser.js'
-import { TRACKS_FAILURE } from '../routes/Mytracks/modules/MyTracks.js'
-
 
 // sniff for some global variables settings
 const globalReducer = (state = {}, action) => {
@@ -12,8 +10,8 @@ const globalReducer = (state = {}, action) => {
       return ({ ...state, isAuthenticated: true })
     case LOGOUT_SUCCESS:
       return ({ ...state, isAuthenticated: false })
-    case TRACKS_FAILURE:
-      return ({ ...state, errorMessage: action.errorMessage })
+    case 'ITEMS_DONE':
+      return ({ ...state, errorMessage: 'no errors' })
     default:
       return ({ ...state })
   }

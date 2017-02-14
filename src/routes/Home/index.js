@@ -1,4 +1,4 @@
-import HomeView from './components/HomeView'
+// import HomeView from './components/HomeView'
 import HomeContainer from './containers/HomeViewContainer'
 
 // Sync route definition

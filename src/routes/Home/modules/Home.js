@@ -1,6 +1,7 @@
 /* @flow*/
 
 import fetch from 'isomorphic-fetch'
+// import Rx from 'rxjs'
 // ------------------------------------ Constants
 // ------------------------------------
 export const BRANDS_REQUEST = 'BRANDS_REQUEST'
@@ -30,15 +31,30 @@ export const SET_ACTIVE_NAVBAR = 'SET_ACTIVE_NAVBAR'
 // ------------------------------------ Utils
 // ------------------------------------
 
-const addKey = (item) => {
+const addKey = (items) => {
   let j = 0
-  return item.map((i) => Object.assign({}, i, {
+  return items.map((i) => Object.assign({}, i, {
     key: j++
   }))
 }
 
 // ------------------------------------ Actions
-// ------------------------------------
+export const observableFetch = () => {
+  return (dispatch) => {
+    return
+    // const response = fetch('http://thesubjectmatter.com/api.php/brand_stats')
+    // console.log(response)
+   /* const brands$ = Rx
+      .Observable
+      .fromPromise(fetch('http://thesubjectmatter.com/api.php/brand_stats').then(response => response.json()).then(json => json.brand_stats.records))
+    let j = 0
+    const subs = brands$.subscribe(x => x.map(a => console.log(Object.assign({}, a, {
+      key: j++
+    })), e => console.error(e)))
+
+    return subs*/
+  }
+}
 
 export const requestBrands = () => {
   return {type: BRANDS_REQUEST, isFetching: true}
@@ -49,7 +65,7 @@ export const errorBrands = (message : string) => {
 }
 
 export const successBrands = (brands) => {
-  return {type: BRANDS_SUCCESS, brands: addKey(brands)}
+  return {type: BRANDS_SUCCESS, brands: (brands)}
 }
 
 export const fetchBrands = () => {
@@ -60,7 +76,7 @@ export const fetchBrands = () => {
         dispatch(successBrands(json.brand_stats.records))
       }))
     } else {
-      console.warn('Fetch API not available! Attempt to load brands anyway. Other data may not be av' +
+      console.warn('Fetch API not available! Attempting to load brands anyway. Other data may not be av' +
           'ailable!')
       if (window.XMLHttpRequest) {
         let xhttp = new XMLHttpRequest()
@@ -98,7 +114,8 @@ export const errorModels = (message : string) => {
 }
 
 export const successModels = (models) => {
-  return {type: MODELS_SUCCESS, models: addKey(models), isFetchingModels: false}
+
+  return {type: MODELS_SUCCESS, models: (models), isFetchingModels: false}
 }
 
 export const fetchModels = (brand) => {
@@ -141,8 +158,8 @@ export const fetchItem = (brand, model) => {
     dispatch(requestItem())
     return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
         ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
-      dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
-    }))
+          dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
+        }))
   }
 }
 
@@ -170,29 +187,34 @@ export const errorAmps = (message : string) => {
 const transformAmpsToAutocomplete = (ampsWithKeys) => {
   let c = {}
   ampsWithKeys.map((a) => {
-    c = Object.defineProperty(c, a['key'].toString(), {
+    console.log(a[3])
+    c = Object.defineProperty(c, a[3].toString(), {
       enumerable: true,
       configurable: false,
-      writable: false,
+      writable: true,
       value: a[0] + ', ' + a[1] + ', ' + a[2]
     })
   })
+  console.log(c)
   return c
 }
 
 export const successAmps = (amps) => {
   return {
     type: AMPS_SUCCESS,
-    ampVersions: transformAmpsToAutocomplete(addKey(amps))
+    ampVersions: transformAmpsToAutocomplete((amps))
   }
 }
 
 export const fetchAmpsVersions = () => {
   return (dispatch) => {
     dispatch(requestAmps())
-    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
-      dispatch(successAmps(json.versions.records))
-    }))
+    return (
+      fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc')
+      .then((response) => response.json())
+      .then((json) => {
+        dispatch(successAmps(json.versions.records))
+      }))
   }
 }
 

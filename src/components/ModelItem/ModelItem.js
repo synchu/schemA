@@ -16,132 +16,9 @@ import {Link} from 'react-router'
 import classes from './ModelItem.scss'
 import MediaQuery from 'react-responsive'
 import TableView from './TableView'
-import {DESCRIPTION, SCHEMATIC, LAYOUT, OTHER, PHOTO} from 'utils/constants'
+import {DESCRIPTION} from 'utils/constants'
+import {transformData} from './TransformData'
 import './updateDb'
-
-const transformData = (item) => {
-  let itemObjects = []
-
-  let j = 0
-  let maxDataId = 0
-
-  item.map((i) => {
-    let bFound = false
-    let itemObject = {
-      model: '',
-      version: '',
-      description: '',
-      contributor: '',
-      descriptionDate: new Date(),
-      layouts: [],
-      schematics: [],
-      photos: [],
-      others: [],
-      brand: '',
-      bid: '',
-      descriptionId: 0,
-      maxDataId: 0,
-      versionId: 0
-    }
-
-    for (j = 0; j < itemObjects.length; j++) {
-      if (itemObjects[j].version === i.version) {
-        bFound = true
-        break
-      }
-    }
-
-    if (bFound) {
-      itemObject = itemObjects[j]
-    } else {
-      itemObject.version = i.version
-      itemObject.model = i.model
-      itemObject.brand = i.brand
-      itemObject.bid = i.bid
-      itemObject.versionId = i.id
-    }
-
-    maxDataId = i.data_id > maxDataId
-      ? i.data_id
-      : maxDataId
-
-    switch (i.type) {
-      case DESCRIPTION:
-        itemObject.description = i.data
-        itemObject.contributor = i.contributor
-        itemObject.descriptionDate = i.datestamp
-        itemObject.descriptionId = i.id
-        break
-      case LAYOUT:
-        itemObject
-          .layouts
-          .push({
-            id: itemObject.layouts.length + 1,
-            layout: i.data,
-            layoutName: i.filename,
-            layoutDate: i.datestamp,
-            layoutContributor: i.contributor,
-            updateId: i.id
-          })
-          // itemObject.layoutsMaxId = i.id > itemObject.layoutsMaxId ? i.id :
-          // itemObject.layoutsMaxId
-        break
-      case SCHEMATIC:
-        itemObject
-          .schematics
-          .push({
-            id: itemObject.schematics.length + 1,
-            schematic: i.data,
-            schematicName: i.filename,
-            schematicDate: i.datestamp,
-            schematicContributor: i.contributor,
-            updateId: i.id
-          })
-          // itemObject.schematicsMaxId = i.id > itemObject.schematicsMaxId ? i.id :
-          // itemObject.schematicsMaxId
-        break
-      case PHOTO:
-        itemObject
-          .photos
-          .push({
-            id: itemObject.photos.length + 1,
-            photo: i.data,
-            photoName: i.filename,
-            photoDate: i.datestamp,
-            photoContributor: i.contributor,
-            updateId: i.id
-          })
-          // itemObject.photosMaxId = i.id > itemObject.photosMaxId ? i.id :
-          // itemObject.photosMaxId
-        break
-      case OTHER:
-        itemObject
-          .others
-          .push({
-            id: itemObject.others.length + 1,
-            other: i.data,
-            otherName: i.filename,
-            otherDate: i.datestamp,
-            otherContributor: i.contributor,
-            updateId: i.id
-          })
-          // itemObject.othersMaxId = i.id > itemObject.othersMaxId ? i.id :
-          // itemObject.othersMaxId
-        break
-      default:
-        break
-    }
-    if (!bFound) {
-      itemObjects.push(itemObject)
-    }
-  })
-
-  itemObjects.forEach(function (value) {
-    value.maxDataId = maxDataId
-  })
-
-  return itemObjects
-}
 
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
 
@@ -162,12 +39,31 @@ const makeDownloadLink = (linkData) => {
   )
 }
 
+export const getTabIcon = (iconName, typesAsPictures) => {
+  let tabIcon =
+      typesAsPictures
+      ? iconName
+      : (() => {
+        switch (iconName) {
+          case 'developer_board': return 'SCH'
+          case 'collections': return 'LO'
+          case 'photo': return 'PH'
+          case 'attachment': return 'OTH'
+          default:
+            return
+        }
+      })(iconName)
+  return tabIcon
+}
+
 export class ModelItem extends Component {
   state = {}
   static propTypes = {
     items: PropTypes.array,
     cardsAsList: PropTypes.bool,
-    loadItem: PropTypes.func
+    loadItem: PropTypes.func,
+    isAuthenticated: PropTypes.bool,
+    typesAsPictures: PropTypes.bool
   }
 
   constructor (props) {
@@ -303,6 +199,7 @@ export class ModelItem extends Component {
   }
 
   renderTabbedView = (itemData) => {
+    const {typesAsPictures} = this.props
     return (
       <Tabs
         index={this.state[itemData.version]}
@@ -310,7 +207,7 @@ export class ModelItem extends Component {
         onChange={(e) => this.handleFixedTabChange(e, itemData.version)}
         className={classes.tabs}>
         <Tab
-          label={this.makeTabLabel('Schematics', itemData.schematics.length, 'developer_board')}>
+          label={this.makeTabLabel('Schematics', itemData.schematics.length, getTabIcon('developer_board', typesAsPictures))}>
           <div className={classes.actionItems}>
             {itemData
               .schematics
@@ -318,21 +215,21 @@ export class ModelItem extends Component {
           </div>
         </Tab>
         <Tab
-          label={this.makeTabLabel('Layouts', itemData.layouts.length, 'collections')}>
+          label={this.makeTabLabel('Layouts', itemData.layouts.length, getTabIcon('collections', typesAsPictures))}>
           <div className={classes.actionItems}>
             {itemData
               .layouts
               .map((l) => this.renderLayouts(l))}
           </div>
         </Tab>
-        <Tab label={this.makeTabLabel('Photos', itemData.photos.length, 'photo')}>
+        <Tab label={this.makeTabLabel('Photos', itemData.photos.length, getTabIcon('photo', typesAsPictures))}>
           <div className={classes.actionItems}>
             {itemData
               .photos
               .map((p) => this.renderPhotos(p))}
           </div>
         </Tab>
-        <Tab label={this.makeTabLabel('Other', itemData.others.length, 'attachment')}>
+        <Tab label={this.makeTabLabel('Other', itemData.others.length, getTabIcon('attachment', typesAsPictures))}>
           <div className={classes.actionItems}>
             {itemData
               .others
@@ -487,8 +384,10 @@ export class ModelItem extends Component {
   }
 
   handleEditClick = (value, content) => (e) => {
-    if (this.state.globalReducer && !this.state.globalReducer.isAuthenticated) {
-      console.log('card edit not authenticated')
+    const {isAuthenticated} = this.props
+    if (!isAuthenticated) {
+      console.log('card edit not authotized')
+      return
     }
     this.setState({
       ...this.state,
@@ -499,6 +398,11 @@ export class ModelItem extends Component {
   }
 
   renderEditButton = (field, content) => {
+    const {isAuthenticated} = this.props
+    if (!isAuthenticated) {
+      return
+    }
+
     return (<IconButton
       icon='mode_edit'
       title='Edit'
@@ -538,7 +442,7 @@ export class ModelItem extends Component {
         {!this.state[makeField(itemData.version, field)] && itemData[field]}
         {!this.state[makeField(itemData.version, field)] && this.renderEditButton(makeField(itemData.version, field), itemData[field])}
         {this.state[makeField(itemData.version, field)] && this.renderEditComponent(itemData, field)}
-        {this.state[itemData.version + '_changed'] && this.renderSaveButton(makeField(itemData.version, field))}        
+        {this.state[itemData.version + '_changed'] && this.renderSaveButton(makeField(itemData.version, field))}
         {this.state[makeField(itemData.version, field)] && this.renderCancelButton(makeField(itemData.version, field))}
       </span>
     )
@@ -583,7 +487,7 @@ export class ModelItem extends Component {
             checked={this.state['switch' + itemData.version]}
             label='Tab/list view'
             onChange={(e) => this.handleTabListSwitch(e, itemData.version)} /> {this.state['switch' + itemData.version]
-            ? <TableView itemData={arr} {...this.props} />
+            ? <TableView itemData={arr} tabIcon={getTabIcon} {...this.props} />
             : this.renderTabbedView(itemData)}
         </CardActions>
       </Card>
@@ -613,7 +517,7 @@ export class ModelItem extends Component {
     return (
       <div>
         {!cardsAsList && itemObjects.map(this.renderModelsCard)}
-        {cardsAsList && <TableView itemData={itemObjects} {...this.props} />
+        {cardsAsList && <TableView itemData={itemObjects} tabIcon={getTabIcon} {...this.props} />
 }
       </div>
     )

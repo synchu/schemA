@@ -13,6 +13,46 @@ $stats-font-size-factor: 0.9;
     flex-direction: row;
 }
 
+.autoRow {
+    overflow-y: auto;
+    flex-direction: row;
+}
+
+.flexRightAuto {
+    display: flex;
+    margin-right: auto;
+}
+
+.flexRowNoWrap {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.flexRowWrap {
+    display: flex;
+    flex-flow: row wrap;
+}
+.flexRowWrapLeft {
+    display: flex;
+    flex-flow: row wrap;
+    margin-left: 1 rem;
+}
+
+.filterBrandsButton {
+    position: absolute;
+    right: 0.5rem;
+    margin-top: 2rem;
+    opacity: 0.5;
+    padding: 0;
+    width: 15%;
+}
+
+.fontIconSelection {
+    color:green;
+    margin-bottom: auto;
+    font-size: 1.6rem;
+}
+
 //list item stats mini buttons styling 
 .mini {
     padding: 5px;
@@ -30,6 +70,13 @@ $stats-font-size-factor: 0.9;
 
 .tooltipActive {
     z-index: 1000;
+}
+
+.brandItem {
+     :hover {
+        cursor: pointer;
+        cursor: hand;
+    }
 }
 
 @media screen and (min-width: 769px) {

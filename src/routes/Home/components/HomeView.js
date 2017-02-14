@@ -5,13 +5,11 @@ import ModelItem from '../../../components/ModelItem'
 import SocialShare from '../../../components/SocialShare'
 import {
   Snackbar,
-  Switch,
   List,
   Panel,
   NavDrawer,
   Layout,
   ListItem,
-  Tooltip,
   IconButton,
   Chip,
   FontIcon
@@ -19,39 +17,19 @@ import {
 import {Input} from 'react-toolbox/lib/input'
 import {clearMessage} from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
+import {renderStatItem} from './Stats'
 import WelcomeDialog from './WelcomeDialog'
 import classnames from 'classnames'
 
-export const renderStatItem = (brandItem, index, tooltip, icon) => {
-  const TTStats = Tooltip(IconButton)
-  return (
-    <span>
-      <MediaQuery minDeviceWidth={767}>
-        <TTStats
-          primary
-          icon={icon}
-          tooltip={tooltip}
-          theme={classes}
-          className={classes.statsFontScale}>
-          {<span> {
-            brandItem[index]
-          } </span>}
-        </TTStats>
-      </MediaQuery>
-      <MediaQuery maxDeviceWidth={766}/>
-    </span>
-  )
-}
-
 export class HomeView extends Component {
+  singleModel = false
   state = {
     loggedout: false,
     invisibleChip: false,
     modelsAsList: false,
     cardsAsList: false,
     showStats: true,
-    welcomeActive: true,
-    showSettings: true
+    welcomeActive: true
   }
 
   static propTypes = {
@@ -80,13 +58,15 @@ export class HomeView extends Component {
     loadAmpsVersions: PropTypes.func,
     selectedModel: PropTypes.string,
     setNavbarPinned: PropTypes.func,
-    isFetchingModels: PropTypes.bool
+    isFetchingModels: PropTypes.bool,
+    observableFetch: PropTypes.func
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state.cardsAsList = JSON.parse(localStorage.getItem('cards_as_list')) || false
     this.state.modelsAsList = JSON.parse(localStorage.getItem('models_as_list')) || false
+    this.state.typesAsPictures = JSON.parse(localStorage.getItem('types_as_pictures')) || true
     this.state.showStats = JSON.parse(localStorage.getItem('show_stats')) === null
       ? true
       : JSON.parse(localStorage.getItem('show_stats'))
@@ -144,15 +124,16 @@ export class HomeView extends Component {
       .handleModelClicked
       .bind(this, model)
 
+    const key = 6
+    if (this.singleModel) {
+      mc(model, undefined)
+    }
+
     return (
-      <span key={model.key}>
-        {!this.state.modelsAsList && <Chip key={model.key} onClick={mc} className={classes.modelChips}>
+      <span key={model[key]}>
+        {!this.state.modelsAsList && <Chip key={model[key]} onClick={mc} className={classes.modelChips}>
           {(selectedModel === model[1]) && <FontIcon
-            style={{
-              color: 'green',
-              marginBottom: 'auto',
-              fontSize: '1.6rem'
-            }}
+            className={classes.fontIconSelection}
             value='check' />}
           <span title='Click to view items'>
             <strong>{model[1]}</strong>
@@ -166,7 +147,7 @@ export class HomeView extends Component {
         </Chip>
 }
         {this.state.modelsAsList && <ListItem
-          key={model.key}
+          key={model[key]}
           caption={model[1]}
           className={classes.modelListItem}
           leftIcon={selectedModel === model[1]
@@ -178,99 +159,101 @@ export class HomeView extends Component {
     )
   }
 
-  animate = (elem, style, unit, from, to, time, prop) => {
-    if (!elem) {
-      return
-    }
-    let start = new Date().getTime()
-    let timer = setInterval(function () {
-      var step = Math.min(1, (new Date().getTime() - start) / time)
-      if (prop) {
-        elem[style] = (from + step * (to - from)) + unit
-      } else {
-        elem.style[style] = (from + step * (to - from)) + unit
-      }
-      if (step === 1) {
-        clearInterval(timer)
-      }
-    }, 25)
-    elem.style[style] = from + unit
-  }
 
   renderBrands = (b) => {
     const {selectedBrand, models, filteredModels, isFetchingModels} = this.props
     const {modelsAsList, showStats} = this.state
+
+    const key = 5
+
+
+    if (b[0] === selectedBrand) {
+      this.singleModel = false
+    }
 
     let bc = this
       .handleBrandClicked
       .bind(this, b)
 
     return (
-      <span key={b.key} id={b[0]} ref={b[0]}>
+      <span key={b[key]} id={b[0]} ref={b[0]}>
         <MediaQuery minDeviceWidth={768}>
           <ListItem
-            key={b.key}
             caption={b[0]}
             className={classes.brandItem}
             leftIcon={selectedBrand === b[0]
             ? 'star'
             : 'subject'}
             rightIcon={showStats
-            ? <span className={classes.brandstats}>
+              ? <span className={classes.brandstats}>
                 {renderStatItem(b, 1, 'No. of schematics', 'developer_board')}
                 {renderStatItem(b, 3, 'No. of layouts', 'collections')}
-                {renderStatItem(b, 2, 'No. of photos', 'photo')}
-                {renderStatItem(b, 4, 'No. of other docs', 'attachment')}
+                {/* renderStatItem(b, 2, 'No. of photos', 'photo')*/}
+                {/* renderStatItem(b, 4, 'No. of other docs', 'attachment')*/}
               </span>
             : <span></span>}
-            onClick={bc}/> {(b[0] === selectedBrand) && <div
-              style={{
-                display: 'flex',
-                flexFlow: 'row wrap',
-                marginLeft: '1rem'
-              }}>
-            {modelsAsList && !isFetchingModels && <List>
-              {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
-            </List>
-}
-            {!modelsAsList && !isFetchingModels && (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
-}
-            {isFetchingModels && <FontIcon
-              style={{
-                margin: 'auto'
-              }}
-              key={b.key}
-              value='hourglass_empty'/>}
-          </div>
-}
+            onClick={bc}
+            />
+          {(b[0] === selectedBrand) &&
+            <div
+              key={b[key]}
+              className={classes.flexRowWrapLeft}>
+            {modelsAsList && !isFetchingModels &&
+              <List key={b[key]}>
+                {(models) && models
+                              .filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1)
+                              .map(this.renderModels)}
+              </List>
+            }
+            {!modelsAsList && !isFetchingModels &&
+              (models) && models
+                           .filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1)
+                           .map(this.renderModels)
+            }
+            {isFetchingModels &&
+              <FontIcon
+                style={{
+                  margin: 'auto'
+                }}
+                key={b[key]}
+                value='hourglass_empty' />}
+            </div>
+        }
         </MediaQuery>
         <MediaQuery maxDeviceWidth={767}>
           <ListItem
-            key={b.key}
+            key={b[key]}
             caption={(selectedBrand === b[0]
             ? String.fromCharCode(10003) + ' ' + b[0]
             : b[0])}
             className={classes.brandItem}
-            onClick={bc}/> {(b[0] === selectedBrand) && <div
-              style={{
-                display: 'flex',
-                flexFlow: 'row wrap',
-                marginLeft: '1rem'
-              }}>
+            onClick={bc} />
+
+            {(b[0] === selectedBrand) && <div
+              className={classes.flexRowWrapLeft}>
             {modelsAsList && !isFetchingModels && <List>
-              {(models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)}
+              {(models) &&
+                 models
+                 .filter((i) => i[1]
+                 .toLowerCase()
+                 .indexOf(filteredModels.toLowerCase()) !== -1)
+                 .map(this.renderModels)}
             </List>}
-            {!modelsAsList && !isFetchingModels && (models) && models.filter((i) => i[1].toLowerCase().indexOf(filteredModels.toLowerCase()) !== -1).map(this.renderModels)
-}
+            {!modelsAsList && !isFetchingModels && (models) &&
+                 models
+                 .filter((i) => i[1]
+                 .toLowerCase()
+                 .indexOf(filteredModels.toLowerCase()) !== -1)
+                 .map(this.renderModels)
+            }
             {isFetchingModels && <FontIcon
               style={{
                 margin: 'auto'
               }}
-              key={b.key}
-              value='hourglass_empty'/>}
-          </div>}
+              key={b[key]}
+              value='hourglass_empty' />}
+            </div>}
         </MediaQuery>
-
       </span>
     )
   }
@@ -289,7 +272,7 @@ export class HomeView extends Component {
       timeout={1000}
       label='Loading...'
       ref='loadingSnack'
-      onClick={hide}/>)
+      onClick={hide} />)
   }
 
   componentDidMount = () => {
@@ -299,16 +282,22 @@ export class HomeView extends Component {
       selectBrand,
       setNavbarActive,
       setNavbarPinned,
-      selectedBrand
+      observableFetch
     } = this.props
+
     loadBrands()
+
+    observableFetch()
+
     const selectedBrandLocal = localStorage.getItem('selected_brand')
+
     if (selectedBrandLocal) {
       selectBrand(selectedBrandLocal)
       loadModels()
     }
 
     this.updateShowLogout()
+
     let mql = window.matchMedia('(min-width: 450px)')
     if (!mql.matches) {
       setNavbarPinned(false)
@@ -331,14 +320,7 @@ export class HomeView extends Component {
     setNavbarActive(!navbarActive)
   }
 
-  showSettings = () => {
-    this.setState({
-      ...this.state,
-      showSettings: !this.state.showSettings
-    })
-  }
-
-  handleTabListSwitch = (e, which) => {
+  handleSettings = (e, which) => {
     switch (which) {
       case 'models':
         localStorage.setItem('models_as_list', JSON.stringify(e))
@@ -361,12 +343,19 @@ export class HomeView extends Component {
           showStats: e
         })
         break
+      case 'types':
+        localStorage.setItem('types_as_pictures', JSON.stringify(e))
+        this.setState({
+          ...this.state,
+          typesAsPictures: e
+        })
+        break
       default:
         break
     }
   }
 
-  render() {
+  render () {
     const {
       snackMessage,
       dispatch,
@@ -377,8 +366,8 @@ export class HomeView extends Component {
       item
     } = this.props
     const {navbarPinned, navbarActive, isFetching, isAuthenticated} = this.props
-    let {filteredBrand, filteredModels, selectedBrand, selectedModel, loadItem} = this.props
-    
+    let {filteredBrand, selectedBrand, selectedModel, loadItem} = this.props
+
     return (
       <Layout className={classes.mainContainer}>
         <NavDrawer
@@ -390,51 +379,7 @@ export class HomeView extends Component {
           <div className={classnames(classes.navigation)}>
             <Panel className={classes.navtitle}>
               <div
-                style={{
-                  flexFlow: 'row wrap',
-                  display: 'flex'
-                }}>
-                <span
-                  style={{
-                    display: 'flex',
-                    flexFlow: 'row wrap'
-                  }}>
-                  {this.state.showSettings && <span
-                    style={{
-                      display: 'flex',
-                      flexFlow: 'row wrap'
-                    }}>
-                    <Switch
-                      theme={classes}
-                      checked={this.state.modelsAsList}
-                      label='Models as list'
-                      onChange={(e) => this.handleTabListSwitch(e, 'models')}/>
-                    <Switch
-                      theme={classes}
-                      checked={this.state.cardsAsList}
-                      label='Cards as list'
-                      onChange={(e) => this.handleTabListSwitch(e, 'cards')}/>
-                    <Switch
-                      theme={classes}
-                      checked={this.state.showStats}
-                      label='Show stats'
-                      onChange={(e) => this.handleTabListSwitch(e, 'stats')}/>
-                  </span>
-}
-                  <span style={{
-                    margin: 'auto'
-                  }}>
-                    <IconButton
-                      icon={this.state.showSettings
-                      ? 'keyboard_arrow_up'
-                      : 'keyboard_arrow_down'}
-                      onClick={this.showSettings}
-                      title='Click to toggle settings panel'
-                      style={{
-                        opacity: 0.5
-                      }}/>
-                  </span>
-                </span>
+                className={classes.flexRowWrap}>
                 <Input
                   type='text'
                   hint='Type to filter brands'
@@ -443,22 +388,20 @@ export class HomeView extends Component {
                   className={classes.filterInputs}
                   name='filterBrand'
                   value={filteredBrand}
-                  onChange={this.handleChange} /> {filteredBrand && <IconButton
-                    icon='close'
-                    onClick={() => filterBrand('')}
-                    style={{
-                      position: 'absolute',
-                      right: '0.5rem',
-                      marginTop: '2rem',
-                      opacity: 0.5,
-                      padding: '0',
-                      width: '15%'
-                    }} />}
+                  onChange={this.handleChange} />
+                  {filteredBrand &&
+                    <IconButton
+                      icon='close'
+                      onClick={() => filterBrand('')}
+                      className={classes.filterBrandsButton}
+                    />}
               </div>
             </Panel>
             <Panel className={classes.brands}>
               <List selectable>
-                {(brands) && brands.filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1).map(this.renderBrands)}
+                {(brands) && brands
+                              .filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1)
+                              .map(this.renderBrands)}
               </List>
             </Panel>
           </div>
@@ -467,13 +410,12 @@ export class HomeView extends Component {
         </NavDrawer>
 
         <Panel>
-          {< WelcomeDialog welcomeActive={
+          < WelcomeDialog welcomeActive={
             this.state.welcomeActive
               ? this.state.welcomeActive
               : false
           }
-            handleWelcome={
-            (e, type) => {
+            handleWelcome={(e, type) => {
               if (type === 'from_switch') {
                 localStorage.setItem('welcome_active', JSON.stringify(e))
               }
@@ -482,21 +424,24 @@ export class HomeView extends Component {
                 welcomeActive: e
               })
             }
-          } />}
+          } />
+
           <Header
             isAuthenticated={isAuthenticated}
             dispatch={dispatch}
             className={classes.heading}
             drawer={this.refs.navdrawer}
+            handleSettings={this.handleSettings}
+            currentSettings={{modelsAsList: this.state.modelsAsList,
+              cardsAsList: this.state.cardsAsList,
+              showStats: this.state.showStats,
+              typesAsPictures: this.state.typesAsPictures}}
             {...this.props} />
           <Panel className={classes.content}>
             <Panel
-              style={{
-                overflowY: 'auto',
-                flexDirection: 'row'
-              }}
+              // style={classes.autoRow}
               scrollY
-              className={classes.Panes}>
+              className={classnames(classes.Panes, classes.autoRow)}>
               <div
                 style={{
                   display: 'flex',
@@ -506,10 +451,7 @@ export class HomeView extends Component {
                 expected, including the file links.
               </div>
               <div
-                style={{
-                  display: 'flex',
-                  marginRight: 'auto'
-                }}>
+                className={classes.flexRightAuto}>
                 <h4>{selectedBrand}- {selectedModel}</h4>
               </div>
               <Panel scrollY style={{
@@ -520,6 +462,7 @@ export class HomeView extends Component {
                   items={item}
                   cardsAsList={this.state.cardsAsList}
                   loadItem={loadItem}
+                  typesAsPictures={this.state.typesAsPictures}
                   isAuthenticated={isAuthenticated} />}
               </Panel>
             </Panel>
@@ -546,21 +489,18 @@ export class HomeView extends Component {
 }
           <footer id='pageFooter'>
             <div
-              style={{
-                display: 'flex',
-                flexFlow: 'row nowrap'
-              }}>
+              className={classes.flexRowNoWrap}>
               <small>Navigation Software Copyright© 2016
-                <a href='http://www.synchu.com' target='_blank'>synchu.com.</a>
+                <a href='http://www.synchu.com' target='_blank'> synchu.com.</a>
                 <div>
-                  <span>Read</span>
-                  <a href='http://www.synchu.com' target='_blank'>our privacy policy</a>
+                  <span>Read </span>
+                  <a href='privacypolicy.html' target='_blank'> our privacy policy</a>
                   <span>and</span>
-                  <a href='http://www.synchu.com' target='_blank'>terms of use</a>
+                  <a href='termsofuse.html' target='_blank'> terms of use</a>
                 </div>
                 <div>
-                  <span>Reach us at
-                    <a href='http://diyguitaramps.prophpbb.com/' target='_blank'>diyGuitarAmps.com</a>
+                  <span>Reach us at 
+                    <a href='http://diyguitaramps.prophpbb.com/' target='_blank'> diyGuitarAmps.com</a>
                   </span>
                 </div>
               </small>

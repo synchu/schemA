@@ -4,7 +4,8 @@ import { loadBrands, loadModels,
          selectBrand, filterBrand,
          loadAmpsVersions, filterModels,
          selectModel, loadItem,
-         setNavbarActive, setNavbarPinned } from '../modules/Home'
+         setNavbarActive, setNavbarPinned,
+         observableFetch } from '../modules/Home'
 // import { userObject } from '../interfaces/user'
 
 /*  This is a container component. Notice it does not contain any JSX,
@@ -28,7 +29,8 @@ const mapActionCreators = {
   loadItem,
   setNavbarActive,
   setNavbarPinned,
-  loadAmpsVersions
+  loadAmpsVersions,
+  observableFetch
 }
 
 

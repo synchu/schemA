@@ -4,13 +4,17 @@ import {IconButton, Button, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
 import {logoutUser, loginUser} from '../../routes/Login/modules/loginUser'
 import Logo from '../Logo'
 import MediaQuery from 'react-responsive'
+import SettingsDialog from './SettingsDialog'
+import HelpDialog from './HelpDialog'
 import classes from './Header.scss'
 
 export class Header extends Component {
   state = {
     multiple: '',
-    renderSnack: true
+    renderSnack: true,
+    settingsVisible: false
   }
+
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     dispatch: PropTypes.func,
@@ -26,10 +30,12 @@ export class Header extends Component {
     selectBrand: PropTypes.func,
     selectModel: PropTypes.func,
     loadModels: PropTypes.func,
-    loadItem: PropTypes.func
+    loadItem: PropTypes.func,
+    handleSettings: PropTypes.func,
+    currentSettings: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.handleClick = this
       .handleClick
@@ -53,6 +59,14 @@ export class Header extends Component {
     })
   }
 
+  toggleSettings = () => {
+    this.setState({...this.state, settingsVisible: !this.state.settingsVisible})
+  }
+
+  toggleHelp = () => {
+    this.setState({...this.state, helpVisible: !this.state.helpVisible})
+  }
+
   changeNavDrawerVisibility = (e) => {
     const {navbarPinned, navbarActive, setNavbarActive, setNavbarPinned} = this.props
 
@@ -71,14 +85,19 @@ export class Header extends Component {
     const {ampVersions, selectBrand, loadModels, selectModel, loadItem} = this.props
     this.setState({multiple: value})
     let selected = ampVersions[value].split(', ')
-
     selectBrand(selected[2])
     loadModels()
     selectModel(selected[1])
     loadItem()
     setTimeout(() => this.setState({multiple: ''}), 1500)
-    // auto scroll to the element- after it is presumably loaded promise based
+    // auto scroll to the element- after it is presumably loaded - promise based
     // implementation would have been much better (after items are loaded)
+    setTimeout(() => {
+      let element = document.getElementById(selected[2].trim())
+      if (element) {
+        element.scrollIntoViewIfNeeded()
+      }
+    }, 1500)
     setTimeout(() => {
       let element = document.getElementById(selected[0].trim())
       if (element) {
@@ -87,13 +106,13 @@ export class Header extends Component {
     }, 1500)
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this
       .props
       .loadAmpsVersions()
   }
 
-  render() {
+  render () {
     const {loginErrorMsg, isAuthenticated, dispatch, ampVersions} = this.props
 
     return (
@@ -114,29 +133,30 @@ export class Header extends Component {
             </div>
           </IndexLink>
           <MediaQuery minDeviceWidth={768}>
-            <div style={{
-              display: 'flex'
-            }}>
-              {isAuthenticated && <div>
-                <Link to='/upload' activeClassName={classes.activeRoute}>
-                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick} />
-                </Link>
-              </div>
-}
-              {!isAuthenticated && <div>
-                {' · '}
+            <div
+              style={{
+                display: 'flex',
+                marginLeft: 'auto'
+              }}>
+              {!isAuthenticated && false && <div>
                 <Link
                   to='/login'
                   activeClassName={classes.activeRoute}
                   onClick={(e) => {
                     e.preventDefault()
-                    loginUser({playblu_token: localStorage.getItem('id_token')})
+                    loginUser({
+                      playblu_token: localStorage.getItem('id_token')
+                    })
                   }}>
                   <Button label='Login' id='login' raised inverse flat />
                 </Link>
                 {loginErrorMsg && <span>loginErrorMsg</span>}
-              </div>
-}
+              </div>}
+              {isAuthenticated && <div>
+                <Link to='/upload' activeClassName={classes.activeRoute}>
+                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick}/>
+                </Link>
+              </div>}
               {isAuthenticated && <div>
                 {' · '}
                 <Link to='/' activeClassName={classes.activeRoute}>
@@ -148,7 +168,7 @@ export class Header extends Component {
                     flat
                     onClick={() => {
                       dispatch(logoutUser())
-                    }} />
+                    }}/>
                 </Link>
               </div>
 }
@@ -157,14 +177,14 @@ export class Header extends Component {
 
           <div
             style={{
-              marginLeft: 'auto',
-              minWidth: '26rem'
+              minWidth: '5rem'
             }}>
             <span
               style={{
                 display: 'flex',
                 flexFlow: 'row nowrap'
               }}>
+            
               <Autocomplete
                 type='search'
                 hint='Type to search versions...'
@@ -176,7 +196,7 @@ export class Header extends Component {
                 value={this.state.multiple}
                 onChange={this.handleMultipleChange}
                 theme={classes}
-                suggestionMatch='anywhere'/>
+                suggestionMatch='anywhere' />
               <IconButton
                 title='Click to clear...'
                 inverse
@@ -186,6 +206,26 @@ export class Header extends Component {
                 }}
                 icon='clear'
                 onClick={() => this.setState({multiple: ''})}/>
+              <IconButton
+                style={{margin: 'auto', marginLeft: 'auto'}}
+                icon='settings'
+                title='Settings'
+                inverse
+                onClick={this.toggleSettings} />
+               {this.state.settingsVisible &&
+                 <SettingsDialog
+                   handleSettings={this.props.handleSettings}
+                   toggleSettings={this.toggleSettings}
+                   currentSettings={this.props.currentSettings} />}
+              <IconButton
+                style={{margin: 'auto', marginLeft: 'auto'}}
+                icon='help'
+                title='Help'
+                inverse
+                onClick={this.toggleHelp} />
+                {this.state.helpVisible &&
+                  <HelpDialog
+                    toggleHelp={this.toggleHelp} />}
             </span>
           </div>
         </AppBar>

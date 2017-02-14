@@ -1,10 +1,10 @@
-// We only need to import the modules necessary for initial render
+import { push } from 'react-router-redux'
 import CoreLayout from '../layouts/CoreLayout/CoreLayout'
 import Home from './Home'
 import uploadFileRoute from './UploadFile'
 import LoginRoute from './Login'
 import AuthService from 'utils/AuthService.js'
-import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from 'authid'
+import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from './authid'
 
 // import DownloadFileRoute from './DownloadFile'
 
@@ -28,9 +28,12 @@ export const createRoutes = (store) => {
   const authRequired = (nextState, replace) => {
     // Now you can access the store object here.
     const state = store.getState()
+    
     const schemarchToken = localStorage.getItem('schemarch_token')
-    if (!auth.loggedIn()) {
+    if (!auth.loggedIn() && nextState.location.pathname === '/login') {
       auth.login()
+      // replace('/')
+      // replace({ nextPathname: nextState.location.pathname }, '/')
     } else {}
     if (state.globalReducer && !state.globalReducer.isAuthenticated) {
       console.log('not yet authenticated')
@@ -46,7 +49,8 @@ export const createRoutes = (store) => {
     indexRoute: Home,
     onEnter: authRequired,
     childRoutes: [
-      uploadFileRoute(store), LoginRoute(store)
+      uploadFileRoute(store)
+      //, LoginRoute(store)
       //  SignUpRoute(store)
     ]
   }

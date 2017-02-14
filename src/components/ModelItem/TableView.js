@@ -25,7 +25,9 @@ export class TableView extends Component {
   state = {}
   static propTypes = {
     itemData: PropTypes.array,
-    cardsAsList: PropTypes.bool
+    cardsAsList: PropTypes.bool,
+    tabIcon: PropTypes.func,
+    typesAsPictures: PropTypes.bool
   }
 
   constructor(props) {
@@ -37,7 +39,7 @@ export class TableView extends Component {
   }
 
   makeTableSource = () => {
-    const {itemData} = this.props
+    const {itemData, tabIcon, typesAsPictures} = this.props
 
     let tableSource = []
     let key = 0
@@ -46,7 +48,7 @@ export class TableView extends Component {
       a.schematics.forEach((i) => {
         tableSource.push({
           key: key++,
-          type: SCHEMATIC, icon: 'developer_board',
+          type: SCHEMATIC, icon: tabIcon('developer_board', typesAsPictures),
           text: i.schematicName, by: i.schematicContributor,
           href: i.schematic,
           version: a.version
@@ -56,7 +58,7 @@ export class TableView extends Component {
       a.layouts.forEach((i) => {
         tableSource.push({
           key: key++,
-          type: LAYOUT, icon: 'collections',
+          type: LAYOUT, icon: tabIcon('collections', typesAsPictures),
           text: i.layoutName, by: i.layoutContributor,
           href: i.layout,
           version: a.version
@@ -66,7 +68,7 @@ export class TableView extends Component {
       a.others.forEach((i) => {
         tableSource.push({
           key: key++,
-          type: OTHER, icon: 'attachment',
+          type: OTHER, icon: tabIcon('attachment', typesAsPictures),
           text: i.otherName, by: i.otherContributor,
           href: i.other,
           version: a.version
