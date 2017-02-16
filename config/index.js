@@ -50,7 +50,11 @@ const config = {
     'react-redux',
     'react-router',
     'react-router-redux',
-    'redux'
+    'redux',
+    'react-dropzone',
+    'auth0-lock',
+    'react-responsive',
+    'redux-form'
   ],
 
   // ----------------------------------

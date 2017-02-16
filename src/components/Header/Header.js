@@ -32,7 +32,8 @@ export class Header extends Component {
     loadModels: PropTypes.func,
     loadItem: PropTypes.func,
     handleSettings: PropTypes.func,
-    currentSettings: PropTypes.object
+    currentSettings: PropTypes.object,
+    toggleSearching: PropTypes.func
   }
 
   constructor (props) {
@@ -82,16 +83,17 @@ export class Header extends Component {
   }
 
   handleMultipleChange = (value) => {
-    const {ampVersions, selectBrand, loadModels, selectModel, loadItem} = this.props
+    const {ampVersions, selectBrand, loadModels, selectModel, loadItem, toggleSearching} = this.props
     this.setState({multiple: value})
     let selected = ampVersions[value].split(', ')
+    toggleSearching()
     selectBrand(selected[2])
     loadModels()
     selectModel(selected[1])
     loadItem()
+    
     setTimeout(() => this.setState({multiple: ''}), 1500)
-    // auto scroll to the element- after it is presumably loaded - promise based
-    // implementation would have been much better (after items are loaded)
+    // auto scroll to the element- after it is presumably loaded
     setTimeout(() => {
       let element = document.getElementById(selected[2].trim())
       if (element) {

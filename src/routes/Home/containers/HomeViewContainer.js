@@ -5,6 +5,7 @@ import { loadBrands, loadModels,
          loadAmpsVersions, filterModels,
          selectModel, loadItem,
          setNavbarActive, setNavbarPinned,
+         toggleSearching,
          observableFetch } from '../modules/Home'
 // import { userObject } from '../interfaces/user'
 
@@ -30,7 +31,8 @@ const mapActionCreators = {
   setNavbarActive,
   setNavbarPinned,
   loadAmpsVersions,
-  observableFetch
+  observableFetch,
+  toggleSearching
 }
 
 
@@ -53,7 +55,8 @@ const mapStateToProps = (state) => ({
   navbarPinned: state.Home.navbarPinned,
   navbarActive: state.Home.navbarActive,
   ampVersions: state.Home.ampVersions,
-  isFetchingModels: state.Home.isFetchingModels
+  isFetchingModels: state.Home.isFetchingModels,
+  searching: state.Home.searching
 })
 
 /*  Note: mapStateToProps is where you should use `reselect` to create selectors, ie:

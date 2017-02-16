@@ -28,6 +28,9 @@ export const FILTER_MODELS = 'FILTER_MODELS'
 export const SET_PIN_NAVBAR = 'SET_PIN_NAVBAR'
 export const SET_ACTIVE_NAVBAR = 'SET_ACTIVE_NAVBAR'
 
+export const SEARCH_ON = 'SEARCH_ON'
+export const SEARCH_OFF = 'SEARCH_OFF'
+
 // ------------------------------------ Utils
 // ------------------------------------
 
@@ -114,7 +117,6 @@ export const errorModels = (message : string) => {
 }
 
 export const successModels = (models) => {
-
   return {type: MODELS_SUCCESS, models: (models), isFetchingModels: false}
 }
 
@@ -149,17 +151,21 @@ export const errorItem = (message : string) => {
   return {type: ITEM_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
 
+
+
 export const successItem = (item) => {
-  return {type: ITEM_SUCCESS, item: addKey(item)}
+  return ({type: ITEM_SUCCESS, item: addKey(item)})
 }
 
 export const fetchItem = (brand, model) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(requestItem())
     return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
         ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
           dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
-        }))
+        })
+
+    )
   }
 }
 
@@ -184,10 +190,23 @@ export const errorAmps = (message : string) => {
   return {type: AMPS_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
 
+const dedupArray = (array) => {
+  let result = []
+
+  array.map(a => {
+    let filtered = result.filter(b => a[0] + ', ' + a[1] + ', ' + a[2] === b[0] + ', ' + b[1] + ', ' + b[2])
+    if (filtered.length <= 0) {
+      result.push(a)
+    }
+  })
+  return result
+}
+
 const transformAmpsToAutocomplete = (ampsWithKeys) => {
   let c = {}
-  ampsWithKeys.map((a) => {
-    console.log(a[3])
+  // strip out duplicates (i.e. same brand model version, but few files - schematics, photos, layouts)
+  let uniqueArray = dedupArray(ampsWithKeys)
+  uniqueArray.map((a) => {
     c = Object.defineProperty(c, a[3].toString(), {
       enumerable: true,
       configurable: false,
@@ -195,7 +214,6 @@ const transformAmpsToAutocomplete = (ampsWithKeys) => {
       value: a[0] + ', ' + a[1] + ', ' + a[2]
     })
   })
-  console.log(c)
   return c
 }
 
@@ -262,6 +280,22 @@ export const setNavbarPinned = (value) => {
 export const setNavbarActive = (value) => {
   return (dispatch) => {
     dispatch({type: SET_ACTIVE_NAVBAR, navbarActive: value})
+  }
+}
+
+export const toggleSearching = () => {
+  return (dispatch, getState) => {
+    if (!getState().Home.searching) {
+      dispatch({type: SEARCH_ON})
+    } else {
+      dispatch({type: SEARCH_OFF})
+    }
+  }
+}
+
+export const setSearchOff = () => {
+  return (dispatch) => {
+    dispatch({type: SEARCH_OFF, searching: false})
   }
 }
 
@@ -334,16 +368,16 @@ const ACTION_HANDLERS = {
     selectedModelsList: addToSelectedModels(state, action.selectedModel)
   }),
   [SET_PIN_NAVBAR]: (state, action) => Object.assign({}, state, {navbarPinned: action.navbarPinned}),
-  [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state, {navbarActive: action.navbarActive})
+  [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state, {navbarActive: action.navbarActive}),
+  [SEARCH_ON]: (state, action) => Object.assign({}, state, {searching: true}),
+  [SEARCH_OFF]: (state, action) => Object.assign({}, state, {searching: false})
 }
 
 // ------------------------------------ Reducer
 // ------------------------------------
 const initialState = {
   isFetching: false,
-  isAuthenticated: localStorage.getItem('schemarch_token')
-    ? true
-    : false,
+  isAuthenticated: !!localStorage.getItem('schemarch_token'),
   user: {
     userId: '',
     email: '',
@@ -364,9 +398,10 @@ const initialState = {
   navbarActive: false,
   navbarPinned: true,
   ampVersions: {},
-  isFetchingModels: false
+  isFetchingModels: false,
+  searching: false
 }
-export default function BrandsReducer(state = initialState, action) {
+export default function BrandsReducer (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
   return handler
     ? handler(state, action)

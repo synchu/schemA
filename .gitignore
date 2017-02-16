@@ -2,7 +2,7 @@
 *.log
 synchu8c_schemarch.sql.gz
 node_modules
-
+PrivacyPolicy.docx
 dist
 coverage
 .vscode

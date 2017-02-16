@@ -1,28 +1,39 @@
 import 'rxjs'
 import {loadItem} from '../routes/Home/modules/Home'
 
-export const selectModelEpic = action$ => {
-  // var model = ''
+export const selectModelEpic = (action$, store) => {
   return action$
     .ofType('MODELS_SUCCESS')
-    .debounceTime(400)
+    .debounceTime(300)
     .map((action) => {
-      return ({
-        type: 'SELECT_MODEL',
-        selectedModel: action.models.length === 1
+     // console.log('models_success')
+     // console.log(store.getState().Home)
+      if (store.getState().Home && !store.getState().Home.searching) {
+        return ({
+          type: 'SELECT_MODEL',
+          selectedModel: action.models.length === 1
           ? action.models[0][1]
           : '',
-        autoLoad: true
-      })
+          autoLoad: true
+        })
+      } else {
+        return ({type: 'SEARCH_OFF', payload: 'selectModelEpic'})
+      }
     })
 }
 
-export const loadItemEpic = action$ => {
+export const loadItemEpic = (action$, store) => {
   // var model = ''
   return action$
     .ofType('SELECT_MODEL')
     .debounceTime(200)
     .map((action) => {
-      return (loadItem())
+      // console.log('select_model')
+      // console.log(store.getState().Home)
+      if (store.getState().Home && !store.getState().Home.searching) {
+        return (loadItem())
+      } else {
+        return ({type: 'SEARCHING', payload: action})
+      }
     })
 }
