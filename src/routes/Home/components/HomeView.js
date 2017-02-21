@@ -15,7 +15,7 @@ import {
   FontIcon
 } from 'react-toolbox'
 import {Input} from 'react-toolbox/lib/input'
-import {clearMessage} from '../../Login/modules/loginUser'
+import {clearMessage, logoutUser, loginUser} from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
 import {renderStatItem} from './Stats'
 import WelcomeDialog from './WelcomeDialog'
@@ -59,7 +59,9 @@ export class HomeView extends Component {
     selectedModel: PropTypes.string,
     setNavbarPinned: PropTypes.func,
     isFetchingModels: PropTypes.bool,
-    observableFetch: PropTypes.func
+    observableFetch: PropTypes.func,
+    loginUser: PropTypes.func,
+    logoutUser: PropTypes.func
   }
 
   constructor (props) {
@@ -108,7 +110,7 @@ export class HomeView extends Component {
     loadModels()
     // clear model and items selection
     selectModel('')
-    loadItem()
+//    loadItem()
   }
 
   handleAddModelsArrow = (refString, isVisible) => {
@@ -436,6 +438,8 @@ export class HomeView extends Component {
               cardsAsList: this.state.cardsAsList,
               showStats: this.state.showStats,
               typesAsPictures: this.state.typesAsPictures}}
+            logoutUser={logoutUser}
+            loginUser={loginUser}
             {...this.props} />
           <Panel className={classes.content}>
             <Panel

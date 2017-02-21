@@ -58,7 +58,8 @@ export const LoginView = (props) => {
   const { handleSubmit, pristine, reset, submitting } = props
   console.log('Yep. In God we trust, all others must submit an X.509 Certificate')
   return (
-    <form onSubmit={handleSubmit(data => (localHandleSubmit(data, props)))}>
+    <span> Logging in...</span>
+   /* <form onSubmit={handleSubmit(data => (localHandleSubmit(data, props)))}>
       <div>
         <Card className={classes['logincard']} raised >
           <CardTitle title='Login' theme={classes} />
@@ -84,7 +85,7 @@ export const LoginView = (props) => {
           </CardActions>
         </Card>
       </div>
-    </form>
+    </form>*/
   )
 }
 

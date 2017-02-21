@@ -1,0 +1,26 @@
+header,
+body {
+    margin-right: auto;
+    margin-left: auto;
+    background-color: rgba(82%, 86.8%, 99.1%, 0.5);
+}
+
+.title {
+    font-weight: 700;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#wrapper {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1170px;
+}
+
+#policy p {
+    padding-left: 25px;
+}
+
+#policy p.sub {
+    padding-left: 45px;
+}

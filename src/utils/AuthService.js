@@ -4,7 +4,8 @@ import Auth0Lock from 'auth0-lock'
 import {browserHistory} from 'react-router'
 
 export default class AuthService extends EventEmitter {
-  constructor (clientId, domain) {
+
+  constructor(clientId, domain, onAuth) {
     super()
     // Configure Auth0
     this.lock = new Auth0Lock(clientId, domain, {
@@ -28,13 +29,18 @@ export default class AuthService extends EventEmitter {
     this.login = this
       .login
       .bind(this)
+    this._onAuth = onAuth.bind(this)
   }
 
-  _doAuthentication (authResult) {
+  _doAuthentication(authResult) {
     // Saves the user token
     this.setToken(authResult.idToken)
     // navigate to the home route
-    browserHistory.replace('/home')
+    browserHistory.replace('/')
+
+    if (this._onAuth) {
+      this._onAuth()
+    }
     // Async loads the user profile data
     this
       .lock
@@ -43,23 +49,25 @@ export default class AuthService extends EventEmitter {
           console.log('Error loading the Profile', error)
         } else {
           this.setProfile(profile)
+          // fire if everything is ok
         }
       })
   }
 
-  _authorizationError (error) {
+  _authorizationError(error) {
     // Unexpected authentication error
     console.log('Authentication Error', error)
+    browserHistory.replace('/')
   }
 
-  login () {
+  login() {
     // Call the show method to display the widget.
     this
       .lock
       .show()
   }
 
-  loggedIn () {
+  loggedIn() {
     // Checks if there is a saved token and it's still valid
     const token = this.getToken()
     return !!token && !isTokenExpired(token)

@@ -1,8 +1,8 @@
 import React, {Component, PropTypes} from 'react'
 import {IndexLink, Link} from 'react-router'
 import {IconButton, Button, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
-import {logoutUser, loginUser} from '../../routes/Login/modules/loginUser'
 import Logo from '../Logo'
+import {push} from 'react-router-redux'
 import MediaQuery from 'react-responsive'
 import SettingsDialog from './SettingsDialog'
 import HelpDialog from './HelpDialog'
@@ -33,7 +33,9 @@ export class Header extends Component {
     loadItem: PropTypes.func,
     handleSettings: PropTypes.func,
     currentSettings: PropTypes.object,
-    toggleSearching: PropTypes.func
+    toggleSearching: PropTypes.func,
+    logoutUser: PropTypes.func,
+    loginUser: PropTypes.func
   }
 
   constructor (props) {
@@ -114,8 +116,9 @@ export class Header extends Component {
       .loadAmpsVersions()
   }
 
+
   render () {
-    const {loginErrorMsg, isAuthenticated, dispatch, ampVersions} = this.props
+    const {loginErrorMsg, isAuthenticated, loginUser, ampVersions} = this.props
 
     return (
       <div>
@@ -147,7 +150,7 @@ export class Header extends Component {
                   onClick={(e) => {
                     e.preventDefault()
                     loginUser({
-                      playblu_token: localStorage.getItem('id_token')
+                      id_token: localStorage.getItem('id_token')
                     })
                   }}>
                   <Button label='Login' id='login' raised inverse flat />
@@ -156,7 +159,7 @@ export class Header extends Component {
               </div>}
               {isAuthenticated && <div>
                 <Link to='/upload' activeClassName={classes.activeRoute}>
-                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick}/>
+                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick} />
                 </Link>
               </div>}
               {isAuthenticated && <div>
@@ -165,12 +168,12 @@ export class Header extends Component {
                   <Button
                     label='Logout'
                     id='logout'
-                    raised
                     inverse
                     flat
                     onClick={() => {
-                      dispatch(logoutUser())
-                    }}/>
+                      this.props.logoutUser()
+                    }
+                  } />
                 </Link>
               </div>
 }
@@ -189,7 +192,7 @@ export class Header extends Component {
             
               <Autocomplete
                 type='search'
-                hint='Type to search versions...'
+                hint='Type to search...'
                 direction='down'
                 icon='search'
                 className={classes.searchInput}
@@ -242,7 +245,7 @@ export class Header extends Component {
             onClick={this.hideSnack}
             timeout={2500}
             ref='snackbar'
-            type='accept'/>
+            type='accept' />
         </div>
       </div>
     )

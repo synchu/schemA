@@ -3,6 +3,9 @@
 // import { userObject } from '../interfaces/user.js'
 import {validateEmail as ve} from '../../../utils/validators'
 
+import fetch from 'isomorphic-fetch'
+import {push} from 'react-router-redux'
+
 // ------------------------------------ Constants
 // ------------------------------------
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
@@ -44,13 +47,11 @@ export function requestLogin(creds) {
 }
 
 export const loginUser = (e) => {
-  return dispatch => {
-    dispatch(receiveLogin(e))
-  }
+  return dispatch => (dispatch(receiveLogin(e)))
 }
 
 export function receiveLogin(user) {
-  return {type: LOGIN_SUCCESS, isFetching: false, isAuthenticated: true, playblu_token: user.playblu_token}
+  return {type: LOGIN_SUCCESS, isFetching: false, isAuthenticated: true, id_token: user.id_token}
 }
 
 export function loginError(message) {
@@ -68,22 +69,43 @@ export const validateEmail = (email) => {
   }
 }
 
-export function requestLogout() {
-  return {type: LOGOUT_REQUEST, isFetching: true, isAuthenticated: true}
+const requestLogout = () => {
+  return ({type: LOGOUT_REQUEST})
 }
 
-export function receiveLogout() {
-  return {type: LOGOUT_SUCCESS, isFetching: false, isAuthenticated: false}
+const receiveLogout = () => {
+  return ({type: LOGOUT_SUCCESS})
+}
+
+const lo = () => {
+  var myheaders = new Headers()
+  myheaders.append('Access-Control-Allow-Origin', '*')
+  var myInit = {
+    method: 'GET',
+    headers: myheaders,
+    mode: 'cors',
+    cache: 'default'
+  }
+  var request = new Request('https://synchu.eu.auth0.com/v2/logout', myInit)
+  fetch('https://synchu.eu.auth0.com/v2/logout').then(response => {
+    console.log(response)
+    return (dispatch) => dispatch(receiveLogout())
+  }).catch(error => console.error(error))
+  /*
+  if (window.XMLHttpRequest) {
+    let xhttp = new XMLHttpRequest()
+    xhttp.open('GET', 'https://synchu.eu.auth0.com/v2/logout', false)
+    xhttp.send()
+    console.log(xhttp.responseText)
+  }*/
 }
 
 export const logoutUser = () => {
-  return dispatch => {
-    dispatch(requestLogout())
-    localStorage.removeItem('playblu_token')
-    localStorage.removeItem('id_token')
-    localStorage.removeItem('profile')
-    dispatch(receiveLogout())
-  }
+  localStorage.removeItem('id_token')
+  localStorage.removeItem('profile')
+  lo()
+  // navigate to home
+  // push('/')
 }
 
 export const clearMessage = () => {
@@ -126,7 +148,7 @@ const ACTION_HANDLERS = {
   }),
   [LOGOUT_REQUEST]: (state, action) => Object.assign({}, state, {
     isFetching: true,
-    isAuthenticated: true
+    isAuthenticated: false
   }),
   [LOGOUT_SUCCESS]: (state, action) => Object.assign({}, state, {
     isFetching: false,

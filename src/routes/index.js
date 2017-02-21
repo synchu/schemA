@@ -1,8 +1,9 @@
-import { push } from 'react-router-redux'
 import CoreLayout from '../layouts/CoreLayout/CoreLayout'
 import Home from './Home'
 import uploadFileRoute from './UploadFile'
 import LoginRoute from './Login'
+import {LOGIN_SUCCESS, LOGIN_FAILURE} from './Login/modules/loginUser'
+import {SET_AUTH_ON, SET_AUTH_OFF} from './Home/modules/Home'
 import AuthService from 'utils/AuthService.js'
 import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from './authid'
 
@@ -12,8 +13,6 @@ import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from './authid'
     PlainRoute objects to build route definitions.   */
 
 import {injectReducer} from '../store/reducers'
-
-const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__)
 
 export const homeReducer = (store) => {
   const reducer = require('./Home/modules/Home').default
@@ -25,19 +24,25 @@ export const homeReducer = (store) => {
 }
 
 export const createRoutes = (store) => {
+  const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__, () => {
+    store.dispatch({type: LOGIN_SUCCESS})
+    store.dispatch({type: SET_AUTH_ON})
+  })
+
   const authRequired = (nextState, replace) => {
     // Now you can access the store object here.
     const state = store.getState()
-    
-    const schemarchToken = localStorage.getItem('schemarch_token')
+
     if (!auth.loggedIn() && nextState.location.pathname === '/login') {
       auth.login()
-      // replace('/')
-      // replace({ nextPathname: nextState.location.pathname }, '/')
-    } else {}
-    if (state.globalReducer && !state.globalReducer.isAuthenticated) {
-      console.log('not yet authenticated')
-      // replace({ nextPathname: nextState.location.pathname }, '/login')
+      // replace('/') replace({ nextPathname: nextState.location.pathname }, '/')
+    } else if (auth.loggedIn() && nextState.location.pathname === '/login') {
+      store.dispatch({type: LOGIN_SUCCESS})
+      store.dispatch({type: SET_AUTH_ON})
+      replace('/')
+    } else if (!auth.loggedIn() && nextState.location.pathname === '/') {
+      store.dispatch({type: LOGIN_FAILURE})
+      store.dispatch({type: SET_AUTH_OFF})
     }
   }
 
@@ -49,8 +54,7 @@ export const createRoutes = (store) => {
     indexRoute: Home,
     onEnter: authRequired,
     childRoutes: [
-      uploadFileRoute(store)
-      //, LoginRoute(store)
+      uploadFileRoute(store), LoginRoute(store)
       //  SignUpRoute(store)
     ]
   }

@@ -30,7 +30,7 @@ export class TableView extends Component {
     typesAsPictures: PropTypes.bool
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.makeTableSource = this.makeTableSource.bind(this)
     this.renderTabView = this.renderTabView.bind(this)
@@ -86,9 +86,9 @@ export class TableView extends Component {
       })
     })
     this.setState({ ...this.state, tableData: tableSource })
-}
+  }
 
-compareT = (a, b) => {
+  compareT = (a, b) => {
   const { sort } = this.state
   if (a[sort.by] < b[sort.by]) {
     return -1
@@ -99,14 +99,14 @@ compareT = (a, b) => {
   return 0
 }
 
-sortByField = (field, ascValue) => {
+  sortByField = (field, ascValue) => {
   const { tableData } = this.state
   // synchronous set state
   this.state = Object.assign({}, this.state, { sort: { by: field, asc: ascValue } })
   return (tableData.sort(this.compareT))
 }
 
-sortTable = (e) => {
+  sortTable = (e) => {
   const {sort} = this.state
 
   let sortedData = []
@@ -126,27 +126,27 @@ sortTable = (e) => {
 
 
 
-renderTabView = () => {
-  const { cardsAsList } = this.props
-  let scType = this.sortTable.bind(this, 'type')
-  let scText = this.sortTable.bind(this, 'text')
-  let scBy = this.sortTable.bind(this, 'by')
-  let TTFontIcon = Tooltip(FontIcon)
-  return (
-    <table className={classnames('table', 'table-stripped', 'table-condensed')}>
-      <thead className={classes.tableHeader}>
-        <tr>
-          {cardsAsList &&
-            <th>
-              Version
-            </th>
-          }
-          <th title='Click or tap to sort' onClick={scType}>Type</th>
-          <th title='Click or tap to sort' onClick={scText}>Item</th>
-          <th title='Click or tap to sort' onClick={scBy}>Contributor</th>
-        </tr>
-      </thead>
-      <tbody>
+  renderTabView = () => {
+    const { cardsAsList } = this.props
+    let scType = this.sortTable.bind(this, 'type')
+    let scText = this.sortTable.bind(this, 'text')
+    let scBy = this.sortTable.bind(this, 'by')
+    let TTFontIcon = Tooltip(FontIcon)
+    return (
+      <table className={classnames('table', 'table-stripped', 'table-condensed')}>
+        <thead className={classes.tableHeader}>
+          <tr>
+            {cardsAsList &&
+              <th>
+               Version
+              </th>
+            }
+            <th title='Click or tap to sort' onClick={scType}>Type</th>
+            <th title='Click or tap to sort' onClick={scText}>Item</th>
+            <th title='Click or tap to sort' onClick={scBy}>Contributor</th>
+          </tr>
+        </thead>
+        <tbody>
         {this.state.tableData.map((i) => {
           return (<tr key={i.key}>
             {cardsAsList &&
@@ -168,14 +168,14 @@ renderTabView = () => {
       </tbody>
     </table>
   )
-}
+  }
 
 
-componentDidMount() {
+  componentDidMount() {
   this.makeTableSource()
 }
 
-render() {
+  render() {
   const { itemData } = this.props
   return (
     <div key={itemData.version}>

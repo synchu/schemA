@@ -1,8 +1,7 @@
 /* @flow*/
 
 import fetch from 'isomorphic-fetch'
-// import Rx from 'rxjs'
-// ------------------------------------ Constants
+// import Rx from 'rxjs' ------------------------------------ Constants
 // ------------------------------------
 export const BRANDS_REQUEST = 'BRANDS_REQUEST'
 export const BRANDS_SUCCESS = 'BRANDS_SUCCESS'
@@ -31,6 +30,9 @@ export const SET_ACTIVE_NAVBAR = 'SET_ACTIVE_NAVBAR'
 export const SEARCH_ON = 'SEARCH_ON'
 export const SEARCH_OFF = 'SEARCH_OFF'
 
+export const SET_AUTH_ON = 'SET_AUTH_ON'
+export const SET_AUTH_OFF = 'SET_AUTH_OFF'
+
 // ------------------------------------ Utils
 // ------------------------------------
 
@@ -47,7 +49,7 @@ export const observableFetch = () => {
     return
     // const response = fetch('http://thesubjectmatter.com/api.php/brand_stats')
     // console.log(response)
-   /* const brands$ = Rx
+    /* const brands$ = Rx
       .Observable
       .fromPromise(fetch('http://thesubjectmatter.com/api.php/brand_stats').then(response => response.json()).then(json => json.brand_stats.records))
     let j = 0
@@ -79,8 +81,8 @@ export const fetchBrands = () => {
         dispatch(successBrands(json.brand_stats.records))
       }))
     } else {
-      console.warn('Fetch API not available! Attempting to load brands anyway. Other data may not be av' +
-          'ailable!')
+      console.warn('Fetch API not available! Attempting to load brands anyway. Other data may not be' +
+          ' available!')
       if (window.XMLHttpRequest) {
         let xhttp = new XMLHttpRequest()
         xhttp.open('GET', 'http://thesubjectmatter.com/api.php/brand_stats', false)
@@ -151,8 +153,6 @@ export const errorItem = (message : string) => {
   return {type: ITEM_FAILURE, errorMessage: message, snackMessage: message, isFetching: false}
 }
 
-
-
 export const successItem = (item) => {
   return ({type: ITEM_SUCCESS, item: addKey(item)})
 }
@@ -160,12 +160,16 @@ export const successItem = (item) => {
 export const fetchItem = (brand, model) => {
   return (dispatch, getState) => {
     dispatch(requestItem())
-    return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
-        ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
-          dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
-        })
-
-    )
+    if (model === '') {
+      // this is faking empty array for clearing the currently selected items for the
+      // model
+      return dispatch(successItem([]))
+    } else {
+      return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
+          ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
+        dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
+      }).catch(r => dispatch(errorItem(r))))
+    }
   }
 }
 
@@ -204,7 +208,8 @@ const dedupArray = (array) => {
 
 const transformAmpsToAutocomplete = (ampsWithKeys) => {
   let c = {}
-  // strip out duplicates (i.e. same brand model version, but few files - schematics, photos, layouts)
+  // strip out duplicates (i.e. same brand model version, but few files -
+  // schematics, photos, layouts)
   let uniqueArray = dedupArray(ampsWithKeys)
   uniqueArray.map((a) => {
     c = Object.defineProperty(c, a[3].toString(), {
@@ -227,12 +232,9 @@ export const successAmps = (amps) => {
 export const fetchAmpsVersions = () => {
   return (dispatch) => {
     dispatch(requestAmps())
-    return (
-      fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc')
-      .then((response) => response.json())
-      .then((json) => {
-        dispatch(successAmps(json.versions.records))
-      }))
+    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
+      dispatch(successAmps(json.versions.records))
+    }))
   }
 }
 
@@ -305,6 +307,14 @@ const addToSelectedModels = (state, item) => {
   return selectedModels
 }
 
+export const setAuthOnOff = (auth) => {
+  if (auth) {
+    dispatch({type: SET_AUTH_ON})
+  } else {
+    dispatch({type: SET_AUTH_OFF})
+  }
+}
+
 // some export if needed to call externally
 export const actions = {
   loadBrands,
@@ -370,14 +380,16 @@ const ACTION_HANDLERS = {
   [SET_PIN_NAVBAR]: (state, action) => Object.assign({}, state, {navbarPinned: action.navbarPinned}),
   [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state, {navbarActive: action.navbarActive}),
   [SEARCH_ON]: (state, action) => Object.assign({}, state, {searching: true}),
-  [SEARCH_OFF]: (state, action) => Object.assign({}, state, {searching: false})
+  [SEARCH_OFF]: (state, action) => Object.assign({}, state, {searching: false}),
+  [SET_AUTH_ON]: (state, action) => Object.assign({}, state, {isAuthenticated: true}),
+  [SET_AUTH_OFF]: (state, action) => Object.assign({}, state, {isAuthenticated: false})
 }
 
 // ------------------------------------ Reducer
 // ------------------------------------
 const initialState = {
   isFetching: false,
-  isAuthenticated: !!localStorage.getItem('schemarch_token'),
+  isAuthenticated: false,
   user: {
     userId: '',
     email: '',
@@ -401,7 +413,7 @@ const initialState = {
   isFetchingModels: false,
   searching: false
 }
-export default function BrandsReducer (state = initialState, action) {
+export default function BrandsReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
   return handler
     ? handler(state, action)
