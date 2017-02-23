@@ -35,7 +35,10 @@ export class Header extends Component {
     currentSettings: PropTypes.object,
     toggleSearching: PropTypes.func,
     logoutUser: PropTypes.func,
-    loginUser: PropTypes.func
+    loginUser: PropTypes.func,
+    requestLogin: PropTypes.func,
+    auth: PropTypes.object,
+    isAdmin: PropTypes.func
   }
 
   constructor (props) {
@@ -118,8 +121,7 @@ export class Header extends Component {
 
 
   render () {
-    const {loginErrorMsg, isAuthenticated, loginUser, ampVersions} = this.props
-
+    const {loginErrorMsg, isAuthenticated, isAdmin, ampVersions, requestLogin, dispatch, auth} = this.props
     return (
       <div>
         <AppBar fixed flat type='horizontal' theme={classes}>
@@ -143,33 +145,31 @@ export class Header extends Component {
                 display: 'flex',
                 marginLeft: 'auto'
               }}>
-              {!isAuthenticated && false && <div>
+              {!isAuthenticated && <div>
                 <Link
                   to='/login'
                   activeClassName={classes.activeRoute}
                   onClick={(e) => {
                     e.preventDefault()
-                    loginUser({
-                      id_token: localStorage.getItem('id_token')
-                    })
+                    requestLogin(auth)
                   }}>
-                  <Button label='Login' id='login' raised inverse flat />
+                  <IconButton icon='account_box' title='login' id='login' inverse />
                 </Link>
                 {loginErrorMsg && <span>loginErrorMsg</span>}
               </div>}
-              {isAuthenticated && <div>
+              {isAuthenticated && isAdmin() && <div>
                 <Link to='/upload' activeClassName={classes.activeRoute}>
-                  <Button label='Upload' id='upload' inverse flat onClick={this.handleClick} />
+                  <IconButton icon='file_upload' title='Upload' id='upload' inverse onClick={this.handleClick} />
                 </Link>
               </div>}
               {isAuthenticated && <div>
                 {' · '}
                 <Link to='/' activeClassName={classes.activeRoute}>
-                  <Button
-                    label='Logout'
+                  <IconButton
+                    icon='exit_to_app'
+                    title='Logout'
                     id='logout'
                     inverse
-                    flat
                     onClick={() => {
                       this.props.logoutUser()
                     }

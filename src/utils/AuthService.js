@@ -9,12 +9,19 @@ export default class AuthService extends EventEmitter {
     super()
     // Configure Auth0
     this.lock = new Auth0Lock(clientId, domain, {
+      additionalSignUpFields: [{name: 'name', placeholder: 'Fill in your name'},
+      {name: 'source', placeholder: 'How did you find SchemA?'},
+      {name: 'icon_custom', placeholder: 'Enter picture URL'}
+      ],
       auth: {
         redirectUrl: `${window.location.origin}/`,
         responseType: 'token'
       },
       theme: {
         logo: ''
+      },
+      languageDictionary: {
+        title: 'SchemA login'
       }
     })
     // Add callback for lock `authenticated` event
@@ -29,7 +36,8 @@ export default class AuthService extends EventEmitter {
     this.login = this
       .login
       .bind(this)
-    this._onAuth = onAuth.bind(this)
+    this
+      ._onAuth = onAuth.bind(this)
   }
 
   _doAuthentication(authResult) {

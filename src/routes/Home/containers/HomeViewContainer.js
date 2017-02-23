@@ -1,12 +1,21 @@
 /* @flow*/
-import { connect } from 'react-redux'
-import { loadBrands, loadModels,
-         selectBrand, filterBrand,
-         loadAmpsVersions, filterModels,
-         selectModel, loadItem,
-         setNavbarActive, setNavbarPinned,
-         toggleSearching, setAuthOnOff,
-         observableFetch } from '../modules/Home'
+import {connect} from 'react-redux'
+import {
+  loadBrands,
+  loadModels,
+  selectBrand,
+  filterBrand,
+  loadAmpsVersions,
+  filterModels,
+  selectModel,
+  loadItem,
+  setNavbarActive,
+  setNavbarPinned,
+  toggleSearching,
+  setAuthOnOff,
+  observableFetch
+} from '../modules/Home'
+import {logoutUser, loginUser, requestLogin} from '../../Login/modules/loginUser'
 // import { userObject } from '../interfaces/user'
 
 /*  This is a container component. Notice it does not contain any JSX,
@@ -33,12 +42,41 @@ const mapActionCreators = {
   loadAmpsVersions,
   observableFetch,
   toggleSearching,
-  setAuthOnOff
+  setAuthOnOff,
+  loginUser,
+  logoutUser,
+  requestLogin
 }
-
 
 const getMessage = (state) => {
   return state.errorMessage
+}
+
+const getRoles = (state) => {
+  const auth = state.globalReducer.auth
+  if (auth) {
+    return auth.getProfile(auth.getToken()).roles
+  } else {
+    return []
+  }
+}
+
+const getName = (state) => {
+  const auth = state.globalReducer.auth
+  if (auth) {
+    return auth.getProfile(auth.getToken()).name
+  } else {
+    return ''
+  }
+}
+
+const getPicture = (state) => {
+  const auth = state.globalReducer.auth
+  if (auth) {
+    return auth.getProfile(auth.getToken()).picture
+  } else {
+    return ''
+  }
 }
 
 const mapStateToProps = (state) => ({
@@ -58,7 +96,11 @@ const mapStateToProps = (state) => ({
   ampVersions: state.Home.ampVersions,
   isFetchingModels: state.Home.isFetchingModels,
   searching: state.Home.searching,
-  isAuthenticated: state.Home.isAuthenticated
+  isAuthenticated: state.Home.isAuthenticated,
+  auth: state.globalReducer.auth,
+  roles: getRoles(state),
+  picture: getPicture(state),
+  username: getName(state)
 })
 
 /*  Note: mapStateToProps is where you should use `reselect` to create selectors, ie:

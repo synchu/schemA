@@ -6,8 +6,9 @@ import {LOGIN_SUCCESS, LOGOUT_SUCCESS} from '../routes/Login/modules/loginUser.j
 // sniff for some global variables settings
 const globalReducer = (state = {}, action) => {
   switch (action.type) {
+    case 'SET_AUTH': return ({ ...state, auth: action.auth })
     case LOGIN_SUCCESS:
-      return ({ ...state, isAuthenticated: true })
+      return ({...state, isAuthenticated: true})
     case LOGOUT_SUCCESS:
       return ({ ...state, isAuthenticated: false })
     case 'ITEMS_DONE':

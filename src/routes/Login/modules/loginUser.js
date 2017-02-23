@@ -3,6 +3,8 @@
 // import { userObject } from '../interfaces/user.js'
 import {validateEmail as ve} from '../../../utils/validators'
 
+import {SET_AUTH_ON, SET_AUTH_OFF} from '../../Home/modules/Home'
+
 import fetch from 'isomorphic-fetch'
 import {push} from 'react-router-redux'
 
@@ -42,8 +44,22 @@ export function passwordError(message) {
   return {type: PASSWORD_ERROR, errorMessage: message, passwordValid: false}
 }
 
-export function requestLogin(creds) {
-  return {type: LOGIN_REQUEST, isFetching: true, isAuthenticated: false, creds}
+export function requestLogin(auth) {
+  return (dispatch, getState) => {
+    /* const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__, () => {
+      dispatch({type: LOGIN_SUCCESS})
+      dispatch({type: SET_AUTH_ON})
+      console.log('fom requestLogin: CreateAuthFunc: ', auth.getProfile(auth.getToken()))
+    })*/
+    const auth = getState().globalReducer.auth
+    if (!auth.loggedIn()) {
+      auth.login()
+    } else {
+      dispatch({type: LOGIN_SUCCESS})
+      dispatch({type: SET_AUTH_ON})
+    }
+    return dispatch({type: LOGIN_REQUEST, isFetching: true, isAuthenticated: false})
+  }
 }
 
 export const loginUser = (e) => {
@@ -78,7 +94,7 @@ const receiveLogout = () => {
 }
 
 const lo = () => {
-  var myheaders = new Headers()
+  let myheaders = new Headers()
   myheaders.append('Access-Control-Allow-Origin', '*')
   var myInit = {
     method: 'GET',
@@ -87,25 +103,37 @@ const lo = () => {
     cache: 'default'
   }
   var request = new Request('https://synchu.eu.auth0.com/v2/logout', myInit)
-  fetch('https://synchu.eu.auth0.com/v2/logout').then(response => {
-    console.log(response)
-    return (dispatch) => dispatch(receiveLogout())
-  }).catch(error => console.error(error))
-  /*
+
   if (window.XMLHttpRequest) {
     let xhttp = new XMLHttpRequest()
     xhttp.open('GET', 'https://synchu.eu.auth0.com/v2/logout', false)
+    xhttp.onreadystatechange = function () {// Call a function when the state changes.
+      if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
+        // Request finished. Do processing here.
+      } else {
+        console.log(`${xhttp.statusText}`)
+      }
+    }
     xhttp.send()
-    console.log(xhttp.responseText)
-  }*/
+  }
+
+  fetch('https://synchu.eu.auth0.com/v2/logout', {method: 'POST'}).then(response => {
+    console.log(response)
+  }).catch(error => {
+    console.error('Logout error: ', error)
+  })
 }
 
 export const logoutUser = () => {
-  localStorage.removeItem('id_token')
-  localStorage.removeItem('profile')
-  lo()
-  // navigate to home
-  // push('/')
+  return (dispatch) => {
+    localStorage.removeItem('id_token')
+    localStorage.removeItem('profile')
+    // confirm the local logout at least
+    dispatch(receiveLogout())
+    dispatch({type: SET_AUTH_OFF})
+    // try to clear session cookies with Auth0
+    return lo()
+  }
 }
 
 export const clearMessage = () => {

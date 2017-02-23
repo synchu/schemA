@@ -6,6 +6,7 @@ import { Layout, Panel } from 'react-toolbox'
 
 export let CoreLayout = (props) => {
   const { isAuthenticated, children, dispatch } = props
+
   return (
     <div style={{height: '100%'}}>
       {children}

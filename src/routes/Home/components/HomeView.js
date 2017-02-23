@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import classes from './HomeView.scss'
 import Header from '../../../components/Header'
+import Profile from '../../../components/Profile'
 import ModelItem from '../../../components/ModelItem'
 import SocialShare from '../../../components/SocialShare'
 import {
@@ -15,7 +16,7 @@ import {
   FontIcon
 } from 'react-toolbox'
 import {Input} from 'react-toolbox/lib/input'
-import {clearMessage, logoutUser, loginUser} from '../../Login/modules/loginUser'
+import {clearMessage} from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
 import {renderStatItem} from './Stats'
 import WelcomeDialog from './WelcomeDialog'
@@ -61,7 +62,11 @@ export class HomeView extends Component {
     isFetchingModels: PropTypes.bool,
     observableFetch: PropTypes.func,
     loginUser: PropTypes.func,
-    logoutUser: PropTypes.func
+    logoutUser: PropTypes.func,
+    requestLogin: PropTypes.func,
+    roles: PropTypes.array,
+    picture: PropTypes.string,
+    username: PropTypes.string
   }
 
   constructor (props) {
@@ -317,9 +322,15 @@ export class HomeView extends Component {
     }
   }
 
+
   localSetNavbarActive = () => {
     const {navbarActive, setNavbarActive} = this.props
     setNavbarActive(!navbarActive)
+  }
+
+  isAdmin = () => {
+    const {roles} = this.props
+    return (!!roles && roles.indexOf('admin') > -1)
   }
 
   handleSettings = (e, which) => {
@@ -367,8 +378,9 @@ export class HomeView extends Component {
       models,
       item
     } = this.props
-    const {navbarPinned, navbarActive, isFetching, isAuthenticated} = this.props
+    const {navbarPinned, navbarActive, isFetching, isAuthenticated, picture, username} = this.props
     let {filteredBrand, selectedBrand, selectedModel, loadItem} = this.props
+    let {loginUser, logoutUser, requestLogin} = this.props
 
     return (
       <Layout className={classes.mainContainer}>
@@ -430,6 +442,7 @@ export class HomeView extends Component {
 
           <Header
             isAuthenticated={isAuthenticated}
+            isAdmin={this.isAdmin}
             dispatch={dispatch}
             className={classes.heading}
             drawer={this.refs.navdrawer}
@@ -440,6 +453,7 @@ export class HomeView extends Component {
               typesAsPictures: this.state.typesAsPictures}}
             logoutUser={logoutUser}
             loginUser={loginUser}
+            requestLogin={requestLogin}
             {...this.props} />
           <Panel className={classes.content}>
             <Panel
@@ -454,6 +468,15 @@ export class HomeView extends Component {
                 THIS IS STILL A TEST!A lot of features may not yet work or may not work as
                 expected, including the file links.
               </div>
+              <div>
+                {
+                    isAuthenticated &&
+                      <Profile title={username}
+                        image={picture}
+                        name={username}
+                        isAdmin={this.isAdmin()} />
+                }
+              </div>
               <div
                 className={classes.flexRightAuto}>
                 <h4>{selectedBrand}- {selectedModel}</h4>
@@ -467,7 +490,9 @@ export class HomeView extends Component {
                   cardsAsList={this.state.cardsAsList}
                   loadItem={loadItem}
                   typesAsPictures={this.state.typesAsPictures}
-                  isAuthenticated={isAuthenticated} />}
+                  isAuthenticated={isAuthenticated}
+                  isAdmin={this.isAdmin()}
+                  />}
               </Panel>
             </Panel>
           </Panel>

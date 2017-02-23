@@ -33,6 +33,7 @@ export const SEARCH_OFF = 'SEARCH_OFF'
 export const SET_AUTH_ON = 'SET_AUTH_ON'
 export const SET_AUTH_OFF = 'SET_AUTH_OFF'
 
+
 // ------------------------------------ Utils
 // ------------------------------------
 
@@ -167,8 +168,8 @@ export const fetchItem = (brand, model) => {
     } else {
       return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
           ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
-        dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
-      }).catch(r => dispatch(errorItem(r))))
+            dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
+          }).catch(r => dispatch(errorItem(r))))
     }
   }
 }
@@ -315,7 +316,7 @@ export const setAuthOnOff = (auth) => {
   }
 }
 
-// some export if needed to call externally
+
 export const actions = {
   loadBrands,
   loadModels,
@@ -381,7 +382,9 @@ const ACTION_HANDLERS = {
   [SET_ACTIVE_NAVBAR]: (state, action) => Object.assign({}, state, {navbarActive: action.navbarActive}),
   [SEARCH_ON]: (state, action) => Object.assign({}, state, {searching: true}),
   [SEARCH_OFF]: (state, action) => Object.assign({}, state, {searching: false}),
-  [SET_AUTH_ON]: (state, action) => Object.assign({}, state, {isAuthenticated: true}),
+  [SET_AUTH_ON]: (state, action) => Object.assign({}, state, {
+    isAuthenticated: true
+  }),
   [SET_AUTH_OFF]: (state, action) => Object.assign({}, state, {isAuthenticated: false})
 }
 
@@ -411,7 +414,10 @@ const initialState = {
   navbarPinned: true,
   ampVersions: {},
   isFetchingModels: false,
-  searching: false
+  searching: false,
+  roles: [],
+  picture: '',
+  username: ''
 }
 export default function BrandsReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]

@@ -4,8 +4,6 @@ import uploadFileRoute from './UploadFile'
 import LoginRoute from './Login'
 import {LOGIN_SUCCESS, LOGIN_FAILURE} from './Login/modules/loginUser'
 import {SET_AUTH_ON, SET_AUTH_OFF} from './Home/modules/Home'
-import AuthService from 'utils/AuthService.js'
-import {__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__} from './authid'
 
 // import DownloadFileRoute from './DownloadFile'
 
@@ -23,26 +21,35 @@ export const homeReducer = (store) => {
   })
 }
 
-export const createRoutes = (store) => {
-  const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__, () => {
-    store.dispatch({type: LOGIN_SUCCESS})
-    store.dispatch({type: SET_AUTH_ON})
-  })
+export const createRoutes = (store, auth) => {
+  // const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__, () =>
+  // ('return'))
 
   const authRequired = (nextState, replace) => {
     // Now you can access the store object here.
-    const state = store.getState()
+    const auth = store
+      .getState()
+      .globalReducer
+      .auth
 
-    if (!auth.loggedIn() && nextState.location.pathname === '/login') {
-      auth.login()
-      // replace('/') replace({ nextPathname: nextState.location.pathname }, '/')
-    } else if (auth.loggedIn() && nextState.location.pathname === '/login') {
-      store.dispatch({type: LOGIN_SUCCESS})
-      store.dispatch({type: SET_AUTH_ON})
-      replace('/')
-    } else if (!auth.loggedIn() && nextState.location.pathname === '/') {
-      store.dispatch({type: LOGIN_FAILURE})
-      store.dispatch({type: SET_AUTH_OFF})
+    if (auth) {
+      if (auth.loggedIn()) {
+        store.dispatch({type: LOGIN_SUCCESS})
+        store.dispatch({type: SET_AUTH_ON})
+        
+      }
+
+      if (!auth.loggedIn() && nextState.location.pathname === '/login') {
+        auth.login()
+        // replace('/') replace({ nextPathname: nextState.location.pathname }, '/')
+      } else if (auth.loggedIn() && nextState.location.pathname === '/login') {
+        store.dispatch({type: LOGIN_SUCCESS})
+        store.dispatch({type: SET_AUTH_ON})
+        replace('/')
+      } else if (!auth.loggedIn() && nextState.location.pathname === '/') {
+        store.dispatch({type: LOGIN_FAILURE})
+        store.dispatch({type: SET_AUTH_OFF})
+      }
     }
   }
 

@@ -63,7 +63,8 @@ export class ModelItem extends Component {
     cardsAsList: PropTypes.bool,
     loadItem: PropTypes.func,
     isAuthenticated: PropTypes.bool,
-    typesAsPictures: PropTypes.bool
+    typesAsPictures: PropTypes.bool,
+    isAdmin: PropTypes.bool
   }
 
   constructor (props) {
@@ -384,9 +385,9 @@ export class ModelItem extends Component {
   }
 
   handleEditClick = (value, content) => (e) => {
-    const {isAuthenticated} = this.props
-    if (!isAuthenticated) {
-      console.log('card edit not authotized')
+    const {isAuthenticated, isAdmin} = this.props
+    if (!isAuthenticated || !isAdmin) {
+      console.warn('card edit not authotized')
       return
     }
     this.setState({
@@ -398,8 +399,8 @@ export class ModelItem extends Component {
   }
 
   renderEditButton = (field, content) => {
-    const {isAuthenticated} = this.props
-    if (!isAuthenticated) {
+    const {isAuthenticated, isAdmin} = this.props
+    if (!isAuthenticated || !isAdmin) {
       return
     }
 
