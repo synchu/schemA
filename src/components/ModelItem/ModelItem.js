@@ -18,9 +18,10 @@ import MediaQuery from 'react-responsive'
 import TableView from './TableView'
 import {DESCRIPTION} from 'utils/constants'
 import {transformData} from './TransformData'
-import './updateDb'
+import {updateField, getDBFieldName} from './updateDb'
 
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
+const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
 const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/))
 
@@ -244,8 +245,8 @@ export class ModelItem extends Component {
   handleEditChange = (field) => (value) => {
     this.setState({
       ...this.state,
-      [field]: value,
-      [field.split('_')[0] + '_changed']: true
+      [field]: value.length > 1 ? value : ' ',
+      [mc(field.split('_')[0])]: value.length > 0
     })
   }
 
@@ -256,107 +257,64 @@ export class ModelItem extends Component {
     return response
   }
 
-  handleEditBlur = (field, itemData) => {
-    console.log(field)
-    console.log(itemData)
-    if (this.state[field]) {
-      console.log(field)
-      console.log(this.state[field])
-      if (itemData.descriptionId > 0) {
-        this.setState({
-          ...this.state,
-          saving: true,
-          error: false
-        })
-        if (this.state[field] !== itemData.description) {
-          fetch('http://thesubjectmatter.com/api.php/schematics/' + itemData.descriptionId, {
-            method: 'PUT',
-            dataType: 'json',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({data: this.state[field]})
-          })
-            .then(response => this.handleErrors(response))
-            .then(response => response.json())
-            .then(json => {
-              console.log(json)
-              this.setState({
-                ...this.state,
-                saving: false,
-                error: json < 1,
-                [itemData.version + '_changed']: false
-              })
-            })
-            .then(this.props.loadItem(true))
-            .catch(error => {
-              console.log(error)
-              this.setState({
-                ...this.state,
-                saving: false,
-                error: true
-              })
-            })
-        }
-      } else {
-        this.setState({
-          ...this.state,
-          saving: true,
-          error: false
-        })
-        fetch('http://thesubjectmatter.com/api.php/schematics', {
-          method: 'POST',
-          dataType: 'json',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            bid: itemData.bid,
-            data_id: parseInt(itemData.maxDataId) + 1,
-            brand: itemData.brand,
-            model: itemData.model,
-            version: itemData.version,
-            type: 'Description',
-            data: this
-              .state[field]
-              .trim(),
-            contributor: 'System',
-            isFile: 0,
-            filename: '',
-            thumbnail: ''
-          })
-        })
-          .then(response => this.handleErrors(response))
-          .then(response => response.json())
-          .then(json => {
-            console.log(json)
-            this.setState({
-              ...this.state,
-              saving: false,
-              error: json < 1,
-              [itemData.version + '_changed']: false
-            })
-          })
-          .then(this.props.loadItem(false))
-          .catch(error => {
-            console.log(error)
-            this.setState({
-              ...this.state,
-              saving: false,
-              error: true
-            })
-          })
-      }
-      // this.setState({ itemObjects: transformData(this.props.items) })
+  saveChanges = (field, itemData) => {
+    if (!(this.state[mc(itemData.version)]) || (this.state[field].length === 0)) {
+      // nothing happened - exit
+      return
     }
+    if (updateField(field, this.state[field], itemData)) {
+     // console.log(field)
+     // console.log(itemData)
+      if (this.state[field]) {
+        this.setState({
+          ...this.state,
+          saving: false,
+          [field]: undefined,
+          [mc(itemData.version)]: false
+        })
+      }
+      console.log('will call loadItem now!')
+      this.props.loadItem(true)
+    } else {
+      this.setState({
+        ...this.state,
+        saving: false,
+        error: true
+      })
+    }
+  }
+
+  handleEditBlur = (field, itemData) => {
+    if (!(this.state[mc(itemData.version)]) || (this.state[field].length === 0)) {
+      // nothing happened - exit
+      return
+    }
+
     this.setState({
       ...this.state,
-      saving: false,
-      [field]: undefined,
-      [itemData.version + '_changed']: false
+      saving: true,
+      error: false
     })
+    if (updateField(field, this.state[field], itemData)) {
+     // console.log(field)
+     // console.log(itemData)
+      if (this.state[field]) {
+        this.setState({
+          ...this.state,
+          saving: false,
+          [field]: undefined,
+          [mc(itemData.version)]: false
+        })
+      }
+      console.log('will call loadItem now!')
+      this.props.loadItem(true)
+    } else {
+      this.setState({
+        ...this.state,
+        saving: false,
+        error: true
+      })
+    }
   }
 
   renderEditComponent = (itemData, field) => {
@@ -375,7 +333,7 @@ export class ModelItem extends Component {
           multiline
           value={this.state[fieldLocal]}
           onChange={this.handleEditChange(fieldLocal)}
-          onBlur={() => this.handleEditBlur(fieldLocal, itemData)}
+          // onBlur={() => this.handleEditBlur(fieldLocal, itemData)}
           hint={content}
           style={{
             fontSize: '1.5rem'
@@ -412,9 +370,11 @@ export class ModelItem extends Component {
   }
 
   handleCancelClick = (value) => (e) => {
+    console.log('handle cancel click')
     this.setState({
       ...this.state,
-      [value]: undefined
+      [value]: undefined,
+      [mc(value.split('_')[0])]: false
     })
   }
   renderCancelButton = (field) => {
@@ -425,12 +385,16 @@ export class ModelItem extends Component {
       onClick={this.handleCancelClick(field)} />)
   }
 
-  renderSaveButton = (field) => {
+  handleSaveClick = (field, itemData) => (e) => {
+    this.saveChanges(field, itemData)
+  }
+
+  renderSaveButton = (field, itemData) => {
     return (<IconButton
       icon='save'
       title='Save'
       className={classes.actionButtons}
-      onClick={() => (<span></span>)} />)
+      onClick={this.handleSaveClick(field, itemData)} />)
   }
 
   renderTitleField = (itemData, field) => {
@@ -443,7 +407,7 @@ export class ModelItem extends Component {
         {!this.state[makeField(itemData.version, field)] && itemData[field]}
         {!this.state[makeField(itemData.version, field)] && this.renderEditButton(makeField(itemData.version, field), itemData[field])}
         {this.state[makeField(itemData.version, field)] && this.renderEditComponent(itemData, field)}
-        {this.state[itemData.version + '_changed'] && this.renderSaveButton(makeField(itemData.version, field))}
+        {this.state[mc(itemData.version)] && this.renderSaveButton(makeField(itemData.version, field), itemData)}
         {this.state[makeField(itemData.version, field)] && this.renderCancelButton(makeField(itemData.version, field))}
       </span>
     )
@@ -457,7 +421,7 @@ export class ModelItem extends Component {
         raised
         className={classes.itemCard}
         id={itemData.version}
-        style={!this.state[itemData.version + '_changed']
+        style={!this.state[mc(itemData.version)]
         ? {}
         : {
           backgroundColor: 'lavender'
@@ -473,9 +437,9 @@ export class ModelItem extends Component {
         <CardText>
           <div className={classes.flexDisplay}>
             {this.state[makeField(itemData.version, 'description')] && this.renderEditComponent(itemData, 'description')}
-            {this.state[itemData.version + '_changed'] && this.renderSaveButton(makeField(itemData.version, 'description'))}
+            {this.state[mc(itemData.version)] && this.renderSaveButton(makeField(itemData.version, 'description'), itemData)}
             {this.state[makeField(itemData.version, 'description')] && this.renderCancelButton(makeField(itemData.version, 'description'))}
-            {!this.state[makeField(itemData.version, 'description')] && <span>{itemData.description
+            {!this.state[makeField(itemData.version, 'description')] && <span>{itemData.description && itemData.description.length > 1
                 ? itemData.description
                 : 'No description yet'} {this.renderEditButton(makeField(itemData.version, 'description'), itemData.description)}
             </span>

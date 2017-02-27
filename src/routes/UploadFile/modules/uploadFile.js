@@ -1,10 +1,10 @@
 /* @flow*/
 
 import {fileObject, emptyAmpItem} from '../interfaces/files.js'
+import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 
-// ------------------------------------
-// Constants
+// ------------------------------------ Constants
 // ------------------------------------
 export const UPLOAD_REQUEST = 'UPLOAD_REQUEST'
 export const UPLOAD_PUSH = 'UPLOAD_PUSH'
@@ -14,10 +14,11 @@ export const BRANDS_DROPDOWN_REQUEST = 'BRANDS_DROPDOWN_REQUEST'
 export const BRANDS_DROPDOWN_SUCCESS = 'BRANDS_DROPDOWN_SUCCESS'
 export const BRANDS_DROPDOWN_ERROR = 'BRANDS_DROPDOWN_ERROR'
 
-export const SET_DESCRIPTION = 'SET_DESCRIPTION'
+export const SET_VERSION = 'SET_VERSION'
+export const SET_BRAND = 'SET_BRAND'
+export const SET_MODEL = 'SET_MODEL'
 
-// ------------------------------------
-// Utils
+// ------------------------------------ Utils
 // ------------------------------------
 
 const addKey = (item) => {
@@ -26,7 +27,9 @@ const addKey = (item) => {
   let resultsArray = []
   item.map((i) => {
     let c
-    c = i.constructor === Array ? Object.assign({}, i) : Object.assign({}, [i])
+    c = i.constructor === Array
+      ? Object.assign({}, i)
+      : Object.assign({}, [i])
     c = Object.defineProperty(c, 'key', {
       enumerable: true,
       configurable: false,
@@ -60,29 +63,18 @@ const transformAmpsToDropdown = (ampsWithKeys, fromItem, tillItem) => {
   })
   return c
 }
-// ------------------------------------
-// Actions
+// ------------------------------------ Actions
 // ------------------------------------
 
-export function requestBrandsDropdown() {
-  return {
-    type: BRANDS_DROPDOWN_REQUEST,
-    isFetching: true
-  }
+export const requestBrandsDropdown = () => {
+  return {type: BRANDS_DROPDOWN_REQUEST, isFetching: true}
 }
 
-export function errorBrandsDropdown(message: string) {
-  return {
-    type: BRANDS_DROPDOWN_ERROR,
-    errorMessage: message,
-    snackMessage: message,
-    isFetching: false
-  }
+export const errorBrandsDropdown = (message : string) => {
+  return {type: BRANDS_DROPDOWN_ERROR, errorMessage: message, snackMessage: message, isFetching: false}
 }
 
-
-
-export function successAmpsDropdown(amps) {
+export const successAmpsDropdown = (amps) => {
   return {
     type: BRANDS_DROPDOWN_SUCCESS,
     amps: transformAmpsToDropdown(addKey(_.uniq(amps.versions.records.map(i => (i[2])))), 0, 0),
@@ -94,12 +86,11 @@ export function successAmpsDropdown(amps) {
 export const fetchBrandsDropdown = () => {
   return (dispatch) => {
     dispatch(requestBrandsDropdown())
-    return (
-      fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc')
-        .then((response) => response.json())
-        .then((json) => {
-          dispatch(successAmpsDropdown(json))
-        }))
+    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
+      dispatch(successAmpsDropdown(json))
+    }).catch(error => {
+      console.error('Load brands dropdown error:', error)
+    }))
   }
 }
 
@@ -114,13 +105,59 @@ export const loadBrandsDropdown = () => {
   }
 }
 
-export const setDescription = (value) => {
-  return (dispatch) => {
-    dispatch(
-      {
-        type: SET_DESCRIPTION,
-        description: value
+export const setBrand = (value) => {
+  return (dispatch, getState) => {
+    let c = {}
+    let foundBrand = getState().uploadFile.amps[value]
+    _.uniqBy(getState().uploadFile.rawdata.filter((i) => i[2] === getState().uploadFile.amps[value]), '1').map(a => {
+      c = Object.defineProperty(c, a[1], {
+        enumerable: true,
+        configurable: false,
+        writable: false,
+        value: a[1]
       })
+    })
+    dispatch({type: SET_BRAND, brand: foundBrand, models: c})
+  }
+}
+
+export const setModel = (model) => {
+  return (dispatch, getState) => {
+    let c = {}
+    const brand = getState().uploadFile.brand
+    _.uniqBy(getState().uploadFile.rawdata.filter((i) =>
+    (i[1] === model) && (i[2] === brand)),
+    '0')
+    .map(a => {
+      c = Object.defineProperty(c, a[0], {
+        enumerable: true,
+        configurable: false,
+        writable: false,
+        value: a[0]
+      })
+    })
+    dispatch({type: SET_MODEL, model: model, versions: c})
+  }
+}
+
+export const setVersion = (version) => {
+  return (dispatch, getState) => {
+    console.log('version:', version)
+    const brand = getState().uploadFile.brand
+    const model = getState().uploadFile.model
+    fetch('http://thesubjectmatter.com/api.php/schematics?filter=version,eq' +
+          ',' + version.trim() + '&transform=1')
+          .then((response) => response.json())
+          .then((json) => {
+            return json.schematics.filter(i => i.model.toLowerCase() ===
+            model.toLowerCase().trim() && i.brand.toLowerCase() === brand.toLowerCase().trim())
+          })
+          .then(item => {
+            console.log(item)
+            return dispatch({type: SET_VERSION, versionData: item})
+          })
+          .catch(r => console.log(r))
+    return dispatch({type: SET_VERSION, versionData: {}})
   }
 }
 
@@ -128,38 +165,51 @@ export const actions = {
   loadBrandsDropdown
 }
 
-// ------------------------------------
-// Action Handlers
+// ------------------------------------ Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
   [UPLOAD_REQUEST]: (state, action) => state + action.payload,
   [UPLOAD_PUSH]: (state, action) => state,
   [UPLOAD_SAVE]: (state, action) => state,
-  [BRANDS_DROPDOWN_REQUEST]: (state, action) => Object.assign({}, state,
-    { isFetching: true }),
-  [SET_DESCRIPTION]: (state, action) => Object.assign({}, state,
-    { description: action.description }),
-  [BRANDS_DROPDOWN_ERROR]: (state, action) => Object.assign({}, state,
-    { isFetching: false, errorMessage: action.errorMessage, snackMessage: action.snackMessage }),
-  [BRANDS_DROPDOWN_SUCCESS]: (state, action) => Object.assign({}, state,
-    { isFetching: false, ampVersions: action.ampVersions, amps: action.amps, rawdata: action.rawdata })
+  [BRANDS_DROPDOWN_REQUEST]: (state, action) => Object.assign({}, state, {isFetching: true}),
+  [BRANDS_DROPDOWN_ERROR]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    errorMessage: action.errorMessage,
+    snackMessage: action.snackMessage
+  }),
+  [BRANDS_DROPDOWN_SUCCESS]: (state, action) => Object.assign({}, state, {
+    isFetching: false,
+    ampVersions: action.ampVersions,
+    amps: action.amps,
+    rawdata: action.rawdata
+  }),
+  [SET_BRAND]: (state, action) => Object.assign({}, state, {
+    brand: action.brand, models: action.models
+  }),
+  [SET_MODEL]: (state, action) => Object.assign({}, state, {
+    model: action.model, versions: action.versions
+  }),
+  [SET_VERSION]: (state, action) => Object.assign({}, state, {
+    version: action.version, description: action.description, versionData: action.versionData
+  })
 }
 
-// ------------------------------------
-// Reducer
+// ------------------------------------ Reducer
 // ------------------------------------
 const initialState = {
   isFetching: false,
   snackMessage: '',
   errorMessage: '',
   amps: [],
-  models: [],
-  versions: [],
+  models: {},
+  versions: {},
   rawdata: [],
   ampVersions: []
 }
 
 export default function uploadFileReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
-  return handler ? handler(state, action) : state
+  return handler
+    ? handler(state, action)
+    : state
 }
