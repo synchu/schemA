@@ -1,0 +1,10 @@
+@import '../../../styles/colors';
+.typeSelector {
+    * {
+        line-height: 0.7em;
+        font-size: 13px;
+        color: $base-color;
+        margin: 3px;
+        padding: 3px;
+    }
+}

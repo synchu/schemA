@@ -1,7 +1,8 @@
-import { injectReducer } from '../../store/reducers'
+import {injectReducer} from '../../store/reducers'
 
-export default (store) => ({
+export default(store) => ({
   path: 'upload',
+
   /*  Async getComponent is only invoked when route matches   */
   getComponent (nextState, cb) {
     /*  Webpack - use 'require.ensure' to create a split point
@@ -13,12 +14,20 @@ export default (store) => ({
       const reducer = require('./modules/uploadFile').default
 
       /*  Add the reducer to the store on key 'counter'  */
-      injectReducer(store, { key: 'uploadFile', reducer })
+      injectReducer(store, {
+        key: 'uploadFile',
+        reducer
+      })
 
+      if (!store.getState().globalReducer.auth || !store.getState().globalReducer.auth.loggedIn()) {
+        return (
+          null
+        )
+      }
       /*  Return getComponent   */
       cb(null, uploadFile)
 
-    /* Webpack named bundle   */
+      /* Webpack named bundle   */
     }, 'uploadFile')
   }
 })

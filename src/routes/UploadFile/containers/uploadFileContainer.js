@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import {formValueSelector} from 'redux-form'
-import { loadBrandsDropdown, setDescription,
+import { loadBrandsDropdown, setFilesData, deleteFileData, addNewTableRow,
 setBrand, setModel, setVersion } from '../modules/uploadFile'
 
 import UploadItem from '../components/UploadItem'
@@ -15,10 +15,12 @@ const getMessage = (state) => {
 
 const mapActionCreators = {
   loadBrandsDropdown,
-  setDescription,
   setBrand,
   setModel,
-  setVersion
+  setVersion,
+  setFilesData,
+  deleteFileData,
+  addNewTableRow
 }
 
 const selector = formValueSelector('UploadItem')
@@ -37,7 +39,12 @@ const mapStateToProps = (state) => ({
   brand: selector(state, 'brand'),
   model: selector(state, 'model'),
   version: selector(state, 'version'),
-  description: selector(state, 'description')
+  // that's the form one
+  description: selector(state, 'description'),
+  // that's the DB selected one
+  descriptionDb: state.uploadFile.description,
+  contributor: selector(state, 'contributor'),
+  filesData: state.uploadFile.filesData
 })
 
 

@@ -1,52 +1,15 @@
 import React, { PropTypes, Component } from 'react'
-import { Button, Table, Card, CardTitle, CardActions, Autocomplete } from 'react-toolbox'
+import { Button, Table, Card, CardTitle, CardActions, Autocomplete, IconButton } from 'react-toolbox'
 import Input from 'react-toolbox/lib/input'
 import { Field, reduxForm } from 'redux-form/immutable'
-import _ from 'lodash'
 import { validatePassword } from '../../../utils/validators'
-import { localStorageExists } from '../../../utils/localstorage'
-import FileDropzone from './Dropzone'
+import { AmpModel } from '../modules/filesTableData'
+import { validators } from '../modules/validateData'
 
 import classes from './UploadItem.scss'
 
-const AmpModel = {
-  id: { type: Number },
-  data_id: { type: Number },
-  brand: { type: String },
-  model: { type: String },
-  version: { type: String },
-  type: { type: String },
-  data: { type: String },
-  name: { type: String },
-  file: { type: Object }
-}
-
-const users = [
-  {
-    id: 1, data_id: 1, brand: 'Fender', model: 'Bassman', version: '5B6', type: 'schematic',
-    data: <Field component={FileDropzone}
-      label='Click or drag to upload file'
-      icon='file'
-      type='file'
-      name='files'
-      multiple
-      table
-      rkey={1} />
-  },
-  {
-    id: 1, data_id: 2, brand: 'Fender', model: 'Bassman', version: '5B6', type: 'schematic',
-    data: <Field component={FileDropzone}
-      label="Click or drag to upload file"
-      icon='file'
-      type='file'
-      name='files'
-      multiple
-      table
-      rkey={2} />
-  }
-]
-
 const validate = values => {
+  console.log('submit validate: ', values)
   const errors = {}
   if (!values.username) {
     errors.username = 'Required'
@@ -90,54 +53,62 @@ export class UploadItem extends Component {
     setModel: PropTypes.func,
     rawdata: PropTypes.array,
     models: PropTypes.object,
-    versions: PropTypes.object
+    versions: PropTypes.object,
+    setVersion: PropTypes.func,
+    filesData: PropTypes.array,
+    change: PropTypes.func,
+    setFilesData: PropTypes.func,
+    addNewTableRow: PropTypes.func
   }
 
   constructor (props) {
     super(props)
-    this.renderField = this.renderField.bind(this)
   }
 
   componentDidMount = () => {
     this.props.loadBrandsDropdown()
   }
 
-  renderField = ({ input, label, type, icon, meta: { touched, error } }) => (
-    <div>
-      <Input {...input} label={label} type={type} icon={icon} error={touched ? error : ''} style={{ width: '80%' }} />
-    </div>
-  )
-
-  renderAutocompleteField = ({ input, label, type, icon, required, source, theme, disabled, meta: { touched, error }, children, ...custom }) => {
+  renderField = ({ input, label, type, icon, meta: { touched, error, warning }, ...custom }) => {
     return (
-    <div>
-      <Autocomplete {...input} required disabled={disabled}
-        label={label} type={type} source={source}
-        multiple={false} icon={icon}
-        error={touched ? error : ''} style={{ width: '80%' }}
-        onChange={
+      <div>
+        <Input {...input} label={label} type={type}
+          icon={icon} error={touched ? error : ''} style={{ width: '80%' }} {...custom} />
+        {touched && ((error && <span>{error}</span>) || (warning && <span>{warning}</span>))}
+      </div>
+    )
+  }
+
+  renderAutocompleteField = ({ input, label, type, icon, required, source, theme, disabled,
+     meta: { touched, error, warning }, children, ...custom }) => {
+    return (
+      <div>
+        <Autocomplete {...input} required disabled={disabled}
+          label={label} type={type} source={source}
+          multiple={false} icon={icon}
+          error={touched ? error : ''} style={{ width: '80%' }}
+          onChange={
           (value, index) => {
-            console.log('changed value:', value)
             return input.onChange(value)
           }
         }
-        children={children}
-        suggestionMatch='anywhere'
-        theme={classes}
-        value={input.value}
-        key={input.name}
+          children={children}
+          suggestionMatch='anywhere'
+          theme={classes}
+          value={input.value}
+          key={input.name}
         />
-    </div>
+        {touched && ((error && <span>{error}</span>) || (warning && <span>{warning}</span>))}
+      </div>
     )
   }
 
   localHandleSubmit = (e, props) => {
+    console.log('localHandleSubmit', props)
+    return false
   // props.dispatch(successValidateEmail(e.email))
-  //  props.dispatch(successValidatePassword(e.password))
-    if (localStorageExists()) {
-      localStorage.setItem('playblu_token', e.email)
-    }
-  //  props.dispatch(receiveLogin({playblu_token: e.email}))
+  // props.dispatch(successValidatePassword(e.password))
+  // props.dispatch(receiveLogin({playblu_token: e.email}))
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {
@@ -145,18 +116,28 @@ export class UploadItem extends Component {
   }
 
   handleChange = (value) => {
-    const {brand, setBrand} = this.props
-    setBrand(brand)
+    const {brand, setBrand, change} = this.props
+    setBrand(brand, change)
   }
 
   handleModelChange = (value) => {
-    const {model, setModel} = this.props
-    setModel(model)
+    const {model, setModel, change} = this.props
+    setModel(model, change)
   }
 
   handleVersionChange = (value) => {
-    const {version, setVersion} = this.props
-    setVersion(version)
+    const {version, setVersion, change} = this.props
+    setVersion(version, change)
+  }
+
+  handleTableChange = (row, key, value) => {
+    const { setFilesData } = this.props
+    setFilesData(row, key, value)
+  }
+
+  handleAddTableRow = () => {
+    const { addNewTableRow } = this.props
+    addNewTableRow()
   }
 
   render () {
@@ -178,6 +159,7 @@ export class UploadItem extends Component {
               className={classes.searchInput}
               source={amps}
               onBlur={this.handleChange}
+              warn={validators.minLength2}
               />
             <Field name='model' label='Model'
               component={this.renderAutocompleteField}
@@ -216,10 +198,12 @@ export class UploadItem extends Component {
             label='Contributor' required
             icon='control_point'
             />
+          <IconButton icon='playlist_add' title='Add file item' onClick={this.handleAddTableRow} style={{marginLeft: 'auto'}} />
           <Table model={AmpModel}
             selectable
             multiSelectable
-            source={users}
+            source={this.props.filesData}
+            onChange={this.handleTableChange}
             />
           <CardActions className={classes['actions']}>
             <Button type='submit' label='Upload' raised default disabled={submitting} />

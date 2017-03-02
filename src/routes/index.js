@@ -49,6 +49,10 @@ export const createRoutes = (store, auth) => {
       } else if (!auth.loggedIn() && nextState.location.pathname === '/') {
         store.dispatch({type: LOGIN_FAILURE})
         store.dispatch({type: SET_AUTH_OFF})
+      } else if (!auth.loggedIn() && nextState.location.pathname === '/upload') {
+        store.dispatch({type: LOGIN_FAILURE, errorMessage: 'You must be logged to access this!'})
+        store.dispatch({type: SET_AUTH_OFF})
+        replace('/')
       }
     }
   }
