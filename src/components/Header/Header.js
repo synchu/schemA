@@ -153,7 +153,7 @@ export class Header extends Component {
                     e.preventDefault()
                     requestLogin(auth)
                   }}>
-                  <IconButton icon='account_box' title='login' id='login' inverse />
+                  <IconButton icon='account_box' title='Login' id='login' inverse />
                 </Link>
                 {loginErrorMsg && <span>loginErrorMsg</span>}
               </div>}
@@ -194,7 +194,7 @@ export class Header extends Component {
                 type='search'
                 hint='Type to search...'
                 direction='down'
-                icon='search'
+               // icon='search'
                 className={classes.searchInput}
                 source={ampVersions}
                 multiple={false}
@@ -207,10 +207,11 @@ export class Header extends Component {
                 inverse
                 style={{
                   margin: 'auto',
-                  fontSize: '1.3rem'
+                  fontSize: '1.5rem',
+                  paddingLeft: '-5px'
                 }}
                 icon='clear'
-                onClick={() => this.setState({multiple: ''})}/>
+                onClick={() => this.setState({multiple: ''})} />
               <IconButton
                 style={{margin: 'auto', marginLeft: 'auto'}}
                 icon='settings'

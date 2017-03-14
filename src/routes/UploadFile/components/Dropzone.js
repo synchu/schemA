@@ -12,28 +12,33 @@ export class FileDropzone extends React.Component {
     uploadedFiles: React.PropTypes.object,
     table: PropTypes.bool,
     processFiles: PropTypes.func,
-    rkey: PropTypes.number
+    rkey: PropTypes.number,
+    change: PropTypes.func,
+    brand: PropTypes.string,
+    model: PropTypes.string,
+    field: PropTypes.string
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.onDrop = this.onDrop.bind(this)
   }
 
-  onDrop(files) {
-    const { processFiles } = this.props
+  onDrop (files) {
+    const { processFiles, change, brand, model, field } = this.props
     this.setState({ ...this.state, files: files })
-  processFiles && processFiles(files)
-}
+    processFiles && processFiles(files, change, field, brand, model)
+  }
 
-render() {
-  const { table } = this.props
-  const { files } = this.state
+  render () {
+    const { table } = this.props
+    const { files } = this.state
 
-  return (
+    return (
     <div key={this.props.rkey} style={{ display: 'flex', flex: '1', margin: 'auto' }}>
-      <Dropzone onDrop={this.onDrop} title='Drag or click to upload a file' className={!table ? cx(classes.dropzoneContainer) : cx(classes.tableContainer) }>
-        <div style={{margin: '3px'}}>
+      <Dropzone onDrop={this.onDrop} title='Drag or click to upload a file'
+        className={!table ? cx(classes.dropzoneContainer) : cx(classes.tableContainer)}>
+        <div style={{margin: files.length > 0 ? '0px' : '3px'}}>
           {files.length === 0 && 'Drag or click to upload a file'}
           {files.length > 0 && this.state.files.map((file) => {
             return (
@@ -52,7 +57,7 @@ render() {
       </Dropzone>
     </div>
   )
-}
+  }
 }
 
 

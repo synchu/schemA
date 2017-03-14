@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Avatar, IconButton} from 'react-toolbox'
 import classes from './Profile.scss'
-import classnames from 'classnames'
+import cn from 'classnames'
 
 export class Profile extends Component {
   state = {
@@ -15,7 +15,7 @@ export class Profile extends Component {
     isAdmin: PropTypes.bool
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
   }
 
@@ -33,7 +33,7 @@ export class Profile extends Component {
   render () {
     const {title, image, name, isAdmin} = this.props
     return (
-      <div className={classnames(classes.avatarPanel, isAdmin ? classes.admin : '')}>
+      <div className={cn(classes.avatarPanel, isAdmin ? classes.admin : '')}>
         {this.state.visible && <span>
           <Avatar image={image} title={title} />
           <span style={{

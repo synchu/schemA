@@ -3,13 +3,14 @@ import { routerMiddleware } from 'react-router-redux'
 import thunk from 'redux-thunk'
 import makeRootReducer from './reducers'
 import { createEpicMiddleware, combineEpics } from 'redux-observable'
-import {selectModelEpic, loadItemEpic} from './epics'
+import {selectModelEpic, loadItemEpic, loadFieldsArray} from './epics'
 
 export default (initialState = {}, history) => {
   // ======================================================
   // Middleware Configuration
   // ======================================================
-  const middleware = [thunk, routerMiddleware(history), createEpicMiddleware(combineEpics(selectModelEpic, loadItemEpic))]
+  const middleware = [thunk, routerMiddleware(history),
+    createEpicMiddleware(combineEpics(selectModelEpic, loadItemEpic, loadFieldsArray))]
 
   // ======================================================
   // Store Enhancers

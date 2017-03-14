@@ -32,10 +32,12 @@ $stats-font-size-factor: 0.9;
     display: flex;
     flex-flow: row wrap;
 }
+
 .flexRowWrapLeft {
     display: flex;
     flex-flow: row wrap;
     margin-left: 1 rem;
+    padding: 10px;
 }
 
 .filterBrandsButton {
@@ -48,7 +50,7 @@ $stats-font-size-factor: 0.9;
 }
 
 .fontIconSelection {
-    color:green;
+    color: green;
     margin-bottom: auto;
     font-size: 1.6rem;
 }
@@ -92,12 +94,12 @@ $stats-font-size-factor: 0.9;
     .navigation {
         flex: 0 0 auto;
         position: relative;
-        max-width: 32rem default;
-        width: 32rem default;
-        .navtitle {
+        max-width: 40rem;
+        width: 264px;
+        navtitle {
             border: 0 none;
             padding-left: 5px;
-            padding-top: 6rem;
+            padding-top: 10px;
             flex-direction: column;
             flex: 1;
             height: auto;
@@ -204,23 +206,15 @@ $stats-font-size-factor: 0.9;
     font-size: 1.4rem * $stats-font-size-factor;
 }
 
-.split {
-    padding: 5px;
-    border-top: 1px dashed black;
-    flex-direction: row;
-    >:nth-child(1) {
-        resize: vertical;
-    }
-}
 
 .foot {
     display: block;
-    text-align: right;
     color: $base-color;
     bottom: 0;
     position: fixed;
-    width: 90%;
-    float: right;
+    background-color: white;
+    right: 0;
+    width:calc(100% - 265px);
     link {
         abbr {
             text-transform: none;
@@ -228,14 +222,24 @@ $stats-font-size-factor: 0.9;
     }
 }
 
+.navigation.expanded {
+    //left: 255px;
+}
+//used for the NavDrawer pinned state to push content to the left
+.content.expanded {
+    //margin-left: 255px;
+}
+
 .content {
-    flex: 1;
+    display: flex;
+    flex: 1 1 auto;
     overflow-y: auto;
     margin-top: 2.3rem;
-    padding: 0.5rem;
+    padding: 1.5rem;
     height: calc(100% - 100px);
     overflow-x: hidden;
     position: relative;
+    justify-content: space-between;
 }
 
 .logo {
@@ -269,43 +273,3 @@ $stats-font-size-factor: 0.9;
     }
 }
 
-.Resizer {
-    background: #000;
-    opacity: .4;
-    z-index: 2;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    -moz-background-clip: padding;
-    -webkit-background-clip: padding;
-    background-clip: padding-box;
-    height: 11px;
-    margin: -5px 0;
-    border-top: 5px solid rgba(255, 255, 255, 0);
-    border-bottom: 5px solid rgba(255, 255, 255, 0);
-    cursor: row-resize;
-    width: 90%;
-     :hover {
-        -webkit-transition: all 2s ease;
-        transition: all 2s ease;
-        border-top: 5px solid rgba(0, 0, 0, 0.5);
-        border-bottom: 5px solid rgba(0, 0, 0, 0.5);
-    }
-    .vertical {
-        width: 11px;
-        margin: 0 -5px;
-        border-left: 5px solid rgba(255, 255, 255, 0);
-        border-right: 5px solid rgba(255, 255, 255, 0);
-        cursor: col-resize;
-         :hover {
-            border-left: 5px solid rgba(0, 0, 0, 0.5);
-            border-right: 5px solid rgba(0, 0, 0, 0.5);
-        }
-    }
-    .disabled {
-        cursor: not-allowed;
-         :hover {
-            border-color: transparent;
-        }
-    }
-}

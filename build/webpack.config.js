@@ -4,6 +4,12 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import config from '../config'
 import _debug from 'debug'
+// postcss-cssnext
+// import 'postcss-modules-values'
+// import 'postcss-cssnext'
+
+const reactToolboxVariables = {
+}
 
 const debug = _debug('app:webpack:config')
 const paths = config.utils_paths
@@ -148,7 +154,7 @@ webpackConfig.module.loaders = [{
 // css-loader not to duplicate minimization.
 const BASE_CSS_LOADER = 'css?sourceMap&-minimize'
 
-// Add any packge names here whose styles need to be treated as CSS modules.
+// Add any package names here whose styles need to be treated as CSS modules.
 // These paths will be combined into a single regex.
 const PATHS_TO_TREAT_AS_CSS_MODULES = [
   'react-toolbox'
@@ -171,7 +177,11 @@ if (isUsingCSSModules) {
     BASE_CSS_LOADER,
     'modules',
     'importLoaders=1',
-    'localIdentName=[name]__[local]___[hash:base64:5]'
+    'localIdentName=[name]__[local]___[hash:base64:5]',    //schemA added begin
+    
+    '!postcss?sourceMap',
+    'sourceComments'
+    // schemA added end
   ].join('&')
 
   webpackConfig.module.loaders.push({
@@ -226,12 +236,21 @@ webpackConfig.sassLoader = {
 }
 
 webpackConfig.postcss = [
+   /* eslint-disable global-require */
+  require('postcss-cssnext')({
+    features: {
+      customProperties: {
+        variables: reactToolboxVariables
+      }
+    }
+  }), /*,  require('postcss-modules-values')*/
+      /* eslint-enable global-require */
   cssnano({
-    autoprefixer: {
+  /*  autoprefixer: {
       add: true,
       remove: true,
       browsers: ['last 2 versions']
-    },
+    },*/
     discardComments: {
       removeAll: true
     },

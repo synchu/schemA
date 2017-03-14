@@ -44,7 +44,10 @@ const mapStateToProps = (state) => ({
   // that's the DB selected one
   descriptionDb: state.uploadFile.description,
   contributor: selector(state, 'contributor'),
-  filesData: state.uploadFile.filesData
+  filesData: state.uploadFile.filesData,
+  versionData: state.uploadFile.versionData,
+  deletedFilesData: state.uploadFile.deletedFilesData,
+  deletedVersionData: state.uploadFile.deletedVersionData
 })
 
 

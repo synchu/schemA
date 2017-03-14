@@ -1,7 +1,7 @@
 /* @flow*/
 
 import {fileObject, emptyAmpItem} from '../interfaces/files.js'
-import {getTableData, newRow} from './filesTableData'
+import {getTableData, newVersionRow} from './filesTableData'
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 
@@ -21,6 +21,8 @@ export const SET_MODEL = 'SET_MODEL'
 export const SET_FILES = 'SET_FILES'
 
 export const SET_ERROR = 'SET_ERROR'
+
+export const SET_LAST_NEWID = 'SET_LAST_NEWID'
 
 // ------------------------------------ Utils
 // ------------------------------------
@@ -70,9 +72,7 @@ const transformAmpsToDropdown = (ampsWithKeys, fromItem, tillItem) => {
 // ------------------------------------ Actions
 // ------------------------------------
 
-export const validateFormData = (newData) => {
-
-}
+export const validateFormData = (newData) => {}
 
 export const requestBrandsDropdown = () => {
   return {type: BRANDS_DROPDOWN_REQUEST, isFetching: true}
@@ -124,7 +124,7 @@ const findInObj = (object, value) => {
   return false
 }
 
-export const setBrand = (value, change) => {
+export const setBrand = (value, change, array) => {
   return (dispatch, getState) => {
     let c = {}
     // TODO: Find the fix - a tricky bit, since Autocomplete box selection  returns
@@ -143,18 +143,16 @@ export const setBrand = (value, change) => {
       })
     })
     dispatch({type: SET_BRAND, brand: foundBrand, models: c})
-    setModel('')(dispatch, getState)
+    setModel('', change, array)(dispatch, getState)
     if (change) {
       change('version', '')
       change('model', '')
     }
-    setVersion('', change)(dispatch, getState)
-    // dispatch({type: SET_MODEL, model: '', versions: {}})
-    // dispatch({type: SET_VERSION, versionData: {}, descriptionDb: '', filesData: []})
+    setVersion('', change, array)(dispatch, getState)
   }
 }
 
-export const setModel = (model, change) => {
+export const setModel = (model, change, array) => {
   return (dispatch, getState) => {
     let c = {}
     const brand = getState().uploadFile.brand
@@ -167,10 +165,10 @@ export const setModel = (model, change) => {
       })
     })
     dispatch({type: SET_MODEL, model: model, versions: c})
-    setVersion('', change)(dispatch, getState)
+    setVersion('', change, array)(dispatch, getState)
     dispatch({
       type: SET_VERSION,
-      versionData: {},
+      versionData: [],
       descriptionDb: '',
       filesData: [],
       description: '',
@@ -179,16 +177,20 @@ export const setModel = (model, change) => {
   }
 }
 
-export const setVersion = (version, change) => {
+export const setVersion = (version, change, array) => {
   return (dispatch, getState) => {
     const brand = getState().uploadFile.brand
     const model = getState().uploadFile.model
-    if (!brand || !model || !version) {
+    if (!brand || !model || !version || (version === '')) {
       if (change) {
         change('description', '')
         change('contributor', '')
         change('version', '')
-        dispatch({type: SET_FILES, filesData: []})
+        if (array) {
+          console.log('cleaning array')
+          array.removeAll('files')
+        }
+        dispatch({type: SET_FILES, filesData: [], versionData: []})
       }
       return
     }
@@ -198,34 +200,48 @@ export const setVersion = (version, change) => {
         .filter(i => i.model.toLowerCase() === model.toLowerCase().trim() && i.brand.toLowerCase() === brand.toLowerCase().trim())
     }).then(item => {
       let descriptionLine = item.filter(i => i.type.trim().toLowerCase() === 'description')[0]
-      let descriptionDb = descriptionLine ? descriptionLine.data : ''
-      let contributor = descriptionLine ? descriptionLine.contributor : ''
+      let descriptionDb = descriptionLine
+        ? descriptionLine.data
+        : ''
+      let contributor = descriptionLine
+        ? descriptionLine.contributor
+        : ''
       let fileData = item.filter(i => i.type.trim().toLowerCase() !== 'description')
       // change form values
       if (change) {
         change('description', descriptionDb)
         change('contributor', contributor)
       }
-      return dispatch({type: SET_VERSION, versionData: item, descriptionDb: descriptionDb,
-        filesData: getTableData(fileData, deleteFileData, getState)})
+      if (array) {
+        fileData.map(i =>
+          array.push('files', i)
+        )
+      }
+      return dispatch({
+        type: SET_VERSION,
+        versionData: item,
+        descriptionDb: descriptionDb,
+        filesData: getTableData(fileData, getState)
+      })
     }).catch(r => console.log(r))
-    return dispatch({type: SET_VERSION, versionData: {}, descriptionDb: '', filesData: []})
+    return dispatch({type: SET_VERSION, versionData: [], descriptionDb: '', filesData: []})
   }
 }
-
 
 export const setFilesData = (row, key, value) => {
   return (dispatch, getState) => {
     let filesData = getState().uploadFile.filesData
+    console.log(row, key, value)
     filesData[row][key] = value
     return dispatch({type: SET_FILES, filesData: filesData})
   }
 }
 
-export const deleteFileData = (rowId, getState) => {
-  return (dispatch) => {
+export const deleteFileData = (rowId, idx, array) => {
+  return (dispatch, getState) => {
     let foundRow = -1
     let filesData = getState().uploadFile.filesData
+    let versionData = getState().uploadFile.versionData
     for (var i = 0; i < filesData.length; i++) {
       if (filesData[i].id === rowId) {
         foundRow = i
@@ -233,29 +249,75 @@ export const deleteFileData = (rowId, getState) => {
       }
     }
     if (foundRow > -1) {
-      let newFilesData = filesData.splice(i, 1)
-      // return dispatch({type: SET_FILES, filesData: newFilesData})
-      console.log('removed files data:', newFilesData)
-      console.log('new files data:', filesData)
-      return
+      let deletedFilesData = getState().uploadFile.deletedFilesData
+        ? getState()
+          .uploadFile
+          .deletedFilesData
+          .concat(filesData.splice(i, 1))
+        : []
+
+      foundRow = -1
+
+      for (var j = 0; j < versionData.length; j++) {
+        if (versionData[j].id === rowId) {
+          foundRow = j
+          break
+        }
+      }
+      if (foundRow > -1) {
+        var deletedVersionData = getState().uploadFile.deletedVersionData
+          ? getState()
+            .uploadFile
+            .deletedVersionData
+            .concat(versionData.splice(j, 1))
+          : []
+      }
+      if (array) {
+        array.remove('files', idx)
+      } else {
+        console.warn('no array present')
+      }
+      dispatch({type: SET_FILES, filesData: filesData, versionData: versionData,
+        deletedFilesData: deletedFilesData, deletedVersionData: deletedVersionData})
     } else {
       return
     }
   }
 }
 
-export const addNewTableRow = () => {
+export const addNewTableRow = (change, array) => {
   return (dispatch, getState) => {
-    const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id ? a.data_id : b.data_id))
+    const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id
+      ? a.data_id
+      : b.data_id))
 
     let versionData = getState().uploadFile.versionData
     if (!versionData) {
-      dispatch({ type: SET_ERROR, errorMessage: 'Unknown error! Seems no amp data is loaded!' })
+      dispatch({type: SET_ERROR, errorMessage: 'Unknown error! Seems no amp data is loaded!'})
       return
     }
     let newDataId = parseInt(maxDataId(versionData)) + 1
-    let newFileRow = newRow(newDataId, versionData[0], deleteFileData, getState)
-    console.log('newFileRow:', newFileRow)
+    let id = getState().uploadFile.lastNewID
+      ? getState().uploadFile.lastNewID - 1
+      : -1
+
+    let newVersionItem = newVersionRow(newDataId, versionData[0], id)
+
+    let newVersionData = getState()
+      .uploadFile
+      .versionData
+      .concat([newVersionItem])
+    dispatch({type: SET_LAST_NEWID, lastNewID: id})
+
+    if (array) {
+      array.push('files', newVersionItem)
+    } else {
+      console.warn('no array present')
+    }
+
+    return dispatch({type: SET_FILES,
+      filesData: getTableData(newVersionData.filter(i => i.type.trim().toLowerCase() !== 'description'), getState),
+      versionData: newVersionData})
   }
 }
 
@@ -298,11 +360,19 @@ const ACTION_HANDLERS = {
     contributor: action.contributor
   }),
   [SET_FILES]: (state, action) => Object.assign({}, state, {
-    filesData: action.filesData
+    filesData: action.filesData,
+    versionData: action.versionData
+      ? action.versionData
+      : state.versionData,
+    deletedFilesData: action.deletedFilesData
+      ? action.deletedFilesData
+      : state.deletedFilesData,
+    deletedVersionData: action.deletedVersionData
+      ? action.deletedVersionData
+      : state.deletedVersionData
   }),
-  [SET_ERROR]: (state, action) => Object.assign({}, state, {
-    errorMessage: action.errorMessage
-  })
+  [SET_ERROR]: (state, action) => Object.assign({}, state, {errorMessage: action.errorMessage}),
+  [SET_LAST_NEWID]: (state, action) => Object.assign({}, state, {lastNewID: action.lastNewID})
 }
 
 // ------------------------------------ Reducer
@@ -319,10 +389,12 @@ const initialState = {
   description: '',
   contributor: '',
   descriptionDb: '',
-  filesData: []
+  filesData: [],
+  deletedFilesData: [],
+  deletedVersionData: []
 }
 
-export default function uploadFileReducer(state = initialState, action) {
+export default function uploadFileReducer (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
   return handler
     ? handler(state, action)

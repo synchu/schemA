@@ -20,7 +20,7 @@ import {clearMessage} from '../../Login/modules/loginUser'
 import MediaQuery from 'react-responsive'
 import {renderStatItem} from './Stats'
 import WelcomeDialog from './WelcomeDialog'
-import classnames from 'classnames'
+import cn from 'classnames'
 
 export class HomeView extends Component {
   singleModel = false
@@ -374,8 +374,6 @@ export class HomeView extends Component {
       dispatch,
       brands,
       filterBrand,
-      filterModels,
-      models,
       item
     } = this.props
     const {navbarPinned, navbarActive, isFetching, isAuthenticated, picture, username} = this.props
@@ -387,13 +385,13 @@ export class HomeView extends Component {
         <NavDrawer
           pinned={navbarPinned}
           active={navbarActive}
-          scrollY
-          width='normal'
+          theme={classes}
+          clipped
+          // width='normal'
           ref='navdrawer'>
-          <div className={classnames(classes.navigation)}>
-            <Panel className={classes.navtitle}>
-              <div
-                className={classes.flexRowWrap}>
+          <div className={cn(classes.navigation, navbarPinned ? classes.expanded : '')}>
+            <div className={classes.navtitle}>
+              <div className={classes.flexRowWrap}>
                 <Input
                   type='text'
                   hint='Type to filter brands'
@@ -410,21 +408,21 @@ export class HomeView extends Component {
                       className={classes.filterBrandsButton}
                     />}
               </div>
-            </Panel>
-            <Panel className={classes.brands}>
+            </div>
+            <div className={classes.brands}>
               <List selectable>
                 {(brands) && brands
                               .filter((i) => i[0].toLowerCase().indexOf(filteredBrand.toLowerCase()) !== -1)
                               .map(this.renderBrands)}
               </List>
-            </Panel>
+            </div>
           </div>
 
           <footer></footer>
         </NavDrawer>
 
-        <Panel>
-          < WelcomeDialog welcomeActive={
+        <Panel bodyScroll>
+          <WelcomeDialog welcomeActive={
             this.state.welcomeActive
               ? this.state.welcomeActive
               : false
@@ -455,11 +453,8 @@ export class HomeView extends Component {
             loginUser={loginUser}
             requestLogin={requestLogin}
             {...this.props} />
-          <Panel className={classes.content}>
-            <Panel
-              // style={classes.autoRow}
-              scrollY
-              className={classnames(classes.Panes, classes.autoRow)}>
+          <div className={cn(classes.content, navbarPinned ? classes.expanded : '')}>
+            <div className={cn(classes.autoRow)}>
               <div
                 style={{
                   display: 'flex',
@@ -477,12 +472,12 @@ export class HomeView extends Component {
                         isAdmin={this.isAdmin()} />
                 }
               </div>
-              <div
-                className={classes.flexRightAuto}>
-                <h4>{selectedBrand}- {selectedModel}</h4>
+              <div className={classes.flexRightAuto}>
+                <h4>{selectedBrand} - {selectedModel}</h4>
               </div>
-              <Panel scrollY style={{
-                flexFlow: 'row wrap'
+              <div style={{
+                flexFlow: 'row wrap',
+                alignSelf: 'flex-start'
               }}>
                 {isFetching && this.renderFetching()}
                 {!isFetching && <ModelItem
@@ -493,9 +488,9 @@ export class HomeView extends Component {
                   isAuthenticated={isAuthenticated}
                   isAdmin={this.isAdmin()}
                   />}
-              </Panel>
-            </Panel>
-          </Panel>
+              </div>
+            </div>
+          </div>
 
           {(snackMessage) && <div>
             <Snackbar
@@ -516,7 +511,9 @@ export class HomeView extends Component {
               }} />
           </div>
 }
-          <footer id='pageFooter'>
+
+        </Panel >
+          <footer id='pageFooter' className={classes.foot}>
             <div
               className={classes.flexRowNoWrap}>
               <small>Navigation Software Copyright© 2016
@@ -524,8 +521,8 @@ export class HomeView extends Component {
                 <div>
                   <span>Read </span>
                   <a href='privacypolicy.html' target='_blank'> our privacy policy</a>
-                  <span>and</span>
-                  <a href='termsofuse.html' target='_blank'> terms of use</a>
+                  <span> and </span>
+                  <a href='termsofuse.html' target='_blank'> terms of use </a>
                 </div>
                 <div>
                   <span>Reach us at 
@@ -536,8 +533,6 @@ export class HomeView extends Component {
               <SocialShare />
             </div>
           </footer>
-        </Panel >
-
       </Layout >
     )
   }
