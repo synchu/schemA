@@ -15,7 +15,7 @@ try {
     ) {
         throw new RuntimeException('Invalid parameters.');
     }
-    
+     
     // Check $_FILES['upfile']['error'] value.
     switch ($_FILES['upfile']['error']) {
         case UPLOAD_ERR_OK:
