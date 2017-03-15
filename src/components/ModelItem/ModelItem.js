@@ -306,7 +306,6 @@ export class ModelItem extends Component {
           [mc(itemData.version)]: false
         })
       }
-      console.log('will call loadItem now!')
       this.props.loadItem(true)
     } else {
       this.setState({

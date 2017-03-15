@@ -285,6 +285,30 @@ export const deleteFileData = (rowId, idx, array) => {
   }
 }
 
+export const setDataField = (data, index) => {
+  return (dispatch, getState) => {
+    let filesData = getState().uploadFile.filesData
+    let versionData = getState().uploadFile.versionData
+
+    filesData[index].data = data
+
+    let foundRow = -1
+
+    for (var j = 0; j < versionData.length; j++) {
+      if (versionData[j].id === filesData[index].id) {
+        foundRow = j
+        break
+      }
+    }
+    if (foundRow > -1) {
+      versionData[foundRow].data = data
+    } else {
+      console.warn('Strange days are coming. Version Data differs from files data:', filesData, versionData)
+    }
+    dispatch({type: SET_FILES, filesData: filesData, versionData: versionData})
+  }
+}
+
 export const addNewTableRow = (change, array) => {
   return (dispatch, getState) => {
     const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id

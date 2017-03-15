@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import {formValueSelector} from 'redux-form'
 import { loadBrandsDropdown, setFilesData, deleteFileData, addNewTableRow,
-setBrand, setModel, setVersion } from '../modules/uploadFile'
+setBrand, setModel, setVersion, setDataField } from '../modules/uploadFile'
 
 import UploadItem from '../components/UploadItem'
 
@@ -20,7 +20,8 @@ const mapActionCreators = {
   setVersion,
   setFilesData,
   deleteFileData,
-  addNewTableRow
+  addNewTableRow,
+  setDataField
 }
 
 const selector = formValueSelector('UploadItem')

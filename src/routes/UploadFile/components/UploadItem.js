@@ -27,9 +27,7 @@ const validate = values => {
   return errors
 }
 
-renderField.propTypes = {
-  input: PropTypes.object
-}
+
 const renderField = ({ input, label, type, icon, meta: { touched, error, warning }, ...custom }) => {
   return (
       <div>
@@ -38,6 +36,14 @@ const renderField = ({ input, label, type, icon, meta: { touched, error, warning
         {touched && ((error && <span>{error}</span>) || (warning && <span>{warning}</span>))}
       </div>
   )
+}
+
+renderField.propTypes = {
+  input: PropTypes.object,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  icon: PropTypes.string,
+  meta: PropTypes.object
 }
 
 const renderAutocompleteField = ({ input, label, type, icon, required, source, theme, disabled,
@@ -64,6 +70,18 @@ const renderAutocompleteField = ({ input, label, type, icon, required, source, t
   )
 }
 
+renderAutocompleteField.propTypes = {
+  input: PropTypes.object,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  icon: PropTypes.string,
+  source: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  theme: PropTypes.object,
+  required: PropTypes.bool,
+  disabled: PropTypes.bool,
+  children: PropTypes.element,
+  meta: PropTypes.object
+}
 
 const renderInputTableCell = ({ input, label, icon, meta: { touched, error, warning }, ...custom }) => {
   return (
@@ -74,9 +92,13 @@ const renderInputTableCell = ({ input, label, icon, meta: { touched, error, warn
   )
 }
 
-renderTableCell.propTypes = {
-  input: PropTypes.object
+renderInputTableCell.propTypes = {
+  input: PropTypes.object,
+  label: PropTypes.string,
+  icon: PropTypes.string,
+  meta: PropTypes.object
 }
+
 const renderTableCell = ({ input, ...other }) => {
   if (input && input.value) {
     return (<TableCell>{input.value}</TableCell>)
@@ -84,21 +106,21 @@ const renderTableCell = ({ input, ...other }) => {
     return (<TableCell>{`${''}`}</TableCell>)
   }
 }
+renderTableCell.propTypes = {
+  input: PropTypes.object
+}
 
 const changeItemType = (val, change, field) => change ? change(field, val) : 'schematic'
 
-const processFiles = (files, change, field, brand, model) => {
-  console.log('files:', files)
+const processFiles = (files, change, field, brand, model, custom, idx) => {
+  console.log('processFiles:', custom)
   if (files.length > 1) {
     console.warn('Cannot upload more than 1 file at a time!')
     return
   } else {
     change(field, 'sch/' + brand + '/' + model + '/' + files[0].name)
+    custom.setDataField('sch/' + brand + '/' + model + '/' + files[0].name, idx)
   }
-}
-
-renderTableRows.propTypes = {
-  fields: PropTypes.object
 }
 
 const renderTableRows = ({fields}, filesData, {...custom}) => {
@@ -107,7 +129,8 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
   return (
              fields.map((item, idx) => {
                return (
-                  <TableRow key={idx} onChange={handleTableChange}>
+                  <TableRow key={idx}
+                    style={filesData[idx] && (filesData[idx].id < 0) ? {backgroundColor: 'lavender'} : {}}>
                     <Field name={`${item}.version`} component={renderTableCell} />
                     <TableCell>
                       <Field
@@ -126,6 +149,7 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                       <Field
                         component={FileDropzone}
                         label='Click or drag to upload file'
+                        rkey={idx}
                         icon='file'
                         name={`${item}.file`}
                         processFiles={processFiles}
@@ -133,6 +157,9 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                         brand={brand}
                         model={model}
                         field={`${item}.file`}
+                        custom={custom}
+                        idx={idx}
+                        existingFile={filesData[idx].data}
                         multiple
                         table />
                     </TableCell>
@@ -141,16 +168,17 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                   </TableRow>)
              }))
 }
-// es-lint react/prop-types off
-renderTable.propTypes = {
+renderTableRows.propTypes = {
   fields: PropTypes.object
 }
+
+// es-lint react/prop-types off
 
 const renderTable = ({fields, ...custom}) => {
   const {filesData} = custom
   if (filesData && filesData.length > 0) {
     return (
-      <Table>
+      <Table selectable={false}>
         <TableHead>
           <TableCell>Version</TableCell>
           <TableCell>Type</TableCell>
@@ -164,6 +192,9 @@ const renderTable = ({fields, ...custom}) => {
   } else {
     return (<div></div>)
   }
+}
+renderTable.propTypes = {
+  fields: PropTypes.object
 }
 // es-lint react/prop-types on
 export class UploadItem extends Component {
