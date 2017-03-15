@@ -34,7 +34,7 @@ export class FileDropzone extends React.Component {
   }
 
   render () {
-    const { table, existingFile } = this.props
+    const { table, existingFile, existingId } = this.props
     const { files } = this.state
 
     return (
@@ -58,7 +58,7 @@ export class FileDropzone extends React.Component {
           }
         </div>
       </Dropzone>
-      {existingFile && (existingFile.length > 0) && <img style={{ width: '48px', height: '48px' }}
+      {existingFile && (existingFile.length > 0) && (existingId > 0) && <img style={{ width: '48px', height: '48px' }}
         src={__IMG__BASE_URL + existingFile} />}
     </div>
   )

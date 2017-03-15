@@ -187,7 +187,6 @@ export const setVersion = (version, change, array) => {
         change('contributor', '')
         change('version', '')
         if (array) {
-          console.log('cleaning array')
           array.removeAll('files')
         }
         dispatch({type: SET_FILES, filesData: [], versionData: []})

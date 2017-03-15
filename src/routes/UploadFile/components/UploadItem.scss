@@ -1,13 +1,11 @@
 @import '../../../styles/colors';
-
 .ampitemcard {
-    width: 768px;
+    width: 960px;
     margin: 0 auto;
     border: none;
     box-shadow: 1px black;
     margin-top: 5rem;
     overflow-y: hidden;
-
 }
 
 .title {
@@ -29,28 +27,35 @@
     height: 100%;
 }
 
- .suggestions {
-     display: inline;
-     list-style: none;
-     right: 0;
-     padding: 0;
-      :hover {
-         background-color: $base-color;
-     }
-     &:not(.up) {
-         margin-top: 1rem;
-     }
-     overflow: hidden;
- }
- 
- .searchInput {
-     display: flex;
-     color: white;
-     * {
-         color: ivory;
-         font-size: 1.3rem;
-     }
-      ::-webkit-scrollbar {
-         display: none;
-     }
- }
+.suggestions {
+    display: inline;
+    list-style: none;
+    right: 0;
+    padding: 0;
+     :hover {
+        background-color: $base-color;
+    }
+    &:not(.up) {
+        margin-top: 1rem;
+    }
+    overflow: hidden;
+}
+
+.searchInput {
+    display: flex;
+    color: white;
+    * {
+        color: ivory;
+        font-size: 1.3rem;
+    }
+     ::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.tableDisplayName {
+    * {
+        font-size: 1.3rem;
+        min-width: 12em;
+    }
+}

@@ -39,6 +39,5 @@ export const getTableData = (source, getState) => {
   }
   )
   )
-  console.log('getTableData:', result)
   return result
 }

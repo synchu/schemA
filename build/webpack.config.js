@@ -246,6 +246,8 @@ webpackConfig.postcss = [
   }), /*,  require('postcss-modules-values')*/
       /* eslint-enable global-require */
   cssnano({
+    // removed - as it is implemented by postcss-cssnext
+    autoprefixer: false,
   /*  autoprefixer: {
       add: true,
       remove: true,
@@ -257,6 +259,11 @@ webpackConfig.postcss = [
     discardUnused: false,
     mergeIdents: false,
     reduceIdents: false,
+    // added - schemA
+    // orderedValues: true,
+    // discardDuplicates: true,
+    // mergeLonghand: true,
+    // added - schemA
     safe: true,
     sourcemap: true
   })
