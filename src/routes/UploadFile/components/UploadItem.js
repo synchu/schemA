@@ -3,7 +3,7 @@ import { Button, Table, Card, CardTitle,
   CardActions, Autocomplete, IconButton,
  TableHead, TableRow, TableCell} from 'react-toolbox'
 import Input from 'react-toolbox/lib/input'
-import { Field, reduxForm, FieldArray } from 'redux-form/immutable'
+import { Field, reduxForm, FieldArray, formValueSelector } from 'redux-form/immutable'
 import { validatePassword } from '../../../utils/validators'
 import { TypeSelector } from '../components/TypeSelector'
 import { FileDropzone } from '../components/Dropzone'
@@ -201,6 +201,7 @@ const renderTable = ({fields, ...custom}) => {
 renderTable.propTypes = {
   fields: PropTypes.object
 }
+const selector = formValueSelector('UploadItem')
 // es-lint react/prop-types on
 export class UploadItem extends Component {
   state = {
@@ -266,23 +267,25 @@ export class UploadItem extends Component {
 
   handleChange = (value) => {
     const {brand, setBrand, change, array} = this.props
-    if (!brand || !value.currentTarget.value || (value.currentTarget.value !== brand)) {
-      setBrand(brand, change, array)
+    if (this.state[value.target.name] !== value.currentTarget.value) {
+      setBrand(brand !== value.currentTarget.value ? value.currentTarget.value : brand, change, array)
     }
   }
 
   handleModelChange = (value) => {
     const {model, setModel, change, array} = this.props
-    //if (!model || !value.currentTarget.value || (value.currentTarget.value !== model)) {
-    setModel(model, change, array)
-   // }
+    if (this.state[value.target.name] !== value.currentTarget.value) {
+      setModel(model !== value.currentTarget.value ? value.currentTarget.value : model, change, array)
+    }
   }
 
   handleVersionChange = (value) => {
     const {version, setVersion, change, array} = this.props
-    setVersion(value.currentTarget.value, change, array)
     // force clean files table
-    array.removeAll('files')
+    if (this.state[value.target.name] !== value.currentTarget.value) {
+      array.removeAll('files')
+      setVersion(version !== value.currentTarget.value ? value.currentTarget.value : version, change, array)
+    }
   }
 
   handleAddTableRow = () => {
@@ -298,6 +301,10 @@ export class UploadItem extends Component {
 
   handleUndoFileDelete = () => {
     this.setState({deletedItem: this.state.deletedItem - 1})
+  }
+
+  handleFocus = (e) => {
+    this.setState({[e.target.name]: e.target.value})
   }
 
   render () {
@@ -319,6 +326,7 @@ export class UploadItem extends Component {
               className={classes.searchInput}
               source={amps}
               onBlur={this.handleChange}
+              onFocus={this.handleFocus}
               warn={validators.minLength2}
               />
             <Field name='model' label='Model'
@@ -333,6 +341,7 @@ export class UploadItem extends Component {
                 models
               }
               onBlur={this.handleModelChange}
+              onFocus={this.handleFocus}
               />
             <Field name='version' label='Version'
               component={renderAutocompleteField}
@@ -346,6 +355,7 @@ export class UploadItem extends Component {
                 versions
               }
               onBlur={this.handleVersionChange}
+              onFocus={this.handleFocus}
               />
           </span>
           <Field name='description' component={renderField}

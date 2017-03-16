@@ -1,6 +1,6 @@
 export const getDBFieldName = (cardField) => {
   let fieldName = ''
-  if (!!cardField && cardField.length > 0) {
+  if (cardField && cardField.length > 0) {
     let i = cardField.length - 1
 
     while (i !== 0 && cardField[i] !== '_') {

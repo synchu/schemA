@@ -1,8 +1,9 @@
 /* @flow*/
 
 import {fileObject, emptyAmpItem} from '../interfaces/files.js'
-import {getTableData, newVersionRow} from './filesTableData'
+import {getTableData, newVersionRow, initNewBrand} from './filesTableData'
 import fetch from 'isomorphic-fetch'
+import {formValueSelector} from 'redux-form/immutable'
 import _ from 'lodash'
 
 // ------------------------------------ Constants
@@ -69,6 +70,8 @@ const transformAmpsToDropdown = (ampsWithKeys, fromItem, tillItem) => {
   })
   return c
 }
+
+const selector = formValueSelector('UploadItem')
 // ------------------------------------ Actions
 // ------------------------------------
 
@@ -131,8 +134,9 @@ export const setBrand = (value, change, array) => {
     // index when selected from the list, but text value when not. We need to find
     // out reliably whether there's a match in the DB
     const findBrand = () => getState().uploadFile.amps[value] === undefined
-      ? findInObj(getState().uploadFile.amps, value)
+      ? (findInObj(getState().uploadFile.amps, value) ? value : false)
       : getState().uploadFile.amps[value]
+
     let foundBrand = findBrand()
     _.uniqBy(getState().uploadFile.rawdata.filter((i) => i[2] === foundBrand), '1').map(a => {
       c = Object.defineProperty(c, a[1], {
@@ -142,7 +146,7 @@ export const setBrand = (value, change, array) => {
         value: a[1]
       })
     })
-    dispatch({type: SET_BRAND, brand: foundBrand, models: c})
+    dispatch({type: SET_BRAND, /* brand: !foundBrand ? value : foundBrand, */ models: c})
     setModel('', change, array)(dispatch, getState)
     if (change) {
       change('version', '')
@@ -155,7 +159,7 @@ export const setBrand = (value, change, array) => {
 export const setModel = (model, change, array) => {
   return (dispatch, getState) => {
     let c = {}
-    const brand = getState().uploadFile.brand
+    const brand = selector(getState(), 'brand')
     _.uniqBy(getState().uploadFile.rawdata.filter((i) => (i[1] === model) && (i[2] === brand)), '0').map(a => {
       c = Object.defineProperty(c, a[0], {
         enumerable: true,
@@ -164,7 +168,7 @@ export const setModel = (model, change, array) => {
         value: a[0]
       })
     })
-    dispatch({type: SET_MODEL, model: model, versions: c})
+    dispatch({type: SET_MODEL, versions: c})
     setVersion('', change, array)(dispatch, getState)
     dispatch({
       type: SET_VERSION,
@@ -172,15 +176,16 @@ export const setModel = (model, change, array) => {
       descriptionDb: '',
       filesData: [],
       description: '',
-      contributor: ''
+      contributor: '',
+      version: ''
     })
   }
 }
 
 export const setVersion = (version, change, array) => {
   return (dispatch, getState) => {
-    const brand = getState().uploadFile.brand
-    const model = getState().uploadFile.model
+    const brand = selector(getState(), 'brand')
+    const model = selector(getState(), 'model')
     if (!brand || !model || !version || (version === '')) {
       if (change) {
         change('description', '')
@@ -220,10 +225,11 @@ export const setVersion = (version, change, array) => {
         type: SET_VERSION,
         versionData: item,
         descriptionDb: descriptionDb,
-        filesData: getTableData(fileData, getState)
+        filesData: getTableData(fileData, getState),
+        version: version
       })
     }).catch(r => console.log(r))
-    return dispatch({type: SET_VERSION, versionData: [], descriptionDb: '', filesData: []})
+    return dispatch({type: SET_VERSION, versionData: [], descriptionDb: '', filesData: []/*, version: ''*/})
   }
 }
 
@@ -315,16 +321,17 @@ export const addNewTableRow = (change, array) => {
       : b.data_id))
 
     let versionData = getState().uploadFile.versionData
-    if (!versionData) {
-      dispatch({type: SET_ERROR, errorMessage: 'Unknown error! Seems no amp data is loaded!'})
-      return
-    }
-    let newDataId = parseInt(maxDataId(versionData)) + 1
+
+    let newDataId = versionData && versionData.length > 0 ? parseInt(maxDataId(versionData)) + 1 : 1
     let id = getState().uploadFile.lastNewID
       ? getState().uploadFile.lastNewID - 1
       : -1
 
-    let newVersionItem = newVersionRow(newDataId, versionData[0], id)
+    let dataInit = versionData[0] ? versionData[0] : initNewBrand(getState(), newDataId)
+
+    let newVersionItem = newVersionRow(newDataId,
+    dataInit,
+    id)
 
     let newVersionData = getState()
       .uploadFile
@@ -367,15 +374,15 @@ const ACTION_HANDLERS = {
     rawdata: action.rawdata
   }),
   [SET_BRAND]: (state, action) => Object.assign({}, state, {
-    brand: action.brand,
+    /*brand: action.brand,*/
     models: action.models
   }),
   [SET_MODEL]: (state, action) => Object.assign({}, state, {
-    model: action.model,
+    /*model: action.model,*/
     versions: action.versions
   }),
   [SET_VERSION]: (state, action) => Object.assign({}, state, {
-    version: action.version,
+    /*version: action.version,*/
     descriptionDb: action.descriptionDb,
     versionData: action.versionData,
     filesData: action.filesData,
@@ -414,7 +421,10 @@ const initialState = {
   descriptionDb: '',
   filesData: [],
   deletedFilesData: [],
-  deletedVersionData: []
+  deletedVersionData: [],
+  brand: '',
+  model: '',
+  version: ''
 }
 
 export default function uploadFileReducer (state = initialState, action) {

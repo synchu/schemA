@@ -1,5 +1,51 @@
 import React from 'react'
 import {IconButton} from 'react-toolbox'
+import {formValueSelector} from 'redux-form/immutable'
+import 'isomorphic-fetch'
+
+
+const selector = formValueSelector('UploadItem')
+
+const handleErrors = (response) => {
+  if (!response.ok) {
+    throw Error(response.statusText)
+  }
+  return response
+}
+
+const getLastBid = () => {
+  fetch('http://thesubjectmatter.com/api.php/last_bid?transform=1')
+    .then(response => handleErrors(response))
+    .then(response => response.json())
+    .then(json => {
+      if (json.last_bid.length === 0) {
+        throw Error('No records found')
+      }
+      return json.last_bid[0].last_bid
+    })
+    .catch(error => {
+      console.error(error)
+    })
+}
+
+export const initNewBrand = (state, id) => {
+  console.log('initnewbrand:', state)
+  return ({
+    data_id: -id,
+    id: id,
+    bid: -1,
+    brand: selector(state, 'brand'),
+    model: selector(state, 'model'),
+    version: selector(state, 'version'),
+    file: {},
+    type: 'Schematic',
+    filename: '',
+    contributor: '',
+    data: '',
+    isfile: 0,
+    thumbnail: ''
+  })
+}
 
 export const newVersionRow = (newDataId, i, id) => {
   return {
@@ -36,8 +82,6 @@ export const getTableData = (source, getState) => {
     filename: i.filename,
     file: i.file,
     delete: <IconButton icon='delete' />
-  }
-  )
-  )
+  }))
   return result
 }

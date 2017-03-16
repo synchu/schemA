@@ -15,7 +15,7 @@ try {
     ) {
         throw new RuntimeException('Invalid parameters.');
     }
-     
+    
     // Check $_FILES['upfile']['error'] value.
     switch ($_FILES['upfile']['error']) {
         case UPLOAD_ERR_OK:
@@ -44,7 +44,7 @@ try {
                 // DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
                 // On this example, obtain safe unique name from its binary data.
                 $uploadedname = sprintf('./uploads/%s.%s',
-                sha1_file($_FILES['upfile']['tmp_name']),
+                sha1_file($_FILES['upfile']['tmp_name']).bin2hex(mcrypt_create_iv(6, MCRYPT_DEV_URANDOM)),
                 $ext
                 );
                 if (!move_uploaded_file(
@@ -53,6 +53,9 @@ try {
                 )) {
                     throw new RuntimeException('Failed to move uploaded file.');
                 }
+                
+                $noExecMode = 0644;
+                chmod($uploadedname, $noExecMode);
                 
                 $arr = array('name' => $_FILES['upfile']['name'],
                 'size' => $_FILES['upfile']['size'],

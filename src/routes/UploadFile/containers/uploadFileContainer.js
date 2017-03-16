@@ -26,30 +26,40 @@ const mapActionCreators = {
 
 const selector = formValueSelector('UploadItem')
 
-const mapStateToProps = (state) => ({
-  errorMessage: getMessage(state),
-  brands: state.uploadFile.brands,
-  isFetching: state.uploadFile.isFetching,
-  snackMessage: getMessage(state),
-  models: state.uploadFile.models,
-  versions: state.uploadFile.versions,
-  item: state.uploadFile.item,
-  ampVersions: state.uploadFile.ampVersions,
-  amps: state.uploadFile.amps,
-  rawdata: state.uploadFile.rawdata,
-  brand: selector(state, 'brand'),
-  model: selector(state, 'model'),
-  version: selector(state, 'version'),
+const mapStateToProps = (state) => {
+  // no need for that explicitly - used to trace it for good
+  const lBrand = selector(state, 'brand')
+  const lModel = selector(state, 'model')
+  const lVersion = selector(state, 'version')
+  const lContributor = selector(state, 'contributor')
+  const lDescription = selector(state, 'description')
+  let newProps = ({
+    errorMessage: getMessage(state),
+    brands: state.uploadFile.brands,
+    isFetching: state.uploadFile.isFetching,
+    snackMessage: getMessage(state),
+    models: state.uploadFile.models,
+    versions: state.uploadFile.versions,
+    item: state.uploadFile.item,
+    ampVersions: state.uploadFile.ampVersions,
+    amps: state.uploadFile.amps,
+    rawdata: state.uploadFile.rawdata,
+    brand: lBrand,
+    model: lModel,
+    version: lVersion,
   // that's the form one
-  description: selector(state, 'description'),
+    description: lDescription,
   // that's the DB selected one
-  descriptionDb: state.uploadFile.description,
-  contributor: selector(state, 'contributor'),
-  filesData: state.uploadFile.filesData,
-  versionData: state.uploadFile.versionData,
-  deletedFilesData: state.uploadFile.deletedFilesData,
-  deletedVersionData: state.uploadFile.deletedVersionData
-})
+    descriptionDb: state.uploadFile.description,
+    contributor: lContributor,
+    filesData: state.uploadFile.filesData,
+    versionData: state.uploadFile.versionData,
+    deletedFilesData: state.uploadFile.deletedFilesData,
+    deletedVersionData: state.uploadFile.deletedVersionData
+  })
+  return newProps
+}
 
 
 export default connect(mapStateToProps, mapActionCreators)(UploadItem)
+

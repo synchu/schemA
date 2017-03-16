@@ -18,7 +18,7 @@ export default(store) => ({
         key: 'uploadFile',
         reducer
       })
-
+      // not authenticated - return nothing
       if (!store.getState().globalReducer.auth || !store.getState().globalReducer.auth.loggedIn()) {
         return (
           null
