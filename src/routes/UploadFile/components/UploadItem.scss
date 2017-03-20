@@ -59,3 +59,26 @@
         min-width: 12em;
     }
 }
+// circular progress bar theme start
+.circular {
+    height: 25px;
+    width: 25px;
+    color: lightseagreen;
+    * {
+        color: lightseagreen;
+    }
+}
+
+.saving {
+    display: inline;
+    animation: blinker 0.8s linear infinite;
+    opacity: 1;
+    content: 'Saving';
+    font-size: 8px;
+    color: lightseagreen;
+}
+
+@keyframes blinker {  
+  50% { opacity: 0.3; }
+}
+// circular progress bar theme end

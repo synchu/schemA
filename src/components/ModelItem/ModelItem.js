@@ -18,7 +18,7 @@ import MediaQuery from 'react-responsive'
 import TableView from './TableView'
 import {DESCRIPTION} from 'utils/constants'
 import {transformData} from './TransformData'
-import {updateField, getDBFieldName} from './updateDb'
+import {updateField, getDBFieldName} from '../../utils/updateDb'
 
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')

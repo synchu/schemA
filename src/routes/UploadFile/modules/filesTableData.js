@@ -3,7 +3,6 @@ import {IconButton} from 'react-toolbox'
 import {formValueSelector} from 'redux-form/immutable'
 import 'isomorphic-fetch'
 
-
 const selector = formValueSelector('UploadItem')
 
 const handleErrors = (response) => {
@@ -84,4 +83,55 @@ export const getTableData = (source, getState) => {
     delete: <IconButton icon='delete' />
   }))
   return result
+}
+
+export const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id
+      ? a.data_id
+      : b.data_id))
+      
+/**
+ * Verifies if an amplifier item exists in the database. Returns an array of existing database records
+ * for the particular amp brand, model and version.
+ * Accepts either app state (using UploadItem form selector to extract the params) or
+ * brand, model, version params. undefined must be passed as state, if brand, model, version params are used.
+ * @param {*} state - app state: Object or undefined
+ * @param {*} pBrand - amp brand: String
+ * @param {*} pModel - amp model: String
+ * @param {*} pVersion - amp version: String
+ */
+export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVersion = '',
+                                   dispatchCallback = undefined) => {
+  let {brand, model, version} = {}
+  if (state) {
+    [brand, model, version] = selector(state, 'brand', 'model', 'version')
+  } else {
+    [brand, model, version] = [pBrand, pModel, pVersion]
+  }
+  // additional filtering applied, as api.php does not support multiple filters
+  let addFilter = []
+  addFilter.push({field: 'brand', value: brand})
+  addFilter.push({field: 'model', value: model})
+  // schematics is filtered by version (supposedly returning the smallest data set)
+  fetch('http://thesubjectmatter.com/api.php/schematics?filter=version,eq,' + version + '&transform=1')
+            .then(response => handleErrors(response))
+            .then(response => response.json())
+            .then(json => {
+              let result = addFilter.length > 0
+                  ? json.schematics.filter(item => addFilter.reduce((a, b) => {
+                    return (item[a.field] === a.value) && (item[b.field] === b.value)
+                  }
+                  ))
+                  : json.schematics
+              let merged = [].concat.apply([], result)
+              if (dispatchCallback) {
+                dispatchCallback(merged)
+              }
+              // returns database records extracted
+              return merged && merged.length > 0 ? merged : false
+            })
+            .catch(error => {
+              console.error(error)
+              return false
+            })
+  return false
 }

@@ -1,13 +1,14 @@
 import React, { PropTypes, Component } from 'react'
 import { Button, Table, Card, CardTitle,
   CardActions, Autocomplete, IconButton,
- TableHead, TableRow, TableCell} from 'react-toolbox'
+ TableHead, TableRow, TableCell, ProgressBar} from 'react-toolbox'
 import Input from 'react-toolbox/lib/input'
 import { Field, reduxForm, FieldArray, formValueSelector } from 'redux-form/immutable'
 import { validatePassword } from '../../../utils/validators'
 import { TypeSelector } from '../components/TypeSelector'
 import { FileDropzone } from '../components/Dropzone'
 import { validators } from '../modules/validateData'
+import { checkAmpItemExists } from '../modules/filesTableData'
 
 import classes from './UploadItem.scss'
 
@@ -189,7 +190,7 @@ const renderTable = ({fields, ...custom}) => {
           <TableCell>Type</TableCell>
           <TableCell>Data</TableCell>
           <TableCell>Display name</TableCell>
-          <TableCell>File preview</TableCell>
+          <TableCell>File</TableCell>
           <TableCell>...</TableCell>
         </TableHead>
         {renderTableRows({fields}, filesData, custom)}
@@ -242,7 +243,9 @@ export class UploadItem extends Component {
     addNewTableRow: PropTypes.func,
     deleteFileData: PropTypes.func,
     deletedFilesData: PropTypes.array,
-    array: PropTypes.object
+    array: PropTypes.object,
+    submitToDB: PropTypes.func,
+    startProgress: PropTypes.func
   }
 
   constructor (props) {
@@ -254,7 +257,9 @@ export class UploadItem extends Component {
   }
 
   localHandleSubmit = (e, props) => {
-    console.log('localHandleSubmit', props)
+    const {submitToDB, startProgress} = this.props
+    startProgress()
+    checkAmpItemExists(undefined, props.brand, props.model, props.version, submitToDB)
     return false
   // props.dispatch(successValidateEmail(e.email))
   // props.dispatch(successValidatePassword(e.password))
@@ -305,11 +310,14 @@ export class UploadItem extends Component {
 
   handleFocus = (e) => {
     this.setState({[e.target.name]: e.target.value})
+    if (e.target.name.trim().toLowerCase() === 'contributor' && (!e.target.value)) {
+      this.props.change('contributor', this.props.profile.name)
+    }
   }
 
   render () {
     const { handleSubmit, pristine, reset,
-    submitting, amps, models, versions} = this.props
+    submitting, amps, models, versions, progress} = this.props
     return (
     <form onSubmit={handleSubmit(data => (this.localHandleSubmit(data, this.props)))} className={classes.container} >
       <div>
@@ -367,12 +375,13 @@ export class UploadItem extends Component {
             type='text'
             label='Contributor' required
             icon='control_point'
+            onFocus={this.handleFocus}
             />
           <div style={{display: 'flex', flexFlow: 'row nowrap', flex: '0 1 auto', alignItems: 'flex-start', justifyContent: 'flex-end'}}>
           {this.props.deletedFilesData && (this.props.deletedFilesData.length > 0) &&
             <IconButton icon='undo' title='Undo file item delete' onClick={this.handleUndoFileDelete}
                />}
-          <IconButton icon='playlist_add' title='Add file item' onClick={this.handleAddTableRow}
+            <IconButton icon='playlist_add' title='Add file item' onClick={this.handleAddTableRow}
             />
           </div>
           <FieldArray name='files' component={renderTable} props={this.props} filesData={this.props.filesData}
@@ -380,8 +389,17 @@ export class UploadItem extends Component {
             change={this.props.change}
              />
           <CardActions className={classes['actions']}>
-            <Button type='submit' label='Upload' raised default disabled={submitting} />
-            <Button type='button' label='Cancel' disabled={pristine || submitting} onClick={reset} />
+            <Button type='submit' label='Upload' raised default
+              disabled={submitting} />
+            <Button type='button' label='Cancel' title='Press to clear the form'
+              disabled={pristine || submitting} onClick={reset} />
+            {
+              (progress > 0) &&
+                <div style={{display: 'flex', flexDirection: 'column'}}>
+                  <ProgressBar theme={classes} type='circular' mode='determinate' value={progress} />
+                  <span className={classes.saving}>Saving</span>
+                </div>
+            }
           </CardActions>
         </Card>
       </div>

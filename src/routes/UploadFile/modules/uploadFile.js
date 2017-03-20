@@ -1,9 +1,10 @@
 /* @flow*/
 
 import {fileObject, emptyAmpItem} from '../interfaces/files.js'
-import {getTableData, newVersionRow, initNewBrand} from './filesTableData'
+import {getTableData, newVersionRow, initNewBrand, maxDataId} from './filesTableData'
 import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
+import {updateField, insertRecord} from '../../../utils/updateDb'
 import _ from 'lodash'
 
 // ------------------------------------ Constants
@@ -24,6 +25,10 @@ export const SET_FILES = 'SET_FILES'
 export const SET_ERROR = 'SET_ERROR'
 
 export const SET_LAST_NEWID = 'SET_LAST_NEWID'
+
+export const START_PROGRESS = 'START_PROGRESS'
+export const INCREASE_PROGRESS = 'INCREASE_PROGRESS'
+export const STOP_PROGRESS = 'STOP_PROGRESS'
 
 // ------------------------------------ Utils
 // ------------------------------------
@@ -74,6 +79,25 @@ const transformAmpsToDropdown = (ampsWithKeys, fromItem, tillItem) => {
 const selector = formValueSelector('UploadItem')
 // ------------------------------------ Actions
 // ------------------------------------
+
+
+export const startProgress = () => {
+  return dispatch => {
+    dispatch({type: START_PROGRESS})
+  }
+}
+
+export const increaseProgress = (val = 0) => {
+  return (dispatch, getState) => {
+    dispatch({type: INCREASE_PROGRESS, payload: val !== 0 ? val : getState().uploadFile.progress + 10})
+  }
+}
+
+export const stopProgress = () => {
+  return (dispatch) => {
+    setTimeout(() => dispatch({type: STOP_PROGRESS}), 1200)
+  }
+}
 
 export const validateFormData = (newData) => {}
 
@@ -316,9 +340,6 @@ export const setDataField = (data, index) => {
 
 export const addNewTableRow = (change, array) => {
   return (dispatch, getState) => {
-    const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id
-      ? a.data_id
-      : b.data_id))
 
     let versionData = getState().uploadFile.versionData
 
@@ -351,6 +372,49 @@ export const addNewTableRow = (change, array) => {
   }
 }
 
+const ir = (bid, brand, model, version, type, data, contributor) =>
+  ({bid: bid, brand: brand, model: model, version: version, type: type,
+    data: data, contributor: contributor})
+
+export const submitToDB = (existingRecords) => {
+  return (dispatch, getState) => {
+    const {brand, model, version, description, contributor} =
+      selector(getState(), 'brand', 'model', 'version', 'description', 'contributor')
+    const bid = existingRecords ? existingRecords[0].bid : -1
+    const profile = getState().globalReducer.auth.getProfile()
+
+    dispatch(increaseProgress(20))
+
+    if (existingRecords) {
+      let descriptionDBRecord = existingRecords.filter(i => i.type.trim().toLowerCase() === 'description')
+      if (descriptionDBRecord && descriptionDBRecord.length > 0) {
+        // update existing description record if necessary
+        if (descriptionDBRecord[0].data !== description) {
+          updateField('description', description, undefined, descriptionDBRecord[0])
+        }
+        if (descriptionDBRecord[0].contributor !== contributor) {
+          updateField('contributor', contributor, undefined, descriptionDBRecord[0])
+        }
+        dispatch(increaseProgress(60))
+      } else {
+        // new description record
+        var newDataId = maxDataId(existingRecords)
+        if (!insertRecord(ir(bid, brand, model, version, 'Description', description, contributor), newDataId)) {
+          console.warn('Description did not make it to the DB')
+        }
+        dispatch(increaseProgress(60))
+      }
+    } else {
+      // brand new brand
+      dispatch(increaseProgress(60))
+      
+    }
+    dispatch(increaseProgress(80))
+    dispatch(increaseProgress(100))
+    dispatch(stopProgress())
+  }
+}
+
 export const actions = {
   loadBrandsDropdown
 }
@@ -374,15 +438,15 @@ const ACTION_HANDLERS = {
     rawdata: action.rawdata
   }),
   [SET_BRAND]: (state, action) => Object.assign({}, state, {
-    /*brand: action.brand,*/
+    /* brand: action.brand,*/
     models: action.models
   }),
   [SET_MODEL]: (state, action) => Object.assign({}, state, {
-    /*model: action.model,*/
+    /* model: action.model,*/
     versions: action.versions
   }),
   [SET_VERSION]: (state, action) => Object.assign({}, state, {
-    /*version: action.version,*/
+    /* version: action.version,*/
     descriptionDb: action.descriptionDb,
     versionData: action.versionData,
     filesData: action.filesData,
@@ -402,7 +466,10 @@ const ACTION_HANDLERS = {
       : state.deletedVersionData
   }),
   [SET_ERROR]: (state, action) => Object.assign({}, state, {errorMessage: action.errorMessage}),
-  [SET_LAST_NEWID]: (state, action) => Object.assign({}, state, {lastNewID: action.lastNewID})
+  [SET_LAST_NEWID]: (state, action) => Object.assign({}, state, {lastNewID: action.lastNewID}),
+  [START_PROGRESS]: (state, action) => Object.assign({}, state, {progress: 10}),
+  [INCREASE_PROGRESS]: (state, action) => Object.assign({}, state, {progress: action.payload}),
+  [STOP_PROGRESS]: (state, action) => Object.assign({}, state, {progress: 0})
 }
 
 // ------------------------------------ Reducer

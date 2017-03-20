@@ -1,5 +1,9 @@
 export const getDBFieldName = (cardField) => {
   let fieldName = ''
+  // if there's no _ in field name then it is not ModelItem form - hence return immeditely
+  if (cardField && cardField.indexOf('_') === -1) {
+    return cardField
+  }
   if (cardField && cardField.length > 0) {
     let i = cardField.length - 1
 
@@ -14,6 +18,50 @@ export const getDBFieldName = (cardField) => {
   } else {
     return ''
   }
+}
+
+export const insertRecord = (recData, newDataId) => {
+  if (!recData) {
+    console.error('No record data provided to insert!')
+    return false
+  }
+  if (!newDataId) {
+    console.error('No recordId provided to insertRecord!')
+    return false
+  }
+  fetch('http://thesubjectmatter.com/api.php/schematics', {
+    method: 'POST',
+    dataType: 'json',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      bid: recData.bid,
+      data_id: parseInt(newDataId) + 1,
+      brand: recData.brand,
+      model: recData.model,
+      version: recData.version,
+      type: recData.type ? recData.type : 'Description',
+      data: recData.data ? recData.data : '',
+      contributor: recData.contributor ? recData.contributor : 'System',
+      isFile: recData.isFile ? recData.isFile : 0,
+      filename: recData.filename ? recData.filename : '',
+      thumbnail: recData.thumbnail ? recData.thumbnail : '',
+      datestamp: new Date()
+    })
+  })
+          .then(response => handleErrors(response))
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+            return true
+          })
+          .catch(error => {
+            console.log(error)
+            return false
+          })
+  return true
 }
 
 const doInsertDescription = (field, itemData, value) => {
@@ -81,7 +129,15 @@ const handleErrors = (response) => {
   return response
 }
 
-export const updateField = (field, value, itemData) => {
+/**
+/* Updates a field in the database either from the inline ediding or Edit/Create item form
+/* TODO: unify source data records
+/* @param {*} field - field name
+/* @param {*} value - new field value
+/* @param {*} itemData - ModelItem (inline) editing data
+/* @param {*} recData - Edit/Create item form
+/*/
+export const updateField = (field, value, itemData, recData = undefined) => {
   const f = getDBFieldName(field)
   let multiRecUpdate = false
   let addFilter = []
@@ -89,7 +145,7 @@ export const updateField = (field, value, itemData) => {
   let substFieldName = ''
 
   console.log('about to update field:', f)
-  if (value.trim() === itemData[f].trim()) {
+  if (itemData && value.trim() === itemData[f].trim()) {
     console.log('Nothing to update. Old and new values are equal for:', itemData)
     return true
   }
@@ -102,8 +158,11 @@ export const updateField = (field, value, itemData) => {
       multiRecUpdate = true
       break
     case 'description':
-      filterRecId = itemData.descriptionId
+      filterRecId = recData ? recData.id : itemData.descriptionId
       substFieldName = 'data'
+      break
+    case 'contributor':
+      filterRecId = recData.id
       break
     case 'model':
       multiRecUpdate = true

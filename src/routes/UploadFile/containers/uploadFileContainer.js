@@ -1,7 +1,8 @@
 import { connect } from 'react-redux'
 import {formValueSelector} from 'redux-form'
 import { loadBrandsDropdown, setFilesData, deleteFileData, addNewTableRow,
-setBrand, setModel, setVersion, setDataField } from '../modules/uploadFile'
+setBrand, setModel, setVersion, setDataField, submitToDB, startProgress, increaseProgress,
+stopProgress } from '../modules/uploadFile'
 
 import UploadItem from '../components/UploadItem'
 
@@ -21,7 +22,11 @@ const mapActionCreators = {
   setFilesData,
   deleteFileData,
   addNewTableRow,
-  setDataField
+  setDataField,
+  submitToDB,
+  startProgress,
+  increaseProgress,
+  stopProgress
 }
 
 const selector = formValueSelector('UploadItem')
@@ -55,7 +60,9 @@ const mapStateToProps = (state) => {
     filesData: state.uploadFile.filesData,
     versionData: state.uploadFile.versionData,
     deletedFilesData: state.uploadFile.deletedFilesData,
-    deletedVersionData: state.uploadFile.deletedVersionData
+    deletedVersionData: state.uploadFile.deletedVersionData,
+    profile: state.globalReducer.auth.getProfile(),
+    progress: state.uploadFile.progress
   })
   return newProps
 }
