@@ -1,6 +1,7 @@
 /* @flow*/
 
 import fetch from 'isomorphic-fetch'
+import {mReq} from '../../../utils/utils'
 // import Rx from 'rxjs' ------------------------------------ Constants
 // ------------------------------------
 export const BRANDS_REQUEST = 'BRANDS_REQUEST'
@@ -78,7 +79,7 @@ export const fetchBrands = () => {
   return (dispatch) => {
     dispatch(requestBrands())
     if (self.fetch) {
-      return (fetch('http://thesubjectmatter.com/api.php/brand_stats').then((response) => response.json()).then((json) => {
+      return (fetch(mReq('thesubjectmatter.com/api.php/brand_stats')).then((response) => response.json()).then((json) => {
         dispatch(successBrands(json.brand_stats.records))
       }))
     } else {
@@ -86,7 +87,7 @@ export const fetchBrands = () => {
           ' available!')
       if (window.XMLHttpRequest) {
         let xhttp = new XMLHttpRequest()
-        xhttp.open('GET', 'http://thesubjectmatter.com/api.php/brand_stats', false)
+        xhttp.open('GET', mReq('thesubjectmatter.com/api.php/brand_stats'), false)
         xhttp.send()
         let json = xhttp
           .responseText
@@ -126,7 +127,7 @@ export const successModels = (models) => {
 export const fetchModels = (brand) => {
   return (dispatch) => {
     dispatch(requestModels())
-    return (fetch('http://thesubjectmatter.com/api.php/brand_models_stats?filter=brand,eq,' + brand.trim()).then((response) => response.json()).then((json) => {
+    return (fetch(mReq('thesubjectmatter.com/api.php/brand_models_stats?filter=brand,eq,') + brand.trim()).then((response) => response.json()).then((json) => {
       dispatch(successModels(json.brand_models_stats.records))
     }))
   }
@@ -166,7 +167,7 @@ export const fetchItem = (brand, model) => {
       // model
       return dispatch(successItem([]))
     } else {
-      return (fetch('http://thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq' +
+      return (fetch(mReq('thesubjectmatter.com/api.php/schematics?order=version,asc&filter=brand,eq') +
           ',' + brand.trim() + '&transform=1').then((response) => response.json()).then((json) => {
             dispatch(successItem(json.schematics.filter(i => i.model.toLowerCase() === model.toLowerCase().trim())))
           }).catch(r => dispatch(errorItem(r))))
@@ -233,7 +234,7 @@ export const successAmps = (amps) => {
 export const fetchAmpsVersions = () => {
   return (dispatch) => {
     dispatch(requestAmps())
-    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
+    return (fetch(mReq('thesubjectmatter.com/api.php/versions?order=version,asc')).then((response) => response.json()).then((json) => {
       dispatch(successAmps(json.versions.records))
     }))
   }

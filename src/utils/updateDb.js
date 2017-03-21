@@ -1,3 +1,5 @@
+import {mReq} from '../../../utils/utils'
+
 export const getDBFieldName = (cardField) => {
   let fieldName = ''
   // if there's no _ in field name then it is not ModelItem form - hence return immeditely
@@ -52,7 +54,7 @@ export const insertRecord = (recData: Object, newDataId: Number) => {
     uploadname: recData.uploadname ? recData.uploadname : ''
   }
 
-  fetch('http://thesubjectmatter.com/api.php/schematics', {
+  fetch(mReq('thesubjectmatter.com/api.php/schematics'), {
     method: 'POST',
     dataType: 'json',
     headers: {
@@ -74,7 +76,7 @@ export const insertRecord = (recData: Object, newDataId: Number) => {
 }
 
 const doInsertDescription = (field, itemData, value) => {
-  fetch('http://thesubjectmatter.com/api.php/schematics', {
+  fetch(mReq('thesubjectmatter.com/api.php/schematics'), {
     method: 'POST',
     dataType: 'json',
     headers: {
@@ -109,7 +111,7 @@ const doInsertDescription = (field, itemData, value) => {
 }
 
 const doUpdate = (recordid, field, newvalue) => {
-  fetch('http://thesubjectmatter.com/api.php/schematics/' + recordid, {
+  fetch(mReq('thesubjectmatter.com/api.php/schematics/') + recordid, {
     method: 'PUT',
     dataType: 'json',
     headers: {
@@ -188,7 +190,7 @@ export const updateField = (field, value, itemData, recData = undefined) => {
   }
 
   if (multiRecUpdate) {
-    fetch('http://thesubjectmatter.com/api.php/schematics?filter=' + f + ',eq,' + itemData[f].trim() + '&transform=1')
+    fetch(mReq('thesubjectmatter.com/api.php/schematics?filter=') + f + ',eq,' + itemData[f].trim() + '&transform=1')
             .then(response => handleErrors(response))
             .then(response => response.json())
             .then(json => {
