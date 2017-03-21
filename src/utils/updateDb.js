@@ -1,4 +1,4 @@
-import {mReq} from '../../../utils/utils'
+import {mReq} from './utils'
 
 export const getDBFieldName = (cardField) => {
   let fieldName = ''

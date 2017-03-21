@@ -6,6 +6,7 @@ import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
 import {updateField, insertRecord} from '../../../utils/updateDb'
 import {deepCompareFiles} from './utils'
+import {mReq} from '../../../utils/utils'
 import _ from 'lodash'
 
 // ------------------------------------ Constants
@@ -126,7 +127,7 @@ export const successAmpsDropdown = (amps) => {
 export const fetchBrandsDropdown = () => {
   return (dispatch) => {
     dispatch(requestBrandsDropdown())
-    return (fetch('http://thesubjectmatter.com/api.php/versions?order=version,asc').then((response) => response.json()).then((json) => {
+    return (fetch(mReq('thesubjectmatter.com/api.php/versions?order=version,asc')).then((response) => response.json()).then((json) => {
       dispatch(successAmpsDropdown(json))
     }).catch(error => {
       console.error('Load brands dropdown error:', error)
@@ -233,7 +234,7 @@ export const setVersion = (version, change, array) => {
       }
       return
     }
-    fetch('http://thesubjectmatter.com/api.php/schematics?filter=version,eq,' + version.trim() + '&transform=1').then((response) => response.json()).then((json) => {
+    fetch(mReq('thesubjectmatter.com/api.php/schematics?filter=version,eq,') + version.trim() + '&transform=1').then((response) => response.json()).then((json) => {
       return json
         .schematics
         .filter(i => i.model.toLowerCase() === model.toLowerCase().trim() && i.brand.toLowerCase() === brand.toLowerCase().trim())
