@@ -115,14 +115,46 @@ renderTableCell.propTypes = {
 }
 
 const changeItemType = (val, change, field) => change ? change(field, val) : 'schematic'
+const handleErrors = (response) => {
+  console.log(response)
+  if (!response.ok) {
+    throw Error(response.statusText)
+  }
+  return response
+}
 
-const processFiles = (files, change, field, brand, model, custom, idx) => {
+const processFiles = (files, change, field, brand, model, custom, idx, existingId) => {
+  const {setVersionData, setDataField} = custom
   if (files.length > 1) {
     console.warn('Cannot upload more than 1 file at a time!')
     return
   } else {
     change(field, 'sch/' + brand + '/' + model + '/' + files[0].name)
-    custom.setDataField('sch/' + brand + '/' + model + '/' + files[0].name, idx)
+    setDataField('sch/' + brand + '/' + model + '/' + files[0].name, idx)
+    var formData = new FormData()
+    formData.append('upfile', files[0])
+
+    fetch('http://schematics.synchu.com/fileUploadAPI.php', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': 'http://localhost:3000'
+      },
+      body: formData
+    })
+          .then(response => handleErrors(response))
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+            setVersionData(existingId, 'size', json.size)
+            setVersionData(existingId, 'uploadname', json.uploadedname)
+            return true
+          })
+          .catch(error => {
+            console.log(error)
+            return false
+          })
+    return true
   }
 }
 
@@ -245,7 +277,9 @@ export class UploadItem extends Component {
     deletedFilesData: PropTypes.array,
     array: PropTypes.object,
     submitToDB: PropTypes.func,
-    startProgress: PropTypes.func
+    startProgress: PropTypes.func,
+    progress: PropTypes.number,
+    profile: PropTypes.object
   }
 
   constructor (props) {
@@ -256,7 +290,11 @@ export class UploadItem extends Component {
     this.props.loadBrandsDropdown()
   }
 
-  localHandleSubmit = (e, props) => {
+  componentWillUnmount = () => {
+    console.log('componentWillUnmount:', this.props.filesData)
+  }
+
+  localHandleSubmit = (e: Event, props: Object) => {
     const {submitToDB, startProgress} = this.props
     startProgress()
     checkAmpItemExists(undefined, props.brand, props.model, props.version, submitToDB)
@@ -266,30 +304,30 @@ export class UploadItem extends Component {
   // props.dispatch(receiveLogin({playblu_token: e.email}))
   }
 
-  shouldComponentUpdate = (nextProps, nextState) => {
+  shouldComponentUpdate = (nextProps : Object, nextState: Object) => {
     return true
   }
 
-  handleChange = (value) => {
+  handleChange = (e: Event) => {
     const {brand, setBrand, change, array} = this.props
-    if (this.state[value.target.name] !== value.currentTarget.value) {
-      setBrand(brand !== value.currentTarget.value ? value.currentTarget.value : brand, change, array)
+    if (this.state[e.target.name] !== e.currentTarget.value) {
+      setBrand(brand !== e.currentTarget.value ? e.currentTarget.value : brand, change, array)
     }
   }
 
-  handleModelChange = (value) => {
+  handleModelChange = (e: Event) => {
     const {model, setModel, change, array} = this.props
-    if (this.state[value.target.name] !== value.currentTarget.value) {
-      setModel(model !== value.currentTarget.value ? value.currentTarget.value : model, change, array)
+    if (this.state[e.target.name] !== e.currentTarget.value) {
+      setModel(model !== e.currentTarget.value ? e.currentTarget.value : model, change, array)
     }
   }
 
-  handleVersionChange = (value) => {
+  handleVersionChange = (e: Event) => {
     const {version, setVersion, change, array} = this.props
     // force clean files table
-    if (this.state[value.target.name] !== value.currentTarget.value) {
+    if (this.state[e.target.name] !== e.currentTarget.value) {
       array.removeAll('files')
-      setVersion(version !== value.currentTarget.value ? value.currentTarget.value : version, change, array)
+      setVersion(version !== e.currentTarget.value ? e.currentTarget.value : version, change, array)
     }
   }
 
@@ -298,7 +336,7 @@ export class UploadItem extends Component {
     addNewTableRow(change, array)
   }
 
-  handleDeleteClick = (index, row) => {
+  handleDeleteClick = (index: Number, row) => {
     const {deleteFileData, array} = this.props
     deleteFileData(row, index, array)
     this.setState({deletedItem: this.state.deletedItem + 1})
@@ -308,7 +346,7 @@ export class UploadItem extends Component {
     this.setState({deletedItem: this.state.deletedItem - 1})
   }
 
-  handleFocus = (e) => {
+  handleFocus = (e: Event) => {
     this.setState({[e.target.name]: e.target.value})
     if (e.target.name.trim().toLowerCase() === 'contributor' && (!e.target.value)) {
       this.props.change('contributor', this.props.profile.name)
@@ -389,7 +427,7 @@ export class UploadItem extends Component {
             change={this.props.change}
              />
           <CardActions className={classes['actions']}>
-            <Button type='submit' label='Upload' raised default
+            <Button type='submit' label='Save' raised default
               disabled={submitting} />
             <Button type='button' label='Cancel' title='Press to clear the form'
               disabled={pristine || submitting} onClick={reset} />

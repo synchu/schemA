@@ -20,7 +20,12 @@ export const getDBFieldName = (cardField) => {
   }
 }
 
-export const insertRecord = (recData, newDataId) => {
+/**
+ * Inserts a new record into the amplifier database. Both params are mandatory.
+ * @param {*} recData - Record data to be inserted
+ * @param {*} newDataId - New record data_id - i.e. max(data_id) + 1 within the brand
+ */
+export const insertRecord = (recData: Object, newDataId: Number) => {
   if (!recData) {
     console.error('No record data provided to insert!')
     return false
@@ -29,6 +34,24 @@ export const insertRecord = (recData, newDataId) => {
     console.error('No recordId provided to insertRecord!')
     return false
   }
+
+  let data = {
+    bid: recData.bid,
+    data_id: newDataId,
+    brand: recData.brand,
+    model: recData.model,
+    version: recData.version,
+    type: recData.type ? recData.type : 'Description',
+    data: recData.data ? recData.data : '',
+    contributor: recData.contributor ? recData.contributor : 'System',
+    isFile: recData.isFile ? recData.isFile : 0,
+    filename: recData.filename ? recData.filename : '',
+    thumbnail: recData.thumbnail ? recData.thumbnail : '',
+    datestamp: new Date(),
+    size: recData.size ? recData.size : 0,
+    uploadname: recData.uploadname ? recData.uploadname : ''
+  }
+
   fetch('http://thesubjectmatter.com/api.php/schematics', {
     method: 'POST',
     dataType: 'json',
@@ -36,20 +59,7 @@ export const insertRecord = (recData, newDataId) => {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      bid: recData.bid,
-      data_id: parseInt(newDataId) + 1,
-      brand: recData.brand,
-      model: recData.model,
-      version: recData.version,
-      type: recData.type ? recData.type : 'Description',
-      data: recData.data ? recData.data : '',
-      contributor: recData.contributor ? recData.contributor : 'System',
-      isFile: recData.isFile ? recData.isFile : 0,
-      filename: recData.filename ? recData.filename : '',
-      thumbnail: recData.thumbnail ? recData.thumbnail : '',
-      datestamp: new Date()
-    })
+    body: JSON.stringify(data)
   })
           .then(response => handleErrors(response))
           .then(response => response.json())
@@ -61,7 +71,6 @@ export const insertRecord = (recData, newDataId) => {
             console.log(error)
             return false
           })
-  return true
 }
 
 const doInsertDescription = (field, itemData, value) => {
@@ -168,6 +177,14 @@ export const updateField = (field, value, itemData, recData = undefined) => {
       multiRecUpdate = true
       addFilter.push({field: 'brand', value: itemData.brand.trim()})
       addFilter.push({field: 'version', value: itemData.version.trim()})
+      break
+    case 'filename':
+    case 'data':
+    case 'file':
+    case 'type':
+    case 'isFile':
+      filterRecId = recData ? recData.id : -1
+      break
   }
 
   if (multiRecUpdate) {

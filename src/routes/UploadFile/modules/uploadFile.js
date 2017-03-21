@@ -5,6 +5,7 @@ import {getTableData, newVersionRow, initNewBrand, maxDataId} from './filesTable
 import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
 import {updateField, insertRecord} from '../../../utils/updateDb'
+import {deepCompareFiles} from './utils'
 import _ from 'lodash'
 
 // ------------------------------------ Constants
@@ -80,7 +81,6 @@ const selector = formValueSelector('UploadItem')
 // ------------------------------------ Actions
 // ------------------------------------
 
-
 export const startProgress = () => {
   return dispatch => {
     dispatch({type: START_PROGRESS})
@@ -89,7 +89,12 @@ export const startProgress = () => {
 
 export const increaseProgress = (val = 0) => {
   return (dispatch, getState) => {
-    dispatch({type: INCREASE_PROGRESS, payload: val !== 0 ? val : getState().uploadFile.progress + 10})
+    dispatch({
+      type: INCREASE_PROGRESS,
+      payload: val !== 0
+        ? val
+        : getState().uploadFile.progress + 10
+    })
   }
 }
 
@@ -158,7 +163,9 @@ export const setBrand = (value, change, array) => {
     // index when selected from the list, but text value when not. We need to find
     // out reliably whether there's a match in the DB
     const findBrand = () => getState().uploadFile.amps[value] === undefined
-      ? (findInObj(getState().uploadFile.amps, value) ? value : false)
+      ? (findInObj(getState().uploadFile.amps, value)
+        ? value
+        : false)
       : getState().uploadFile.amps[value]
 
     let foundBrand = findBrand()
@@ -170,7 +177,11 @@ export const setBrand = (value, change, array) => {
         value: a[1]
       })
     })
-    dispatch({type: SET_BRAND, /* brand: !foundBrand ? value : foundBrand, */ models: c})
+    dispatch({
+      type: SET_BRAND,
+      /* brand: !foundBrand ? value : foundBrand, */
+      models: c
+    })
     setModel('', change, array)(dispatch, getState)
     if (change) {
       change('version', '')
@@ -241,9 +252,7 @@ export const setVersion = (version, change, array) => {
         change('contributor', contributor)
       }
       if (array) {
-        fileData.map(i =>
-          array.push('files', i)
-        )
+        fileData.map(i => array.push('files', i))
       }
       return dispatch({
         type: SET_VERSION,
@@ -253,16 +262,42 @@ export const setVersion = (version, change, array) => {
         version: version
       })
     }).catch(r => console.log(r))
-    return dispatch({type: SET_VERSION, versionData: [], descriptionDb: '', filesData: []/*, version: ''*/})
+    return dispatch({type: SET_VERSION, versionData: [], descriptionDb: '', filesData: []})
   }
 }
 
 export const setFilesData = (row, key, value) => {
   return (dispatch, getState) => {
     let filesData = getState().uploadFile.filesData
-    console.log(row, key, value)
     filesData[row][key] = value
     return dispatch({type: SET_FILES, filesData: filesData})
+  }
+}
+
+export const setVersionData = (idrow, key, value) => {
+  return (dispatch, getState) => {
+    let versionData = getState().uploadFile.versionData
+    let i = 0
+    let foundIndex = -1
+    while (i < versionData.length) {
+      if (versionData[i].id === idrow) {
+        foundIndex = i
+        break
+      }
+      i++
+    }
+    if (foundIndex > 0) {
+      versionData[foundIndex][key] = value
+      return dispatch({
+        type: SET_FILES,
+        versionData: versionData,
+        filesData:
+          getTableData(versionData.filter(i => i.type.trim().toLowerCase() !== 'description'), getState)
+      })
+    } else {
+      console.error('setVersionData: RowIndex not found:', idrow)
+      return
+    }
   }
 }
 
@@ -306,8 +341,7 @@ export const deleteFileData = (rowId, idx, array) => {
       } else {
         console.warn('no array present')
       }
-      dispatch({type: SET_FILES, filesData: filesData, versionData: versionData,
-        deletedFilesData: deletedFilesData, deletedVersionData: deletedVersionData})
+      dispatch({type: SET_FILES, filesData: filesData, versionData: versionData, deletedFilesData: deletedFilesData, deletedVersionData: deletedVersionData})
     } else {
       return
     }
@@ -340,19 +374,20 @@ export const setDataField = (data, index) => {
 
 export const addNewTableRow = (change, array) => {
   return (dispatch, getState) => {
-
     let versionData = getState().uploadFile.versionData
 
-    let newDataId = versionData && versionData.length > 0 ? parseInt(maxDataId(versionData)) + 1 : 1
+    let newDataId = versionData && versionData.length > 0
+      ? parseInt(maxDataId(versionData)) + 1
+      : 1
     let id = getState().uploadFile.lastNewID
       ? getState().uploadFile.lastNewID - 1
       : -1
 
-    let dataInit = versionData[0] ? versionData[0] : initNewBrand(getState(), newDataId)
+    let dataInit = versionData[0]
+      ? versionData[0]
+      : initNewBrand(getState(), newDataId)
 
-    let newVersionItem = newVersionRow(newDataId,
-    dataInit,
-    id)
+    let newVersionItem = newVersionRow(newDataId, dataInit, id)
 
     let newVersionData = getState()
       .uploadFile
@@ -366,26 +401,49 @@ export const addNewTableRow = (change, array) => {
       console.warn('no array present')
     }
 
-    return dispatch({type: SET_FILES,
+    return dispatch({
+      type: SET_FILES,
       filesData: getTableData(newVersionData.filter(i => i.type.trim().toLowerCase() !== 'description'), getState),
-      versionData: newVersionData})
+      versionData: newVersionData
+    })
   }
 }
 
-const ir = (bid, brand, model, version, type, data, contributor) =>
-  ({bid: bid, brand: brand, model: model, version: version, type: type,
-    data: data, contributor: contributor})
+const ir = (bid: Number, brand: String, model: String, version: String,
+  type: String, data: String, contributor: String,
+  fileName: String = '', isFile: Number = 0, thumbnail: String = '', size: Number = 0,
+  uploadname: String = ''): Object => ({
+    bid: bid,
+    brand: brand,
+    model: model,
+    version: version,
+    type: type,
+    data: data,
+    contributor: contributor,
+    filename: fileName,
+    isFile: isFile,
+    thumbnail: thumbnail,
+    size: size,
+    uploadname: uploadname
+  })
 
-export const submitToDB = (existingRecords) => {
+export const submitToDB = (existingRecords, maxDataId) => {
   return (dispatch, getState) => {
-    const {brand, model, version, description, contributor} =
-      selector(getState(), 'brand', 'model', 'version', 'description', 'contributor')
-    const bid = existingRecords ? existingRecords[0].bid : -1
-    const profile = getState().globalReducer.auth.getProfile()
+    const {brand, model, version, description, contributor} = selector(getState(), 'brand', 'model', 'version', 'description', 'contributor')
+    const bid = existingRecords
+      ? existingRecords[0].bid
+      : -1
+    const profile = getState()
+      .globalReducer
+      .auth
+      .getProfile()
+
+    var newDataId = parseInt(maxDataId) + 1
 
     dispatch(increaseProgress(20))
 
     if (existingRecords) {
+      // descriptions processing start
       let descriptionDBRecord = existingRecords.filter(i => i.type.trim().toLowerCase() === 'description')
       if (descriptionDBRecord && descriptionDBRecord.length > 0) {
         // update existing description record if necessary
@@ -397,19 +455,42 @@ export const submitToDB = (existingRecords) => {
         }
         dispatch(increaseProgress(60))
       } else {
-        // new description record
-        var newDataId = maxDataId(existingRecords)
-        if (!insertRecord(ir(bid, brand, model, version, 'Description', description, contributor), newDataId)) {
+        // new description record var newDataId =
+        // parseInt(maxDataId(existingRecords).data_id) + 1
+        if (!insertRecord(ir(bid, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId)) {
           console.warn('Description did not make it to the DB')
         }
+        // descriptions processing end
         dispatch(increaseProgress(60))
       }
+      let filesRecords: Array<Object> = existingRecords.filter(i => i.type.trim().toLowerCase() !== 'description')
+      let filesForm: Array<Object> = selector(getState(), 'files')
+      let dbUpdates: Object = deepCompareFiles(filesForm, filesRecords)
+      if (dbUpdates.changes) {
+        dbUpdates.changes.map(i => updateField(i.field, i.value, undefined, {id: i.id}))
+      }
+      // check if there are any new records added
+      let newRecords = dbUpdates.records.filter(i => i.id < 0)
+      if (newRecords) {
+        newRecords.map(item => (insertRecord(ir(item.bid,
+        item.brand,
+        item.model,
+        item.version,
+        item.type,
+        item.data,
+        item.contributor,
+        item.filename,
+        item.isFile,
+        item.thumbnail,
+        item.size,
+        item.uploadname), newDataId++)))
+      }
+      dispatch(increaseProgress(80))
     } else {
       // brand new brand
       dispatch(increaseProgress(60))
-      
     }
-    dispatch(increaseProgress(80))
+
     dispatch(increaseProgress(100))
     dispatch(stopProgress())
   }

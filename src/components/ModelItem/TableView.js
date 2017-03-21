@@ -89,40 +89,39 @@ export class TableView extends Component {
   }
 
   compareT = (a, b) => {
-  const { sort } = this.state
-  if (a[sort.by] < b[sort.by]) {
-    return -1
+    const { sort } = this.state
+    if (a[sort.by] < b[sort.by]) {
+      return -1
+    }
+    if (a[sort.by] > b[sort.by]) {
+      return 1
+    }
+    return 0
   }
-  if (a[sort.by] > b[sort.by]) {
-    return 1
-  }
-  return 0
-}
 
   sortByField = (field, ascValue) => {
-  const { tableData } = this.state
+    const { tableData } = this.state
   // synchronous set state
-  this.state = Object.assign({}, this.state, { sort: { by: field, asc: ascValue } })
-  return (tableData.sort(this.compareT))
-}
+    this.state = Object.assign({}, this.state, { sort: { by: field, asc: ascValue } })
+    return (tableData.sort(this.compareT))
+  }
 
   sortTable = (e) => {
-  const {sort} = this.state
+    const {sort} = this.state
 
-  let sortedData = []
+    let sortedData = []
 
-  if ((sort) && (sort.by === e)) {
-    if (sort.asc) {
-      sortedData = this.sortByField(e, false).reverse()
-    }
-    else {
+    if ((sort) && (sort.by === e)) {
+      if (sort.asc) {
+        sortedData = this.sortByField(e, false).reverse()
+      } else {
+        sortedData = this.sortByField(e, true)
+      }
+    } else {
       sortedData = this.sortByField(e, true)
     }
-  } else {
-    sortedData = this.sortByField(e, true)
+    this.setState({ ...this.state, tableData: sortedData })
   }
-  this.setState({ ...this.state, tableData: sortedData })
-}
 
 
 
@@ -167,22 +166,22 @@ export class TableView extends Component {
         })}
       </tbody>
     </table>
-  )
+    )
   }
 
 
-  componentDidMount() {
-  this.makeTableSource()
-}
+  componentDidMount = () => {
+    this.makeTableSource()
+  }
 
-  render() {
-  const { itemData } = this.props
-  return (
+  render () {
+    const { itemData } = this.props
+    return (
     <div key={itemData.version}>
       {(this.state.tableData) && this.renderTabView()}
     </div>
-  )
-}
+    )
+  }
 }
 
 

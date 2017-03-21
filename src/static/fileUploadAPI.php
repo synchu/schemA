@@ -13,7 +13,9 @@ try {
     if (!isset($_FILES['upfile']['error']) ||
         is_array($_FILES['upfile']['error'])
     ) {
-        throw new RuntimeException('Invalid parameters.');
+        // fail silently
+        // C1 = invalid file paramater
+        throw new RuntimeException('C1: Contact your admin');
     }
     
     // Check $_FILES['upfile']['error'] value.
@@ -30,7 +32,7 @@ try {
                 }
                 
                 // You should also check filesize here.
-                if ($_FILES['upfile']['size'] > 1000000) {
+                if ($_FILES['upfile']['size'] > 8000000) {
                     throw new RuntimeException('Exceeded filesize limit.');
                 }
                 
@@ -43,7 +45,7 @@ try {
                 // You should name it uniquely.
                 // DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
                 // On this example, obtain safe unique name from its binary data.
-                $uploadedname = sprintf('./uploads/%s.%s',
+                $uploadedname = sprintf('./sch/uploads/%s.%s',
                 sha1_file($_FILES['upfile']['tmp_name']).bin2hex(mcrypt_create_iv(6, MCRYPT_DEV_URANDOM)),
                 $ext
                 );
@@ -60,13 +62,26 @@ try {
                 $arr = array('name' => $_FILES['upfile']['name'],
                 'size' => $_FILES['upfile']['size'],
                 'uploadedname' => $uploadedname);
+                //                header('Access-Control-Allow-Origin: http://localhost:3000', false);
+                header('access-control-allow-origin: http://localhost:3000', false);
                 header('Content-Type: application/json; charset=utf-8');
                 header('HTTP/1.1 201 Created');
                 echo json_encode($arr);
                 
             } catch (RuntimeException $e) {
-                header('HTTP/1.1 500 Internal Server Error');
-                echo $e->getMessage();
+                if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+                    header('Access-Control-Allow-Origin: http://localhost:3000', false);
+                    header('Access-Control-Allow-Headers: Access-Control-Allow-Origin');
+                    header('Access-Control-Allow-Methods: POST, OPTIONS');
+                    header('Content-Type: application/json', false);
+                    header('Content-Type: text/plain; charset=utf-8', false);
+                    header('Allow: POST, OPTIONS');
+                    header('HTTP/1.1 200 OK');
+                } else {
+                    header('access-control-allow-origin: http://localhost:3000', false);
+                    header('HTTP/1.1 500 Internal Server Error');
+                    echo $e->getMessage();
+                }
                 
             }
             

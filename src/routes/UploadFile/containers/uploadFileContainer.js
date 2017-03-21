@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import {formValueSelector} from 'redux-form'
 import { loadBrandsDropdown, setFilesData, deleteFileData, addNewTableRow,
 setBrand, setModel, setVersion, setDataField, submitToDB, startProgress, increaseProgress,
-stopProgress } from '../modules/uploadFile'
+stopProgress, setVersionData } from '../modules/uploadFile'
 
 import UploadItem from '../components/UploadItem'
 
@@ -26,7 +26,8 @@ const mapActionCreators = {
   submitToDB,
   startProgress,
   increaseProgress,
-  stopProgress
+  stopProgress,
+  setVersionData
 }
 
 const selector = formValueSelector('UploadItem')

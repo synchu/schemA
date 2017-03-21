@@ -5,13 +5,19 @@ import 'isomorphic-fetch'
 
 const selector = formValueSelector('UploadItem')
 
+/**
+ * Handles
+ * @param {*} response
+ */
 const handleErrors = (response) => {
   if (!response.ok) {
     throw Error(response.statusText)
   }
   return response
 }
-
+/**
+ * retrieves last brand ID value from the database
+ */
 const getLastBid = () => {
   fetch('http://thesubjectmatter.com/api.php/last_bid?transform=1')
     .then(response => handleErrors(response))
@@ -26,9 +32,12 @@ const getLastBid = () => {
       console.error(error)
     })
 }
-
+/**
+ * Initializes a new record for a brand, given an UploadItem form state and id
+ * @param {*} state
+ * @param {*} id
+ */
 export const initNewBrand = (state, id) => {
-  console.log('initnewbrand:', state)
   return ({
     data_id: -id,
     id: id,
@@ -63,7 +72,11 @@ export const newVersionRow = (newDataId, i, id) => {
     thumbnail: ''
   }
 }
-
+/**
+ *
+ * @param {*} source
+ * @param {*} getState
+ */
 export const getTableData = (source, getState) => {
   if (!source || (typeof source === Array)) {
     console.warn('Error with source in getTableData:', source)
@@ -80,15 +93,20 @@ export const getTableData = (source, getState) => {
     type: i.type,
     filename: i.filename,
     file: i.file,
-    delete: <IconButton icon='delete' />
+    delete: <IconButton icon='delete' />,
+    size: i.size ? i.size : 0,
+    uploadName: i.uploadName ? i.uploadName : ''
   }))
   return result
 }
 
-export const maxDataId = (data) => (data.reduce((a, b) => a.data_id > b.data_id
+/**
+ * Returns the amp record with the max data_id value
+ * @param {*} data
+ */
+export const maxDataId = (data: Array) => (data.reduce((a, b) => a.data_id > b.data_id
       ? a.data_id
       : b.data_id))
-      
 /**
  * Verifies if an amplifier item exists in the database. Returns an array of existing database records
  * for the particular amp brand, model and version.
@@ -116,16 +134,25 @@ export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVer
             .then(response => handleErrors(response))
             .then(response => response.json())
             .then(json => {
+              // obtain the result and apply the additional filtering stored in AddFilter array
               let result = addFilter.length > 0
                   ? json.schematics.filter(item => addFilter.reduce((a, b) => {
                     return (item[a.field] === a.value) && (item[b.field] === b.value)
                   }
                   ))
                   : json.schematics
+              // flatMap the result
               let merged = [].concat.apply([], result)
-              if (dispatchCallback) {
-                dispatchCallback(merged)
-              }
+              fetch('http://thesubjectmatter.com/api.php/last_dataid?filter=brand,eq,' + brand + '&transform=1')
+               .then(response => handleErrors(response))
+               .then(response => response.json())
+               .then(json => {
+                 if (dispatchCallback) {
+                  // call the callback with the result
+                   dispatchCallback(merged, json.last_dataid[0].data_id)
+                   return true
+                 }
+               })
               // returns database records extracted
               return merged && merged.length > 0 ? merged : false
             })

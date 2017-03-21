@@ -19,7 +19,10 @@ export class FileDropzone extends React.Component {
     brand: PropTypes.string,
     model: PropTypes.string,
     field: PropTypes.string,
-    idx: PropTypes.number
+    idx: PropTypes.number,
+    existingId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    existingFile: PropTypes.string,
+    custom: PropTypes.object
   }
 
   constructor (props) {
@@ -28,9 +31,9 @@ export class FileDropzone extends React.Component {
   }
 
   onDrop (files) {
-    const { processFiles, change, brand, model, field, custom, idx } = this.props
+    const { processFiles, change, brand, model, field, custom, idx, existingId } = this.props
     this.setState({ ...this.state, files: files })
-    processFiles && processFiles(files, change, field, brand, model, custom, idx)
+    processFiles && processFiles(files, change, field, brand, model, custom, idx, existingId)
   }
 
   render () {
