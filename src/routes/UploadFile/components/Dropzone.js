@@ -3,7 +3,7 @@ import classes from './Dropzone.scss'
 import Dropzone from 'react-dropzone'
 import cx from 'classnames'
 
-const __IMG__BASE_URL = 'http://schematics.synchu.com/'
+const __IMG__BASE_URL = 'https://schematics.synchu.com/'
 
 export class FileDropzone extends React.Component {
   state = {
@@ -61,8 +61,8 @@ export class FileDropzone extends React.Component {
           }
         </div>
       </Dropzone>
-      {existingFile && (existingFile.length > 0) && (existingId > 0) && <img style={{ width: '48px', height: '48px' }}
-        src={__IMG__BASE_URL + existingFile} />}
+      {existingFile && (existingFile.length > 0) && (existingId > 0) && <a href={__IMG__BASE_URL + existingFile} target='_blank'> <img style={{ width: '48px', height: '48px' }}
+        src={__IMG__BASE_URL + existingFile} /> </a>}
     </div>
   )
   }

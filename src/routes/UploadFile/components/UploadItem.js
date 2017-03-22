@@ -134,7 +134,7 @@ const processFiles = (files, change, field, brand, model, custom, idx, existingI
     var formData = new FormData()
     formData.append('upfile', files[0])
 
-    fetch('http://schematics.synchu.com/fileUploadAPI.php', {
+    fetch('https://schematics.synchu.com/fileUploadAPI.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -355,7 +355,7 @@ export class UploadItem extends Component {
 
   render () {
     const { handleSubmit, pristine, reset,
-    submitting, amps, models, versions, progress} = this.props
+    submitting, amps, models, versions, progress, brand, model, version} = this.props
     return (
     <form onSubmit={handleSubmit(data => (this.localHandleSubmit(data, this.props)))} className={classes.container} >
       <div>
@@ -419,7 +419,7 @@ export class UploadItem extends Component {
           {this.props.deletedFilesData && (this.props.deletedFilesData.length > 0) &&
             <IconButton icon='undo' title='Undo file item delete' onClick={this.handleUndoFileDelete}
                />}
-            <IconButton icon='playlist_add' title='Add file item' onClick={this.handleAddTableRow}
+            <IconButton icon='playlist_add' title='Add file item' disabled={!brand || !model || !version} onClick={this.handleAddTableRow}
             />
           </div>
           <FieldArray name='files' component={renderTable} props={this.props} filesData={this.props.filesData}

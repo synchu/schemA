@@ -1,7 +1,7 @@
 import React from 'react'
 import {IconButton} from 'react-toolbox'
 import {formValueSelector} from 'redux-form/immutable'
-import {mReq} from '../../../utils'
+import {mReq, __API__} from '../../../utils/utils'
 import 'isomorphic-fetch'
 
 const selector = formValueSelector('UploadItem')
@@ -20,7 +20,7 @@ const handleErrors = (response) => {
  * retrieves last brand ID value from the database
  */
 const getLastBid = () => {
-  fetch(mReq('thesubjectmatter.com/api.php/last_bid?transform=1'))
+  fetch(mReq(__API__ + '/last_bid?transform=1'))
     .then(response => handleErrors(response))
     .then(response => response.json())
     .then(json => {
@@ -131,7 +131,7 @@ export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVer
   addFilter.push({field: 'brand', value: brand})
   addFilter.push({field: 'model', value: model})
   // schematics is filtered by version (supposedly returning the smallest data set)
-  fetch(mReq('thesubjectmatter.com/api.php/schematics?filter=version,eq,') + version + '&transform=1')
+  fetch(mReq(__API__ + '/schematics?filter=version,eq,') + version + '&transform=1')
             .then(response => handleErrors(response))
             .then(response => response.json())
             .then(json => {
@@ -144,7 +144,7 @@ export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVer
                   : json.schematics
               // flatMap the result
               let merged = [].concat.apply([], result)
-              fetch(mReq('thesubjectmatter.com/api.php/last_dataid?filter=brand,eq,') + brand + '&transform=1')
+              fetch(mReq(__API__ + '/last_dataid?filter=brand,eq,') + brand + '&transform=1')
                .then(response => handleErrors(response))
                .then(response => response.json())
                .then(json => {

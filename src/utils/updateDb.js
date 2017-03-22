@@ -1,4 +1,4 @@
-import {mReq} from './utils'
+import {mReq, __API__} from './utils'
 
 export const getDBFieldName = (cardField) => {
   let fieldName = ''
@@ -54,7 +54,7 @@ export const insertRecord = (recData: Object, newDataId: Number) => {
     uploadname: recData.uploadname ? recData.uploadname : ''
   }
 
-  fetch(mReq('thesubjectmatter.com/api.php/schematics'), {
+  fetch(mReq(__API__ + '/schematics'), {
     method: 'POST',
     dataType: 'json',
     headers: {
@@ -76,7 +76,7 @@ export const insertRecord = (recData: Object, newDataId: Number) => {
 }
 
 const doInsertDescription = (field, itemData, value) => {
-  fetch(mReq('thesubjectmatter.com/api.php/schematics'), {
+  fetch(mReq(__API__ + '/schematics'), {
     method: 'POST',
     dataType: 'json',
     headers: {
@@ -111,7 +111,7 @@ const doInsertDescription = (field, itemData, value) => {
 }
 
 const doUpdate = (recordid, field, newvalue) => {
-  fetch(mReq('thesubjectmatter.com/api.php/schematics/') + recordid, {
+  fetch(mReq(__API__ + '/schematics/') + recordid, {
     method: 'PUT',
     dataType: 'json',
     headers: {
@@ -190,7 +190,7 @@ export const updateField = (field, value, itemData, recData = undefined) => {
   }
 
   if (multiRecUpdate) {
-    fetch(mReq('thesubjectmatter.com/api.php/schematics?filter=') + f + ',eq,' + itemData[f].trim() + '&transform=1')
+    fetch(mReq(__API__ + '/schematics?filter=') + f + ',eq,' + itemData[f].trim() + '&transform=1')
             .then(response => handleErrors(response))
             .then(response => response.json())
             .then(json => {

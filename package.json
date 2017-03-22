@@ -72,7 +72,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davezuko/react-redux-starter-kit.git"
+    "url": "git+https://github.com/synchu/schema.git"
   },
   "author": "Niki Nyagolov synchu@synchu.com thesubjectmatter.com",
   "license": "MIT",
