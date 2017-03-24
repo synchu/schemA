@@ -1,42 +1,87 @@
-import React, {PropTypes} from 'react'
-import {Dialog, Button} from 'react-toolbox'
+import React, {PropTypes, Component} from 'react'
+import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
 
-export const HelpDialog = (props) => {
-  var visible = true
-
-  const {toggleHelp} = props
-
-  const handleVisibility = () => {
-    visible = false
-    toggleHelp()
+export class HelpDialog extends Component {
+  visible = true
+  static propTypes = {
+    helpActive: PropTypes.bool,
+    toggleHelp: PropTypes.func.isRequired
+  }
+  state = {
+    index: 0
   }
 
-  return (
-    <Dialog
-      active={visible}
-      onEscKeyDown={handleVisibility}
-      onOverlayClick={handleVisibility}
-      title='SchemA application usage help'>
-      <p>
-      SchemA has been designed to be easy and straightforward to use.
-      Some guidance to its features is provided here to aid uncovering its full functionality.
-      (in progress)
-      </p>
-      <Button
-        style={{
-          display: 'flex',
-          marginLeft: 'auto'
-        }}
-        accent
-        label='Close'
-        onClick={handleVisibility} />
-    </Dialog>
-  )
-}
+  constructor (props) {
+    super(props)
+    this.visible = true
+  }
 
-HelpDialog.propTypes = {
-  helpActive: PropTypes.bool,
-  toggleHelp: PropTypes.func.isRequired
+  handleVisibility = () => {
+    this.visible = false
+    this
+      .props
+      .toggleHelp()
+  }
+
+  handleTabChange = (index) => {
+    this.setState({index})
+  }
+
+  handleFixedTabChange = (index) => {
+    this.setState({fixedIndex: index})
+  }
+
+  handleInverseTabChange = (index) => {
+    this.setState({inverseIndex: index})
+  }
+
+  handleActive = () => {
+    console.log('Special one activated')
+  }
+
+  render = () => {
+    return (
+      <Dialog
+        active={this.visible}
+        onEscKeyDown={this.handleVisibility}
+        onOverlayClick={this.handleVisibility}
+        title='SchemA application usage help'>
+        <div>
+          SchemA has been designed to be easy and straightforward to use. Some guidance to
+          its features is provided here to aid uncovering its full functionality. (in
+          progress)
+        </div>
+        <section>
+          <Tabs index={this.state.index} onChange={this.handleTabChange}>
+            <Tab label='Top menu'>
+              <small>Primary content</small>
+            </Tab>
+            <Tab label='Side navigation' onActive={this.handleActive}>
+              <small>Secondary content</small>
+            </Tab>
+            <Tab label='Cards features'>
+              <small>Disabled content</small>
+            </Tab>
+            <Tab label='List features'>
+              <small>Fourth content hidden</small>
+            </Tab>
+            <Tab label='Search'>
+              <small>Fifth content</small>
+            </Tab>
+          </Tabs>
+
+        </section>
+        <Button
+          style={{
+            display: 'flex',
+            marginLeft: 'auto'
+          }}
+          accent
+          label='Close'
+          onClick={this.handleVisibility} />
+      </Dialog>
+    )
+  }
 }
 
 export default HelpDialog

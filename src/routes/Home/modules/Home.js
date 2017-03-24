@@ -136,10 +136,10 @@ export const fetchModels = (brand) => {
 export const loadModels = () => {
   // TODO: caching and pagination
   return (dispatch, getState) => {
-    if (getState().Home.models && (getState().Home.models.length > 0)) {
-      if (getState().Home.models[0][0] === getState().Home.selectedBrand) {
+    let models = getState().Home.models
+    if (models && (models.length > 0)) {
+      if (models[0][0] === getState().Home.selectedBrand) {
         console.log('cache hit for models load')
-        console.log(getState().Home.models[0][0])
         return
       }
     }

@@ -75,7 +75,7 @@ export class HomeView extends Component {
     this.state.modelsAsList = JSON.parse(localStorage.getItem('models_as_list')) || false
     this.state.typesAsPictures = JSON.parse(localStorage.getItem('types_as_pictures')) || true
     this.state.showStats = JSON.parse(localStorage.getItem('show_stats')) === null
-      ? true
+      ? false
       : JSON.parse(localStorage.getItem('show_stats'))
     this.state.welcomeActive = JSON.parse(localStorage.getItem('welcome_active')) === null
       ? true
@@ -104,7 +104,7 @@ export class HomeView extends Component {
   }
 
   handleBrandClicked = (item, e) => {
-    const {loadModels, selectBrand, selectModel, loadItem, selectedBrand} = this.props
+    const {loadModels, selectBrand, selectModel, selectedBrand} = this.props
 
     if (selectedBrand && selectedBrand === item['0']) {
       return

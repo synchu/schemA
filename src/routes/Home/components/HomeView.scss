@@ -84,12 +84,17 @@ $stats-font-size-factor: 0.9;
 @media screen and (min-width: 769px) {
     $stats-font-size-factor: 0.8;
     .statsFontScale {
-        font-size: 1.4rem * $stats-font-size-factor;
+        * {
+            color: $base-color;
+            font-size: 1.4rem;
+            margin-right: auto;
+            margin-bottom: auto;
+        }
     }
     .brandstats {
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 2px;
+        right: 2px;
     }
     .navigation {
         flex: 0 0 auto;
@@ -206,7 +211,6 @@ $stats-font-size-factor: 0.9;
     font-size: 1.4rem * $stats-font-size-factor;
 }
 
-
 .foot {
     display: block;
     color: $base-color;
@@ -214,7 +218,7 @@ $stats-font-size-factor: 0.9;
     position: fixed;
     background-color: white;
     right: 0;
-    width:calc(100% - 265px);
+    width: calc(100% - 265px);
     link {
         abbr {
             text-transform: none;
@@ -225,6 +229,7 @@ $stats-font-size-factor: 0.9;
 .navigation.expanded {
     //left: 255px;
 }
+
 //used for the NavDrawer pinned state to push content to the left
 .content.expanded {
     //margin-left: 255px;
@@ -272,4 +277,3 @@ $stats-font-size-factor: 0.9;
         font-weight: 350;
     }
 }
-
