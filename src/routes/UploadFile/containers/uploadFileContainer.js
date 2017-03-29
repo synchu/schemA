@@ -63,7 +63,8 @@ const mapStateToProps = (state) => {
     deletedFilesData: state.uploadFile.deletedFilesData,
     deletedVersionData: state.uploadFile.deletedVersionData,
     profile: state.globalReducer.auth.getProfile(),
-    progress: state.uploadFile.progress
+    progress: state.uploadFile.progress,
+    isAuthenticated: state.globalReducer.auth.loggedIn()
   })
   return newProps
 }

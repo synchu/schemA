@@ -1,8 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {IndexLink, Link} from 'react-router'
-import {IconButton, Button, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
+import {IconButton, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
 import Logo from '../Logo'
-import {push} from 'react-router-redux'
 import MediaQuery from 'react-responsive'
 import SettingsDialog from './SettingsDialog'
 import HelpDialog from './HelpDialog'
@@ -121,7 +120,7 @@ export class Header extends Component {
 
 
   render () {
-    const {loginErrorMsg, isAuthenticated, isAdmin, ampVersions, requestLogin, dispatch, auth} = this.props
+    const {loginErrorMsg, isAuthenticated, isAdmin, ampVersions, requestLogin, auth} = this.props
     return (
       <div>
         <AppBar fixed flat type='horizontal' theme={classes}>

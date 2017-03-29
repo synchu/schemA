@@ -1,7 +1,7 @@
 /* @flow*/
 
 import {fileObject, emptyAmpItem} from '../interfaces/files.js'
-import {getTableData, newVersionRow, initNewBrand, maxDataId} from './filesTableData'
+import {getTableData, newVersionRow, initNewBrand, maxDataId, getLastBid} from './filesTableData'
 import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
 import {updateField, insertRecord} from '../../../utils/updateDb'
@@ -279,7 +279,7 @@ export const setVersionData = (idrow, key, value) => {
   return (dispatch, getState) => {
     let versionData = getState().uploadFile.versionData
     let i = 0
-    let foundIndex = -1
+    let foundIndex: Number = -99999
     while (i < versionData.length) {
       if (versionData[i].id === idrow) {
         foundIndex = i
@@ -287,7 +287,7 @@ export const setVersionData = (idrow, key, value) => {
       }
       i++
     }
-    if (foundIndex > 0) {
+    if (foundIndex !== -99999) {
       versionData[foundIndex][key] = value
       return dispatch({
         type: SET_FILES,
@@ -428,10 +428,18 @@ const ir = (bid: Number, brand: String, model: String, version: String,
     uploadname: uploadname
   })
 
+ /**
+ * Submits form to the database. Updates and creates records where necessary.
+ *
+ * @param {Array} existingRecords - array of schematics record objects
+ * @param {Number} maxDataId - current max data_id key within the current brand
+ * @returns void
+ */
 export const submitToDB = (existingRecords, maxDataId) => {
   return (dispatch, getState) => {
     const {brand, model, version, description, contributor} = selector(getState(), 'brand', 'model', 'version', 'description', 'contributor')
-    const bid = existingRecords
+
+    const bid = existingRecords[0]
       ? existingRecords[0].bid
       : -1
     const profile = getState()
@@ -439,11 +447,11 @@ export const submitToDB = (existingRecords, maxDataId) => {
       .auth
       .getProfile()
 
-    var newDataId = parseInt(maxDataId) + 1
+    var newDataId = parseInt(maxDataId < 0 ? -maxDataId : maxDataId) + 1
 
     dispatch(increaseProgress(20))
 
-    if (existingRecords) {
+    if (existingRecords[0]) {
       // descriptions processing start
       let descriptionDBRecord = existingRecords.filter(i => i.type.trim().toLowerCase() === 'description')
       if (descriptionDBRecord && descriptionDBRecord.length > 0) {
@@ -458,9 +466,8 @@ export const submitToDB = (existingRecords, maxDataId) => {
       } else {
         // new description record var newDataId =
         // parseInt(maxDataId(existingRecords).data_id) + 1
-        if (!insertRecord(ir(bid, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId)) {
-          console.warn('Description did not make it to the DB')
-        }
+        insertRecord(ir(bid, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId)
+
         // descriptions processing end
         dispatch(increaseProgress(60))
       }
@@ -472,6 +479,7 @@ export const submitToDB = (existingRecords, maxDataId) => {
       }
       // check if there are any new records added
       let newRecords = dbUpdates.records.filter(i => i.id < 0)
+      console.log('submitToDb: newRecords:', newRecords)
       if (newRecords) {
         newRecords.map(item => (insertRecord(ir(item.bid,
         item.brand,
@@ -488,10 +496,46 @@ export const submitToDB = (existingRecords, maxDataId) => {
       }
       dispatch(increaseProgress(80))
     } else {
-      // brand new brand
+      // obtain last brand id
       dispatch(increaseProgress(60))
+      getLastBid()
+      .then(lastBid => {
+        console.log(lastBid)
+        if (!insertRecord(ir(lastBid + 1, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId++)) {
+          console.warn('Description did not make it to the DB')
+        }
+        let filesRecords: Array<Object> = existingRecords.filter(i => i.type.trim().toLowerCase() !== 'description')
+        let filesForm: Array<Object> = selector(getState(), 'files')
+        let dbUpdates: Object = deepCompareFiles(filesForm, filesRecords)
+        if (dbUpdates.changes[0]) {
+          dbUpdates.changes.map(i => updateField(i.field, i.value, undefined, {id: i.id}))
+        }
+        dispatch(increaseProgress(75))
+      // check if there are any new records added
+        let newRecords = dbUpdates.records.filter(i => i.id < 0)
+        if (newRecords) {
+          newRecords.map(item => (insertRecord(ir(lastBid + 1,
+        item.brand,
+        item.model,
+        item.version,
+        item.type,
+        item.data,
+        contributor,
+        item.filename,
+        item.isFile,
+        item.thumbnail,
+        item.size,
+        item.uploadname), newDataId++)))
+        }
+        dispatch(increaseProgress(85))
+      }
+      )
     }
 
+    let deletedVersionData = getState().uploadFile.deletedVersionData
+    if (deletedVersionData[0].filter(i => i.id > 0)) {
+      
+    }
     dispatch(increaseProgress(100))
     dispatch(stopProgress())
   }

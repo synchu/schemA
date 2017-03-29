@@ -1,12 +1,14 @@
 import React, { PropTypes, Component } from 'react'
-import { Button, Table, Card, CardTitle,
+import { Button, Table, Card, CardTitle, AppBar,
   CardActions, Autocomplete, IconButton,
  TableHead, TableRow, TableCell, ProgressBar} from 'react-toolbox'
+import {IndexLink} from 'react-router'
 import Input from 'react-toolbox/lib/input'
 import { Field, reduxForm, FieldArray, formValueSelector } from 'redux-form/immutable'
 import { validatePassword } from '../../../utils/validators'
 import { TypeSelector } from '../components/TypeSelector'
 import { FileDropzone } from '../components/Dropzone'
+import Logo from '../../../components/Logo'
 import { validators } from '../modules/validateData'
 import { checkAmpItemExists } from '../modules/filesTableData'
 
@@ -123,13 +125,13 @@ const handleErrors = (response) => {
   return response
 }
 
-const processFiles = (files, change, field, brand, model, custom, idx, existingId) => {
+const processFiles = (files, change, changeFields, brand, model, custom, idx, existingId) => {
   const {setVersionData, setDataField} = custom
   if (files.length > 1) {
     console.warn('Cannot upload more than 1 file at a time!')
     return
   } else {
-    change(field, 'sch/' + brand + '/' + model + '/' + files[0].name)
+    change(changeFields.data, 'sch/' + brand + '/' + model + '/' + files[0].name)
     setDataField('sch/' + brand + '/' + model + '/' + files[0].name, idx)
     var formData = new FormData()
     formData.append('upfile', files[0])
@@ -138,7 +140,7 @@ const processFiles = (files, change, field, brand, model, custom, idx, existingI
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Access-Control-Allow-Origin': 'http://localhost:3000'
+        'Access-Control-Allow-Origin': '*'
       },
       body: formData
     })
@@ -148,6 +150,9 @@ const processFiles = (files, change, field, brand, model, custom, idx, existingI
             console.log(json)
             setVersionData(existingId, 'size', json.size)
             setVersionData(existingId, 'uploadname', json.uploadedname)
+            // changes form bindings
+            change(changeFields.size, json.size)
+            change(changeFields.uploadname, json.uploadedname)
             return true
           })
           .catch(error => {
@@ -193,16 +198,18 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                         change={change}
                         brand={brand}
                         model={model}
-                        field={`${item}.data`}
+                        changeFields={{data: `${item}.data`, size: `${item}.size`, uploadname: `${item}.uploadname`}}
                         custom={custom}
                         idx={idx}
                         existingFile={filesData[idx].data}
+                        uploadFile={filesData[idx].uploadname}
                         existingId={filesData[idx].id}
                         multiple
                         table />
                     </TableCell>
-                    <TableCell onClick={() => (handleDeleteClick(idx, filesData[idx] ? filesData[idx].id : 0))
-                    }>{filesData[idx] && filesData[idx].delete}</TableCell>
+                    <TableCell onClick={() => (handleDeleteClick(idx, filesData[idx] ? filesData[idx].id : 0))} >
+                    {filesData[idx] && filesData[idx].delete}
+                    </TableCell>
                   </TableRow>)
              }))
 }
@@ -356,7 +363,20 @@ export class UploadItem extends Component {
   render () {
     const { handleSubmit, pristine, reset,
     submitting, amps, models, versions, progress, brand, model, version} = this.props
+
     return (
+      <div>
+      <AppBar fixed flat type='horizontal' theme={classes}>
+      <IndexLink to='/' activeClassName={classes.activeRoute}>
+            <div className={classes.logo}>
+              <Logo
+                title='SchemA - the ultimate tube amps schematics archive'
+                width='782'
+                height='182'
+                scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString()} />
+            </div>
+          </IndexLink>
+      </AppBar>
     <form onSubmit={handleSubmit(data => (this.localHandleSubmit(data, this.props)))} className={classes.container} >
       <div>
         <Card className={classes['ampitemcard']} raised >
@@ -429,7 +449,7 @@ export class UploadItem extends Component {
           <CardActions className={classes['actions']}>
             <Button type='submit' label='Save' raised default
               disabled={submitting} />
-            <Button type='button' label='Cancel' title='Press to clear the form'
+            <Button type='button' label='Cancel' title='Clear the form'
               disabled={pristine || submitting} onClick={reset} />
             {
               (progress > 0) &&
@@ -442,6 +462,7 @@ export class UploadItem extends Component {
         </Card>
       </div>
     </form>
+    </div>
     )
   }
 }

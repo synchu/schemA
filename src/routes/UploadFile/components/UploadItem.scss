@@ -25,6 +25,7 @@
     margin: auto;
     overflow-x: hidden;
     height: 100%;
+    margin-top: 64px;
 }
 
 .suggestions {
@@ -82,3 +83,23 @@
   50% { opacity: 0.3; }
 }
 // circular progress bar theme end
+ .logo {
+     margin-right: auto;
+     margin-bottom: auto;
+     margin-left: 10px;
+     padding-top: 5px;
+ }
+
+  .activeRoute {
+     font-weight: bold;
+     text-decoration: underline;
+ }
+ 
+ .icon {
+     color: white;
+     background-color: antiquewhite;
+ }
+ 
+ .appBar{
+     padding: 0;
+ }

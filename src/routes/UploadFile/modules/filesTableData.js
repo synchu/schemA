@@ -19,19 +19,22 @@ const handleErrors = (response) => {
 /**
  * retrieves last brand ID value from the database
  */
-const getLastBid = () => {
-  fetch(mReq(__API__ + '/last_bid?transform=1'))
+export const getLastBid = (): Number => {
+  return new Promise((resolve, reject) => {
+    fetch(mReq(__API__ + '/last_bid?transform=1'))
     .then(response => handleErrors(response))
     .then(response => response.json())
     .then(json => {
       if (json.last_bid.length === 0) {
         throw Error('No records found')
       }
-      return json.last_bid[0].last_bid
+      return resolve(parseInt(json.last_bid[0].last_bid))
     })
     .catch(error => {
       console.error(error)
+      if (reject) { reject(error) }
     })
+  })
 }
 /**
  * Initializes a new record for a brand, given an UploadItem form state and id
@@ -52,7 +55,9 @@ export const initNewBrand = (state, id) => {
     contributor: '',
     data: '',
     isfile: 0,
-    thumbnail: ''
+    thumbnail: '',
+    size: 0,
+    uploadname: ''
   })
 }
 
@@ -70,7 +75,9 @@ export const newVersionRow = (newDataId, i, id) => {
     contributor: '',
     data: '',
     isfile: 1,
-    thumbnail: ''
+    thumbnail: '',
+    size: 0,
+    uploadname: ''
   }
 }
 /**
@@ -96,7 +103,7 @@ export const getTableData = (source, getState) => {
     file: i.file,
     delete: <IconButton icon='delete' />,
     size: i.size ? i.size : 0,
-    uploadName: i.uploadName ? i.uploadName : ''
+    uploadname: i.uploadname ? i.uploadname : ''
   }))
   return result
 }
@@ -150,7 +157,7 @@ export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVer
                .then(json => {
                  if (dispatchCallback) {
                   // call the callback with the result
-                   dispatchCallback(merged, json.last_dataid[0].data_id)
+                   dispatchCallback(merged, json.last_dataid[0] ? json.last_dataid[0].data_id : 0)
                    return true
                  }
                })

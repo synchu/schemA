@@ -45,7 +45,7 @@ try {
                 // You should name it uniquely.
                 // DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
                 // On this example, obtain safe unique name from its binary data.
-                $uploadedname = sprintf('./sch/uploads/%s.%s',
+                $uploadedname = sprintf('../../sch/%s.%s',
                 sha1_file($_FILES['upfile']['tmp_name']).bin2hex(mcrypt_create_iv(6, MCRYPT_DEV_URANDOM)),
                 $ext
                 );

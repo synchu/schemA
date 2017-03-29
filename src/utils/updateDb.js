@@ -70,7 +70,7 @@ export const insertRecord = (recData: Object, newDataId: Number) => {
             return true
           })
           .catch(error => {
-            console.log(error)
+            console.error(error)
             return false
           })
 }
@@ -185,6 +185,8 @@ export const updateField = (field, value, itemData, recData = undefined) => {
     case 'file':
     case 'type':
     case 'isFile':
+    case 'size':
+    case 'uploadname':
       filterRecId = recData ? recData.id : -1
       break
   }
