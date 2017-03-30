@@ -62,7 +62,8 @@ export const transformData = (item) => {
             layoutName: i.filename,
             layoutDate: i.datestamp,
             layoutContributor: i.contributor,
-            updateId: i.id
+            updateId: i.id,
+            uploadname: i.uploadname
           })
           // itemObject.layoutsMaxId = i.id > itemObject.layoutsMaxId ? i.id :
           // itemObject.layoutsMaxId
@@ -76,7 +77,8 @@ export const transformData = (item) => {
             schematicName: i.filename,
             schematicDate: i.datestamp,
             schematicContributor: i.contributor,
-            updateId: i.id
+            updateId: i.id,
+            uploadname: i.uploadname
           })
           // itemObject.schematicsMaxId = i.id > itemObject.schematicsMaxId ? i.id :
           // itemObject.schematicsMaxId
@@ -90,7 +92,8 @@ export const transformData = (item) => {
             photoName: i.filename,
             photoDate: i.datestamp,
             photoContributor: i.contributor,
-            updateId: i.id
+            updateId: i.id,
+            uploadname: i.uploadname
           })
           // itemObject.photosMaxId = i.id > itemObject.photosMaxId ? i.id :
           // itemObject.photosMaxId
@@ -104,7 +107,8 @@ export const transformData = (item) => {
             otherName: i.filename,
             otherDate: i.datestamp,
             otherContributor: i.contributor,
-            updateId: i.id
+            updateId: i.id,
+            uploadname: i.uploadname
           })
           // itemObject.othersMaxId = i.id > itemObject.othersMaxId ? i.id :
           // itemObject.othersMaxId

@@ -18,7 +18,8 @@ import MediaQuery from 'react-responsive'
 import TableView from './TableView'
 import {DESCRIPTION} from 'utils/constants'
 import {transformData} from './TransformData'
-import {updateField, getDBFieldName} from '../../utils/updateDb'
+import {updateField} from '../../utils/updateDb'
+import {getFile} from '../../utils/utils'
 
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')
@@ -31,10 +32,14 @@ const makeDownloadLink = (linkData) => {
     icon,
     text,
     activeLinkClass,
+    uploadname,
     ...other
   } = linkData
   return (
-    <Link to={href} activeClassName={activeLinkClass} target='_blank' {...other}>
+    <Link to={href} onClick={(e) => {
+      e.preventDefault()
+      return getFile(href, uploadname, 'attachment')
+    }} activeClassName={activeLinkClass} target='_blank' {...other}>
       <span><FontIcon className={classes.actionIcons} value={icon} /> {text}</span>
     </Link>
   )
@@ -134,8 +139,9 @@ export class ModelItem extends Component {
     return (makeDownloadLink({
       key: photo.id,
       href: photo.photo,
-      icon: (<img src={photo.photo} alt={photo.photoName} height='48' width='48' />),
+      icon: (<img src={this.state[photo.id]} alt={photo.photoName} height='48' width='48' />),
       text: photo.photoName + ' by ' + photo.photoContributor,
+      uploadname: photo.uploadname,
       activeLinkClass: classes.activeRoute,
       style: {
         marginRight: 'auto',
@@ -150,6 +156,7 @@ export class ModelItem extends Component {
       href: layout.layout,
       icon: 'file_download',
       text: layout.layoutName + ' by ' + layout.layoutContributor,
+      uploadname: layout.uploadname,
       activeLinkClass: classes.activeRoute
     }))
   }
@@ -159,6 +166,7 @@ export class ModelItem extends Component {
       key: schematic.id,
       href: schematic.schematic,
       icon: 'file_download',
+      uploadname: schematic.uploadname,
       text: schematic.schematicName + ' by ' + schematic.schematicContributor,
       activeLinkClass: classes.activeRoute
     }))
@@ -169,6 +177,7 @@ export class ModelItem extends Component {
       key: other.id,
       href: other.other,
       icon: 'file_download',
+      uploadname: other.uploadname,
       text: other.otherName + ' by ' + other.otherContributor,
       activeLinkClass: classes.activeRoute
     }))
@@ -473,6 +482,22 @@ export class ModelItem extends Component {
       itemObjects: transformData(this.props.items)
     })
   }
+
+  customSetState = (value, stateObject) => {
+    console.log('customSetState:', stateObject, value)
+    this.setState({...this.state, [stateObject]: value})
+  }
+  componentDidMount = () => {
+    const {itemObjects} = this.state
+    if (!itemObjects[0]) {
+      return
+    }
+    console.log(itemObjects)
+    itemObjects[0].photos.map(i => {
+      getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.id)
+    })
+  }
+
 
   render () {
     const {cardsAsList} = this.props

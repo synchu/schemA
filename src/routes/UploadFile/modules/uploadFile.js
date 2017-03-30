@@ -536,6 +536,7 @@ export const submitToDB = (existingRecords, maxDataId) => {
     if (deletedVersionData[0].filter(i => i.id > 0)) {
       
     }
+    
     dispatch(increaseProgress(100))
     dispatch(stopProgress())
   }

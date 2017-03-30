@@ -1,9 +1,8 @@
 import React, {PropTypes} from 'react'
 import classes from './Dropzone.scss'
 import Dropzone from 'react-dropzone'
-import {mReq, __API__} from '../../../utils/utils'
+import {pFileReader} from '../../../utils/utils'
 import cx from 'classnames'
-import {fromByteArray} from 'base64-js'
 
 const __IMG__BASE_URL = 'https://schematics.synchu.com/'
 
@@ -38,14 +37,6 @@ export class FileDropzone extends React.Component {
       .bind(this)
   }
 
-  pFileReader = (file) => {
-    return new Promise((resolve, reject) => {
-      var fr = new FileReader()
-      fr.onload = resolve  // CHANGE to whatever function you want which would eventually call resolve
-      fr.readAsDataURL(file)
-    })
-  }
-
   getImage = (existingFile, uploadFile) => {
     var formData = new FormData()
     formData.append('file', existingFile)
@@ -61,7 +52,7 @@ export class FileDropzone extends React.Component {
     })
     .then(response => response.blob())
     .then(blob => {
-      this.pFileReader(blob)
+      pFileReader(blob)
       .then(result => {
         this.setState({
           ...this.state,
