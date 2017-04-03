@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react'
 import { FontIcon, Tooltip } from 'react-toolbox'
 import { Link } from 'react-router'
+import DownloadLink from '../DownloadLink'
+import {getFile} from '../../utils/utils'
 import classes from './TableView.scss'
 import classnames from 'classnames'
 
@@ -13,12 +15,23 @@ const OTHER = 'Other'
 const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/))
 
 const makeDownloadLink = (linkData) => {
-  const {href, text, activeLinkClass} = linkData
+  const {
+    href,
+    icon,
+    text,
+//    activeLinkClass,
+    uploadname/*,
+    ...other*/
+  } = linkData
+
   return (
-    <Link to={href} activeClassName={activeLinkClass} target='_blank'>
-      {text}
-    </Link>
+    <DownloadLink key={href} icon={icon} text={text} existingFile={href} uploadname={uploadname} />
   )
+   /* return (
+      <Link to={getFile(href, uploadname, 'attachment')} activeClassName={activeLinkClass} target='_blank' {...other}>
+        <span><FontIcon className={classes.actionIcons} value={icon} /> {text}</span>
+      </Link>
+    )*/
 }
 
 export class TableView extends Component {
@@ -50,6 +63,7 @@ export class TableView extends Component {
           key: key++,
           type: SCHEMATIC, icon: tabIcon('developer_board', typesAsPictures),
           text: i.schematicName, by: i.schematicContributor,
+          uploadname: i.uploadname, updateId: i.updateId,
           href: i.schematic,
           version: a.version
         })
@@ -60,6 +74,7 @@ export class TableView extends Component {
           key: key++,
           type: LAYOUT, icon: tabIcon('collections', typesAsPictures),
           text: i.layoutName, by: i.layoutContributor,
+          uploadname: i.uploadname, updateId: i.updateId,
           href: i.layout,
           version: a.version
         })
@@ -70,6 +85,7 @@ export class TableView extends Component {
           key: key++,
           type: OTHER, icon: tabIcon('attachment', typesAsPictures),
           text: i.otherName, by: i.otherContributor,
+          uploadname: i.uploadname, updateId: i.updateId,
           href: i.other,
           version: a.version
         })
@@ -80,6 +96,7 @@ export class TableView extends Component {
           key: key++,
           type: PHOTO, icon: (<img src={i.photo} alt={i.photoName} height='36' width='36' />),
           text: i.photoName, by: i.photoContributor,
+          uploadname: i.uploadname, updateId: i.updateId,
           href: i.photo,
           version: a.version
         })
@@ -123,8 +140,6 @@ export class TableView extends Component {
     this.setState({ ...this.state, tableData: sortedData })
   }
 
-
-
   renderTabView = () => {
     const { cardsAsList } = this.props
     let scType = this.sortTable.bind(this, 'type')
@@ -154,10 +169,13 @@ export class TableView extends Component {
               </td>
             }
             <td>
-              <TTFontIcon value={i.icon} tooltip={i.type} title={i.type} className={classes.actionIcons} />
+              <TTFontIcon value={i.type === PHOTO
+                ? <img src={this.state[i.updateId]} alt={i.photoName} height='36' width='36' />
+                : i.icon}
+                tooltip={i.type} title={i.type} className={classes.actionIcons} />
             </td>
             <td>
-              {makeDownloadLink({ href: i.href, text: i.text, activeLinkClass: classes.activeRoute })}
+              {makeDownloadLink({ href: i.href, text: i.text, uploadname: i.uploadname, activeLinkClass: classes.activeRoute })}
             </td>
             <td>
               {i.by}
@@ -169,20 +187,33 @@ export class TableView extends Component {
     )
   }
 
+  customSetState = (value, stateObject) => {
+    // console.log('customSetState:', stateObject, value.target.result)
+    this.setState({...this.state, [stateObject]: value.target.result})
+  }
+
+  componentWillMount = () => {
+    this.makeTableSource()
+  }
 
   componentDidMount = () => {
-    this.makeTableSource()
+    const {tableData} = this.state
+    if (!tableData[0]) {
+      return
+    }
+    tableData.filter(b => b.type === PHOTO).map(i => {
+      getFile(i.href, i.uploadname, 'inline', this.customSetState, i.updateId)
+    })
   }
 
   render () {
     const { itemData } = this.props
     return (
-    <div key={itemData.version}>
-      {(this.state.tableData) && this.renderTabView()}
-    </div>
+      <div key={itemData.version}>
+        {(this.state.tableData) && this.renderTabView()}
+      </div>
     )
   }
 }
-
 
 export default TableView

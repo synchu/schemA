@@ -22,6 +22,40 @@ export const getDBFieldName = (cardField) => {
   }
 }
 
+
+/**
+ * Deletes a file item fron the database, provided the app user has the appropriate permissions.
+ * Function is provided for completeness purposes. Generally, items deletion must happen via direct DB maintenance by an admin.
+ * @param {Number} recId 
+ */
+export const deleteRecord = (recId: Number): void => {
+  if (recId <= 0) {
+    console.error('Delete record id is incorrect')
+    return
+  }
+  console.log(__API__ + '/schematics/' + recId)
+  fetch(mReq(__API__ + '/schematics/' + recId), {
+    method: 'DELETE'/*,
+    headers: {
+      'Accept': 'text/plain',
+      'Content-Type': 'text/plain'
+    }*/
+  })
+          .then(response => handleErrors(response))
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+            if (json === null) {
+              console.log('Nothing deleted! Check with application admin. Permissions might be set wrong.')
+            }
+            return true
+          })
+          .catch(error => {
+            console.error(error)
+            return false
+          })
+}
+
 /**
  * Inserts a new record into the amplifier database. Both params are mandatory.
  * @param {*} recData - Record data to be inserted

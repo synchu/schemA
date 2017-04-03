@@ -168,18 +168,18 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
   return (
              fields.map((item, idx) => {
                return (
-                  <TableRow key={idx}
-                    style={filesData[idx] && (filesData[idx].id < 0) ? {backgroundColor: 'lavender'} : {}}>
-                    <Field name={`${item}.version`} component={renderTableCell} />
-                    <TableCell>
-                      <Field
-                        component={TypeSelector}
-                        label='Item type'
-                        name={`${item}.type`}
-                        selection={filesData[idx].type}
-                        returnSelection={changeItemType}
-                        change={change}
-                        field={`${item}.type`}
+                 <TableRow key={idx}
+                   style={filesData[idx] && (filesData[idx].id < 0) ? {backgroundColor: 'lavender'} : {}}>
+                   <Field name={`${item}.version`} component={renderTableCell} />
+                   <TableCell>
+                     <Field
+                       component={TypeSelector}
+                       label='Item type'
+                       name={`${item}.type`}
+                       selection={filesData[idx] ? filesData[idx].type : 'Schematic'}
+                       returnSelection={changeItemType}
+                       change={change}
+                       field={`${item}.type`}
                       />
                     </TableCell>
                     <Field name={`${item}.data`} component={renderTableCell} />

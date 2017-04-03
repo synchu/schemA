@@ -30,7 +30,7 @@ export const getFile = (existingFile, uploadFile, mode = 'inline', cb = undefine
     .then(blob => {
       pFileReader(blob)
       .then(result => {
-        if (cb) {
+        if (cb && typeof cb === 'function') {
           cb(result, cbParams)
         } else {
           return result

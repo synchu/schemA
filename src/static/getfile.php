@@ -1,6 +1,10 @@
 <?php
 
-header('Content-Type: text/plain; charset=utf-8');
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Credentials: true');
+      //  header('Access-Control-Max-Age: 86400');    // cache for 1 day
+    }
 
 try {
     
@@ -18,7 +22,6 @@ try {
     $return = filter_input(INPUT_POST, 'return', FILTER_SANITIZE_STRING);
     $ext = pathinfo($file, PATHINFO_EXTENSION);
     $path = pathinfo($uploadedname, PATHINFO_DIRNAME);
-    echo $return == "inline";
 
     if ($return !== "inline" && $return !== "attachment"){
         // fail silently
@@ -45,19 +48,23 @@ try {
                 $content = 'image/tiff';
                 break ;
         }
-        
+
         if (file_exists($uploadedname)) {
+            // ob_end_flush();
+            ob_start();
+           // header('Access-Control-Allow-Origin:*');
             header('Content-Description: File Transfer');
-            header('Content-Type:'.$content );
-            header('Content-Disposition: '.$return.'; filename='.basename($file));
+            header('Content-Type: '.$content);
+            header('Content-Disposition: '.$return.'; filename="'.basename($file).'"');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
-            header('Content-Length: ' . filesize($uploadedname));
+            header('Content-Length: ' . filesize($uploadedname),false);
             ob_clean();
-            flush();
+            ob_end_flush();
             readfile($uploadedname);
+
             exit;
         } else {
             // fail silently
@@ -66,19 +73,29 @@ try {
         }
         
     } catch (RuntimeException $e) {
+
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            header('Access-Control-Allow-Origin: http://localhost:3000', false);
-            header('Access-Control-Allow-Headers: Access-Control-Allow-Origin');
-            header('Access-Control-Allow-Methods: POST, OPTIONS');
-            header('Content-Type: application/json', false);
-            header('Content-Type: text/plain; charset=utf-8', false);
-            header('Allow: POST, OPTIONS');
-            header('HTTP/1.1 200 OK');
+    // Access-Control headers are received during OPTIONS requests
+
+
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");         
+
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            header("Access-Control-Allow-Headers:        {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+        
+      if (isset($_SERVER['CONTENT_TYPE']))
+            header("Content-Type:        {$_SERVER['CONTENT_TYPE']}");
+
+          header('Content-Type: image/jpeg');
+        exit(0);
+    
         } else {
-            header('access-control-allow-origin: http://localhost:3000', false);
+           // header('access-control-allow-origin: http://localhost:3000', false);
             header('HTTP/1.1 500 Internal Server Error');
             echo $e->getMessage();
         }
+       
         
     }
     

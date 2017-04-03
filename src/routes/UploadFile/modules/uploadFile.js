@@ -4,7 +4,7 @@ import {fileObject, emptyAmpItem} from '../interfaces/files.js'
 import {getTableData, newVersionRow, initNewBrand, maxDataId, getLastBid} from './filesTableData'
 import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
-import {updateField, insertRecord} from '../../../utils/updateDb'
+import {updateField, insertRecord, deleteRecord} from '../../../utils/updateDb'
 import {deepCompareFiles} from './utils'
 import {mReq, __API__} from '../../../utils/utils'
 import _ from 'lodash'
@@ -384,9 +384,11 @@ export const addNewTableRow = (change, array) => {
       ? getState().uploadFile.lastNewID - 1
       : -1
 
-    let dataInit = versionData[0]
+    var dataInit = versionData[0]
       ? versionData[0]
       : initNewBrand(getState(), newDataId)
+    // make sure the type is schematic
+    dataInit.type = 'Schematic'
 
     let newVersionItem = newVersionRow(newDataId, dataInit, id)
 
@@ -479,7 +481,7 @@ export const submitToDB = (existingRecords, maxDataId) => {
       }
       // check if there are any new records added
       let newRecords = dbUpdates.records.filter(i => i.id < 0)
-      console.log('submitToDb: newRecords:', newRecords)
+      // console.log('submitToDb: newRecords:', newRecords)
       if (newRecords) {
         newRecords.map(item => (insertRecord(ir(item.bid,
         item.brand,
@@ -533,10 +535,11 @@ export const submitToDB = (existingRecords, maxDataId) => {
     }
 
     let deletedVersionData = getState().uploadFile.deletedVersionData
-    if (deletedVersionData[0].filter(i => i.id > 0)) {
-      
+    let deletedRecords = deletedVersionData.filter(i => i.id > 0)
+    if (deletedRecords) {
+      deletedRecords.map(i => deleteRecord(i.id))
     }
-    
+
     dispatch(increaseProgress(100))
     dispatch(stopProgress())
   }

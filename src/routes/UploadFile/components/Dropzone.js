@@ -46,6 +46,7 @@ export class FileDropzone extends React.Component {
     fetch('https://schematics.synchu.com/getfile.php', {
       method: 'POST',
       headers: {
+     //   'Content-Type': 'application/octet-stream',
         'Access-Control-Allow-Origin': '*'
       },
       body: formData

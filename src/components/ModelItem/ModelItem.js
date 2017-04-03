@@ -16,6 +16,7 @@ import {Link} from 'react-router'
 import classes from './ModelItem.scss'
 import MediaQuery from 'react-responsive'
 import TableView from './TableView'
+import DownloadLink from '../DownloadLink'
 import {DESCRIPTION} from 'utils/constants'
 import {transformData} from './TransformData'
 import {updateField} from '../../utils/updateDb'
@@ -24,26 +25,7 @@ import {getFile} from '../../utils/utils'
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
-const isImageByExt = (media) => (media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/))
-
-const makeDownloadLink = (linkData) => {
-  const {
-    href,
-    icon,
-    text,
-    activeLinkClass,
-    uploadname,
-    ...other
-  } = linkData
-  return (
-    <Link to={href} onClick={(e) => {
-      e.preventDefault()
-      return getFile(href, uploadname, 'attachment')
-    }} activeClassName={activeLinkClass} target='_blank' {...other}>
-      <span><FontIcon className={classes.actionIcons} value={icon} /> {text}</span>
-    </Link>
-  )
-}
+const isImageByExt = (media) => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
 
 export const getTabIcon = (iconName, typesAsPictures) => {
   let tabIcon =
@@ -98,11 +80,31 @@ export class ModelItem extends Component {
     })
   }
 
+  makeDownloadLink = (linkData) => {
+    const {
+    href,
+    icon,
+    text,
+//    activeLinkClass,
+    uploadname/*,
+    ...other*/
+  } = linkData
+
+    return (
+      <DownloadLink key={href} icon={icon} text={text} existingFile={href} uploadname={uploadname} />
+    )
+   /* return (
+      <Link to={getFile(href, uploadname, 'attachment')} activeClassName={activeLinkClass} target='_blank' {...other}>
+        <span><FontIcon className={classes.actionIcons} value={icon} /> {text}</span>
+      </Link>
+    )*/
+  }
+
   getMedia = (itemData) => {
     let media = ''
     if (itemData) {
       media = itemData.photos.length > 0
-        ? itemData.photos[0].photo
+        ? this.state[itemData.photos[0].updateId]
         : itemData.layouts.length > 0
           ? itemData.layouts[0].layout
           : itemData.others.length > 0
@@ -119,7 +121,7 @@ export class ModelItem extends Component {
         ? itemData.photos[0].photoName
         : itemData.version} />)
     } else if (media !== '') {
-      return (makeDownloadLink({href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute}))
+      return (this.makeDownloadLink({href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute}))
     } else {
       return (
         <h5
@@ -136,13 +138,15 @@ export class ModelItem extends Component {
   }
 
   renderPhotos = (photo) => {
-    return (makeDownloadLink({
+    console.log('renderPhotos:', photo.updateId)
+    return (this.makeDownloadLink({
       key: photo.id,
       href: photo.photo,
-      icon: (<img src={this.state[photo.id]} alt={photo.photoName} height='48' width='48' />),
+      icon: (<img src={this.state[photo.updateId]} alt={photo.photoName} height='48' width='48' />),
       text: photo.photoName + ' by ' + photo.photoContributor,
       uploadname: photo.uploadname,
       activeLinkClass: classes.activeRoute,
+      type: 'photo',
       style: {
         marginRight: 'auto',
         padding: '3px'
@@ -151,7 +155,8 @@ export class ModelItem extends Component {
   }
 
   renderLayouts = (layout) => {
-    return (makeDownloadLink({
+    console.log('renderLayout:', layout.updateId)
+    return (this.makeDownloadLink({
       key: layout.id,
       href: layout.layout,
       icon: 'file_download',
@@ -162,7 +167,8 @@ export class ModelItem extends Component {
   }
 
   renderSchematics = (schematic) => {
-    return (makeDownloadLink({
+    console.log('renderSchematics', schematic.updateId)
+    return (this.makeDownloadLink({
       key: schematic.id,
       href: schematic.schematic,
       icon: 'file_download',
@@ -173,7 +179,8 @@ export class ModelItem extends Component {
   }
 
   renderOthers = (other) => {
-    return (makeDownloadLink({
+    console.log('renderOther:', other.updateId)
+    return (this.makeDownloadLink({
       key: other.id,
       href: other.other,
       icon: 'file_download',
@@ -211,6 +218,7 @@ export class ModelItem extends Component {
 
   renderTabbedView = (itemData) => {
     const {typesAsPictures} = this.props
+    console.log('tabbedViewIndex:', this.state[itemData.version])
     return (
       <Tabs
         index={this.state[itemData.version]}
@@ -220,7 +228,7 @@ export class ModelItem extends Component {
         <Tab
           label={this.makeTabLabel('Schematics', itemData.schematics.length, getTabIcon('developer_board', typesAsPictures))}>
           <div className={classes.actionItems}>
-            {itemData
+            {(this.state[itemData.version] === undefined || this.state[itemData.version] === 0) && itemData
               .schematics
               .map((s) => this.renderSchematics(s))}
           </div>
@@ -228,21 +236,21 @@ export class ModelItem extends Component {
         <Tab
           label={this.makeTabLabel('Layouts', itemData.layouts.length, getTabIcon('collections', typesAsPictures))}>
           <div className={classes.actionItems}>
-            {itemData
+            {this.state[itemData.version] === 1 && itemData
               .layouts
               .map((l) => this.renderLayouts(l))}
           </div>
         </Tab>
         <Tab label={this.makeTabLabel('Photos', itemData.photos.length, getTabIcon('photo', typesAsPictures))}>
           <div className={classes.actionItems}>
-            {itemData
+            {this.state[itemData.version] === 2 && itemData
               .photos
               .map((p) => this.renderPhotos(p))}
           </div>
         </Tab>
         <Tab label={this.makeTabLabel('Other', itemData.others.length, getTabIcon('attachment', typesAsPictures))}>
           <div className={classes.actionItems}>
-            {itemData
+            {this.state[itemData.version] === 3 && itemData
               .others
               .map((o) => this.renderOthers(o))}
           </div>
@@ -423,6 +431,7 @@ export class ModelItem extends Component {
 
   renderModelsCard = (itemData) => {
     let arr = [itemData]
+    console.log('renderModelsCard call')
     return (
       <Card
         key={itemData.version}
@@ -484,25 +493,23 @@ export class ModelItem extends Component {
   }
 
   customSetState = (value, stateObject) => {
-    console.log('customSetState:', stateObject, value)
-    this.setState({...this.state, [stateObject]: value})
+    // console.log('customSetState:', stateObject, value.target.result)
+    this.setState({...this.state, [stateObject]: value.target.result})
   }
+
   componentDidMount = () => {
     const {itemObjects} = this.state
     if (!itemObjects[0]) {
       return
     }
-    console.log(itemObjects)
-    itemObjects[0].photos.map(i => {
-      getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.id)
-    })
+    itemObjects.map(a => a.photos.map(i => {
+      getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.updateId)
+    }))
   }
-
 
   render () {
     const {cardsAsList} = this.props
     const {itemObjects} = this.state
-
     return (
       <div>
         {!cardsAsList && itemObjects.map(this.renderModelsCard)}
