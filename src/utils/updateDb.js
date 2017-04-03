@@ -26,7 +26,7 @@ export const getDBFieldName = (cardField) => {
 /**
  * Deletes a file item fron the database, provided the app user has the appropriate permissions.
  * Function is provided for completeness purposes. Generally, items deletion must happen via direct DB maintenance by an admin.
- * @param {Number} recId 
+ * @param {Number} recId - Record id number to delete
  */
 export const deleteRecord = (recId: Number): void => {
   if (recId <= 0) {
