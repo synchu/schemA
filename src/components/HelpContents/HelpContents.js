@@ -1,15 +1,44 @@
 import React from 'react'
-import {IconButton} from 'react-toolbox'
+import { FontIcon} from 'react-toolbox'
 import SearchBox from './images/SearchBox_1.gif'
 import ToggleMenu from './images/ToggleMenu.gif'
 import FilterBox from './images/FilterBox.gif'
 import AmplifiersBrandsList from './images/AmplifiersBrandsList.gif'
+import TopMenu from './images/TopMenu.gif'
 import classes from './HelpContents.scss'
+
+
+export const TopMenuContent = () => {
+    return (
+    <div>
+      <strong>SchemA top menu</strong> provides for the core navigation through the app features.
+      <br />
+      <br />
+      <FontIcon value='menu' /> Left menu icon toggles amplifiers brands list visibility. You can click (or tap) to hide or show it.
+      <br />
+      <br />
+      <FontIcon value='account_box' /> Provides login facility to user's account. Logins to <strong>SchemA</strong> are provided on per request basis. While you may freely register to Auth0 service that provides authentication services to this app, these will not automatically provide you with access to extended app features.
+      <br />
+      <br />
+      <FontIcon value='clear' /> Clears the contents of the search box.
+      <br />
+      <br />
+      <FontIcon value='settings' /> Opens application settings dialog.
+      <br />
+      <br />
+      <FontIcon value='help' /> Opens this dialog box.
+      <br />
+      <br />
+      <img src={TopMenu} alt='Top menu' />
+    </div>
+  )
+}
 
 export const SearchContent = () => {
   return (
     <div>
       <strong>SchemA</strong> searches content based on an amplifier version, model and brand. The search automatically shows available models when you start typing. You must select an item from the list displayed and the app will take you to the respective item.
+      <br />
       <br />
       <img src={SearchBox} alt='SearchBox' />
     </div>

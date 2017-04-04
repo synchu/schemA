@@ -96,28 +96,13 @@ const receiveLogout = () => {
 const lo = () => {
   let myheaders = new Headers()
   myheaders.append('Access-Control-Allow-Origin', '*')
-  var myInit = {
+
+  fetch('https://synchu.eu.auth0.com/v2/logout', {
     method: 'GET',
-    headers: myheaders,
-    mode: 'cors',
-    cache: 'default'
-  }
-  var request = new Request('https://synchu.eu.auth0.com/v2/logout', myInit)
-
-  if (window.XMLHttpRequest) {
-    let xhttp = new XMLHttpRequest()
-    xhttp.open('GET', 'https://synchu.eu.auth0.com/v2/logout', false)
-    xhttp.onreadystatechange = function () {// Call a function when the state changes.
-      if (xhttp.readyState === XMLHttpRequest.DONE && xhttp.status === 200) {
-        // Request finished. Do processing here.
-      } else {
-        console.log(`${xhttp.statusText}`)
-      }
+    headers: {
+      'Access-Control-Allow-Origin': '*'
     }
-    xhttp.send()
-  }
-
-  fetch('https://synchu.eu.auth0.com/v2/logout', {method: 'POST'}).then(response => {
+  }).then(response => {
     console.log(response)
   }).catch(error => {
     console.error('Logout error: ', error)

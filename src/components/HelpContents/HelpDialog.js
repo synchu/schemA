@@ -1,6 +1,6 @@
 import React, {PropTypes, Component} from 'react'
 import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
-import {SearchContent, SideNavigation} from '../HelpContents/HelpContents'
+import {SearchContent, SideNavigation, TopMenuContent} from '../HelpContents/HelpContents'
 import classes from './HelpDialog.scss'
 
 export class HelpDialog extends Component {
@@ -68,7 +68,7 @@ export class HelpDialog extends Component {
           <section>
             <Tabs index={this.state.index} onChange={this.handleTabChange}>
               <Tab label='Top menu'>
-                <small>Primary content</small>
+                <TopMenuContent />
               </Tab>
               <Tab label='Side navigation' onActive={this.handleActive}>
                 <SideNavigation />

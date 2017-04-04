@@ -34,9 +34,19 @@ const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + field
  */
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
-const isImageByExt = (media) => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
+/**
+ * Check whether param passed is image file, by inspecting its extension
+ * @param {string} media 
+ */
+const isImageByExt = (media:string):boolean => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
 
-export const getTabIcon = (iconName, typesAsPictures) => {
+ /**
+ * Get each tab icon. Depending on the app settings it can be either font icon or text 
+ * @param {any} iconName 
+ * @param {any} typesAsPictures 
+ * @returns 
+ */
+export const getTabIcon = (iconName:string, typesAsPictures:boolean):string => {
   let tabIcon =
       typesAsPictures
       ? iconName
@@ -53,6 +63,10 @@ export const getTabIcon = (iconName, typesAsPictures) => {
   return tabIcon
 }
 
+/**
+ * ModelItem class displays an amplifier item version information from the database. React-toolbox Card component is used
+ * to display the data.
+ */
 export class ModelItem extends Component {
   state = {}
   static propTypes = {
@@ -100,7 +114,7 @@ export class ModelItem extends Component {
   } = linkData
 
     return (
-      <DownloadLink key={href} icon={icon} text={text} existingFile={href} uploadname={uploadname} />
+      <DownloadLink key={href + uploadname} icon={icon} text={text} existingFile={href} uploadname={uploadname} />
     )
    /* return (
       <Link to={getFile(href, uploadname, 'attachment')} activeClassName={activeLinkClass} target='_blank' {...other}>
