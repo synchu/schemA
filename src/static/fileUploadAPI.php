@@ -38,7 +38,12 @@ try {
                 
                 // DO NOT TRUST $_FILES['upfile']['mime'] VALUE !!
                 // Check MIME Type by yourself.
-                if (false ===  exif_imagetype($_FILES['upfile']['tmp_name'])) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $_FILES['upfile']['tmp_name']);
+                $ok = false;
+                if ($mime === 'application/pdf') {
+                    $ok = true;
+                } else if (false ===  exif_imagetype($_FILES['upfile']['tmp_name'])) {
                     throw new RuntimeException('Invalid file format.');
                 }
                 $ext = pathinfo($_FILES['upfile']['tmp_name'], PATHINFO_EXTENSION);

@@ -4,7 +4,7 @@ import {IconButton, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
 import Logo from '../Logo'
 import MediaQuery from 'react-responsive'
 import SettingsDialog from './SettingsDialog'
-import HelpDialog from './HelpDialog'
+import HelpDialog from '../HelpContents/HelpDialog'
 import classes from './Header.scss'
 
 export class Header extends Component {

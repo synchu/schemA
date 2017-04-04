@@ -22,7 +22,16 @@ import {transformData} from './TransformData'
 import {updateField} from '../../utils/updateDb'
 import {getFile} from '../../utils/utils'
 
+/**
+ * Generates form field name for the edit component.
+ * @param {String} itemDataVersion 
+ * @param {String} fieldName 
+ */
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
+/**
+ * Generates state stored variable for the changed form field value.
+ * @param {String} itemDataVersion - indicates version for the particular amp.
+ */
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
 const isImageByExt = (media) => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
@@ -124,7 +133,7 @@ export class ModelItem extends Component {
       return (this.makeDownloadLink({href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute}))
     } else {
       return (
-        <h5
+        <strong
           style={{
             padding: '1rem',
             marginBottom: 'auto'
@@ -132,13 +141,13 @@ export class ModelItem extends Component {
           <strong>No photos or layouts to display yet. Please, contact us, if you would
             like to contribute.
           </strong>
-        </h5>
+        </strong>
       )
     }
   }
 
   renderPhotos = (photo) => {
-    console.log('renderPhotos:', photo.updateId)
+    // console.log('renderPhotos:', photo.updateId)
     return (this.makeDownloadLink({
       key: photo.id,
       href: photo.photo,
@@ -155,7 +164,7 @@ export class ModelItem extends Component {
   }
 
   renderLayouts = (layout) => {
-    console.log('renderLayout:', layout.updateId)
+    // console.log('renderLayout:', layout.updateId)
     return (this.makeDownloadLink({
       key: layout.id,
       href: layout.layout,
@@ -167,7 +176,7 @@ export class ModelItem extends Component {
   }
 
   renderSchematics = (schematic) => {
-    console.log('renderSchematics', schematic.updateId)
+    // console.log('renderSchematics', schematic.updateId)
     return (this.makeDownloadLink({
       key: schematic.id,
       href: schematic.schematic,
@@ -179,7 +188,7 @@ export class ModelItem extends Component {
   }
 
   renderOthers = (other) => {
-    console.log('renderOther:', other.updateId)
+    // console.log('renderOther:', other.updateId)
     return (this.makeDownloadLink({
       key: other.id,
       href: other.other,
@@ -218,7 +227,7 @@ export class ModelItem extends Component {
 
   renderTabbedView = (itemData) => {
     const {typesAsPictures} = this.props
-    console.log('tabbedViewIndex:', this.state[itemData.version])
+    // console.log('tabbedViewIndex:', this.state[itemData.version])
     return (
       <Tabs
         index={this.state[itemData.version]}
@@ -290,7 +299,7 @@ export class ModelItem extends Component {
           [mc(itemData.version)]: false
         })
       }
-      console.log('will call loadItem now!')
+      // console.log('will call loadItem now!')
       this.props.loadItem(true)
     } else {
       this.setState({
@@ -386,7 +395,7 @@ export class ModelItem extends Component {
   }
 
   handleCancelClick = (value) => (e) => {
-    console.log('handle cancel click')
+   // console.log('handle cancel click')
     this.setState({
       ...this.state,
       [value]: undefined,
@@ -431,7 +440,7 @@ export class ModelItem extends Component {
 
   renderModelsCard = (itemData) => {
     let arr = [itemData]
-    console.log('renderModelsCard call')
+    // console.log('renderModelsCard call')
     return (
       <Card
         key={itemData.version}
