@@ -47,8 +47,6 @@ export class TableView extends Component {
     super(props)
     this.makeTableSource = this.makeTableSource.bind(this)
     this.renderTabView = this.renderTabView.bind(this)
-    this.sortTable = this.sortTable.bind(this)
-    this.sortByField = this.sortByField.bind(this)
   }
 
   makeTableSource = () => {
@@ -142,6 +140,7 @@ export class TableView extends Component {
 
   renderTabView = () => {
     const { cardsAsList } = this.props
+    let scVersion = this.sortTable.bind(this, 'version')
     let scType = this.sortTable.bind(this, 'type')
     let scText = this.sortTable.bind(this, 'text')
     let scBy = this.sortTable.bind(this, 'by')
@@ -151,7 +150,7 @@ export class TableView extends Component {
         <thead className={classes.tableHeader}>
           <tr>
             {cardsAsList &&
-              <th>
+              <th title='Click or tap to sort' onClick={scVersion}>
                Version
               </th>
             }

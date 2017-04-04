@@ -1,6 +1,7 @@
 import React, {PropTypes, Component} from 'react'
 import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
-import {SearchContent, SideNavigation, TopMenuContent} from '../HelpContents/HelpContents'
+import {SearchContent, SideNavigation, TopMenuContent,
+AppSettingsContent, GeneralContent} from '../HelpContents/HelpContents'
 import classes from './HelpDialog.scss'
 
 export class HelpDialog extends Component {
@@ -61,26 +62,32 @@ export class HelpDialog extends Component {
             maxHeight: '90%'
           }}>
           <div>
-            SchemA has been designed to be easy and straightforward to use. Some guidance to
+            <strong>SchemA</strong> has been designed to be easy and straightforward to use. Some guidance to
             its features is provided here to aid uncovering its full functionality. (in
             progress)
           </div>
           <section>
             <Tabs index={this.state.index} onChange={this.handleTabChange}>
+              <Tab label='General'>
+                <GeneralContent />
+              </Tab>
               <Tab label='Top menu'>
                 <TopMenuContent />
               </Tab>
               <Tab label='Side navigation' onActive={this.handleActive}>
                 <SideNavigation />
               </Tab>
-              <Tab label='Cards features'>
-                <small>Disabled content</small>
+              <Tab label='Cards features(?)'>
+                <small>In progress</small>
               </Tab>
-              <Tab label='List features'>
-                <small>Fourth content hidden</small>
+              <Tab label='List features(?)'>
+                <small>In progress</small>
               </Tab>
               <Tab label='Search'>
                 <SearchContent />
+              </Tab>
+              <Tab label='Settings'>
+                <AppSettingsContent />
               </Tab>
             </Tabs>
 
