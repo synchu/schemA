@@ -1,10 +1,9 @@
 import React, {PropTypes, Component} from 'react'
 import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
-import {SearchContent, SideNavigation, TopMenuContent,
-AppSettingsContent, GeneralContent} from '../HelpContents/HelpContents'
+import {InlineContent, EditCreateContent, UploadGeneralContent} from '../HelpContents/HelpContents'
 import classes from './HelpDialog.scss'
 
-export class HelpDialog extends Component {
+export class UploadDialogHelp extends Component {
   visible = true
   static propTypes = {
     helpActive: PropTypes.bool,
@@ -62,35 +61,29 @@ export class HelpDialog extends Component {
             maxHeight: '90%'
           }}>
           <div>
-            <strong>SchemA</strong> has been designed to be easy and straightforward to use. Some guidance to
-            its features is provided here to aid uncovering its full functionality.
+            <strong>SchemA</strong> implements two features, allowing editing and uploading information:
+            <ul>
+              <li>Edit/Create amp item dialog</li>
+              <li>Inline editing within amplifier version item card</li>
+            </ul>
+            You cannot edit information in table view mode.
+            <br />
+            <br />
+            You must be logged and appropriately authorized in order to edit/create, inline edit amplifier information.
           </div>
           <br />
           <section>
             <Tabs index={this.state.index} onChange={this.handleTabChange}>
               <Tab label='General'>
-                <GeneralContent />
+                <UploadGeneralContent />
               </Tab>
-              <Tab label='Top menu'>
-                <TopMenuContent />
+              <Tab label='Edit/Create amp item'>
+                <EditCreateContent />
               </Tab>
-              <Tab label='Side navigation' onActive={this.handleActive}>
-                <SideNavigation />
-              </Tab>
-              <Tab label='Cards features(?)'>
-                <small>In progress</small>
-              </Tab>
-              <Tab label='List features(?)'>
-                <small>In progress</small>
-              </Tab>
-              <Tab label='Search'>
-                <SearchContent />
-              </Tab>
-              <Tab label='Settings'>
-                <AppSettingsContent />
+              <Tab label='Inline Card Editing'>
+                <InlineContent />
               </Tab>
             </Tabs>
-
           </section>
           <Button
             style={{
@@ -107,4 +100,4 @@ export class HelpDialog extends Component {
   }
 }
 
-export default HelpDialog
+export default UploadDialogHelp

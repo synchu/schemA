@@ -3,13 +3,12 @@ export const __API__ = 'schematics.synchu.com/api/api.php'
 export const pFileReader = (file) => {
   return new Promise((resolve, reject) => {
     var fr = new FileReader()
-    fr.onload = resolve  // CHANGE to whatever function you want which would eventually call resolve
+    fr.onload = resolve
     fr.readAsDataURL(file)
   })
 }
 
 export const getFile = (existingFile, uploadFile, mode = 'inline', cb = undefined, cbParams = undefined) => {
-
   if (!uploadFile) {
     return existingFile
   }

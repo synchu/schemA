@@ -103,3 +103,11 @@
  .appBar{
      padding: 0;
  }
+
+ .helpButton {
+    * {
+        color: $base-color;
+    }
+    margin-left: auto;
+    top: -5px;
+}

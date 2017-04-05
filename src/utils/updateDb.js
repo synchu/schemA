@@ -22,7 +22,6 @@ export const getDBFieldName = (cardField) => {
   }
 }
 
-
 /**
  * Deletes a file item fron the database, provided the app user has the appropriate permissions.
  * Function is provided for completeness purposes. Generally, items deletion must happen via direct DB maintenance by an admin.
@@ -144,7 +143,7 @@ const doInsertDescription = (field, itemData, value) => {
   return true
 }
 
-const doUpdate = (recordid, field, newvalue) => {
+const doUpdate = (recordid, field, newvalue, cb = undefined) => {
   fetch(mReq(__API__ + '/schematics/') + recordid, {
     method: 'PUT',
     dataType: 'json',
@@ -158,6 +157,9 @@ const doUpdate = (recordid, field, newvalue) => {
             .then(response => response.json())
             .then(json => {
               console.log(json)
+              if (cb) {
+                cb()
+              }
               return true
             })
             .catch(error => {
@@ -182,7 +184,7 @@ const handleErrors = (response) => {
 /* @param {*} itemData - ModelItem (inline) editing data
 /* @param {*} recData - Edit/Create item form
 /*/
-export const updateField = (field, value, itemData, recData = undefined) => {
+export const updateField = (field, value, itemData, recData = undefined, cb = undefined) => {
   const f = getDBFieldName(field)
   let multiRecUpdate = false
   let addFilter = []
@@ -237,8 +239,13 @@ export const updateField = (field, value, itemData, recData = undefined) => {
                   ))
                   : json.schematics
               let merged = [].concat.apply([], result)
-              merged.map(a => doUpdate(a.id, f, value))
-              return
+              let updateResult = merged.map(a => doUpdate(a.id, f, value ? value.trim() : ''))
+              if (!updateResult.filter(i => i === false)[0]) {
+                if (cb) {
+                  cb()
+                }
+                return true
+              }
             })
             .catch(error => {
               console.log(error)
@@ -246,7 +253,7 @@ export const updateField = (field, value, itemData, recData = undefined) => {
   } else {
       // check if a record to be updated exists
     if (filterRecId !== 0) {
-      return doUpdate(filterRecId, substFieldName !== '' ? substFieldName : f, value)
+      return doUpdate(filterRecId, substFieldName !== '' ? substFieldName : f, value, cb)
     } else {
       if (f === 'description') {
         return doInsertDescription(f, itemData, value)

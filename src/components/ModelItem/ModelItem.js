@@ -24,8 +24,8 @@ import {getFile} from '../../utils/utils'
 
 /**
  * Generates form field name for the edit component.
- * @param {String} itemDataVersion 
- * @param {String} fieldName 
+ * @param {String} itemDataVersion
+ * @param {String} fieldName
  */
 const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + fieldName)
 /**
@@ -36,15 +36,15 @@ const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
 /**
  * Check whether param passed is image file, by inspecting its extension
- * @param {string} media 
+ * @param {string} media
  */
 const isImageByExt = (media:string):boolean => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
 
  /**
- * Get each tab icon. Depending on the app settings it can be either font icon or text 
- * @param {any} iconName 
- * @param {any} typesAsPictures 
- * @returns 
+ * Get each tab icon. Depending on the app settings it can be either font icon or text
+ * @param {any} iconName
+ * @param {any} typesAsPictures
+ * @returns
  */
 export const getTabIcon = (iconName:string, typesAsPictures:boolean):string => {
   let tabIcon =
@@ -127,9 +127,9 @@ export class ModelItem extends Component {
     let media = ''
     if (itemData) {
       media = itemData.photos.length > 0
-        ? this.state[itemData.photos[0].updateId]
+        ? (itemData.photos[0].uploadname ? this.state[itemData.photos[0].updateId] : itemData.photos[0].photo)
         : itemData.layouts.length > 0
-          ? itemData.layouts[0].layout
+          ? (itemData.layouts.filter(i => isImageByExt(i.layout))[0] ? itemData.layouts.filter(i => isImageByExt(i.layout))[0].layout : '')
           : itemData.others.length > 0
             ? itemData.others[0].other
             : ''
@@ -165,7 +165,7 @@ export class ModelItem extends Component {
     return (this.makeDownloadLink({
       key: photo.id,
       href: photo.photo,
-      icon: (<img src={this.state[photo.updateId]} alt={photo.photoName} height='48' width='48' />),
+      icon: (<img src={photo.uploadname ? this.state[photo.updateId] : photo.photo} alt={photo.photoName} height='48' width='48' />),
       text: photo.photoName + ' by ' + photo.photoContributor,
       uploadname: photo.uploadname,
       activeLinkClass: classes.activeRoute,
@@ -285,7 +285,7 @@ export class ModelItem extends Component {
   handleEditChange = (field) => (value) => {
     this.setState({
       ...this.state,
-      [field]: value.length > 1 ? value : ' ',
+      [field]: value.length > 1 || value !== ' ' ? value : ' ',
       [mc(field.split('_')[0])]: value.length > 0
     })
   }
@@ -302,9 +302,7 @@ export class ModelItem extends Component {
       // nothing happened - exit
       return
     }
-    if (updateField(field, this.state[field], itemData)) {
-     // console.log(field)
-     // console.log(itemData)
+    if (updateField(field, this.state[field], itemData, undefined, () => {
       if (this.state[field]) {
         this.setState({
           ...this.state,
@@ -312,9 +310,12 @@ export class ModelItem extends Component {
           [field]: undefined,
           [mc(itemData.version)]: false
         })
+        this.props.loadItem(true)
       }
+    })) {
+
       // console.log('will call loadItem now!')
-      this.props.loadItem(true)
+
     } else {
       this.setState({
         ...this.state,
@@ -509,7 +510,7 @@ export class ModelItem extends Component {
     return descriptions
   }
 
-  componentWillMount = (prevProps) => {
+  componentWillMount = () => {
     this.setState({
       itemObjects: transformData(this.props.items)
     })

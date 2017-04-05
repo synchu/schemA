@@ -3,6 +3,9 @@ import {FontIcon} from 'react-toolbox'
 import {getFile} from '../../utils/utils'
 import classes from './DownloadLink.scss'
 
+const isImageByExt = (media:string):boolean => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
+const isPdfByExt = (media:string):boolean => (media ? media.toLowerCase().match(/pdf/) : false)
+
 export class DownloadLink extends Component {
   state = {
     data: 'data:'
@@ -31,12 +34,28 @@ export class DownloadLink extends Component {
       getFile(existingFile, uploadname, 'attachment', this.customSetState, 'data')
     }
   }
+  // Safari IOS specific detection
+  getContentType = () => {
+    const {existingFile} = this.props
+    if (isImageByExt(existingFile)) {
+      return 'image/jpeg'
+    } else if (isPdfByExt(existingFile)) {
+      return 'application/pdf'
+    } else {
+      return 'attachment/file'
+    }
+  }
 
   render = () => {
     const {icon, text, existingFile, uploadname} = this.props
+    let ua = global.navigator.userAgent
+    var iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i)
+    var webkit = !!ua.match(/WebKit/i)
+    var iOSSafari = iOS && webkit && !ua.match(/CriOS/i)
+    var Safari = webkit && !ua.match(/CriOS/i)
     return (
       <div>
-        <a href={this.state.data} target='_blank'
+        <a href={iOSSafari ? this.state.data.replace(/^data:[^;]*;/, 'data:' + this.getContentType() + ';') : this.state.data} target='_blank'
           download={uploadname ? (existingFile ? existingFile.substring(existingFile.lastIndexOf('/') + 1) : 'download') : ''}>
           <span><FontIcon className={classes.actionIcons} value={icon} /> {text} </span>
         </a>

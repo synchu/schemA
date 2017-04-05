@@ -38,3 +38,14 @@ export const deepCompareFiles = (filesForm: Array < Object >, filesDB: Array < O
   })
   return ({records: result, changes: changeMap})
 }
+
+export const findInObj = (object, value) => {
+  for (var property in object) {
+    if (object.hasOwnProperty(property)) {
+      if (object[property] === value) {
+        return true
+      }
+    }
+  }
+  return false
+}

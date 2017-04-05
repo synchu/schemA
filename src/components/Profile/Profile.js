@@ -15,12 +15,8 @@ export class Profile extends Component {
     isAdmin: PropTypes.bool
   }
 
-  constructor (props) {
-    super(props)
-  }
-
   handleClick = (e) => {
-    // console.log(e.target.id)
+    console.log(e.target.id)
   }
 
   toggleProfile = (e) => {
@@ -35,7 +31,7 @@ export class Profile extends Component {
     return (
       <div className={cn(classes.avatarPanel, isAdmin ? classes.admin : '')}>
         {this.state.visible && <span>
-          <Avatar image={image} title={title} />
+          <Avatar image={image} title={title} onClick={this.handleClick} />
           <span style={{
             marginLeft: '5px'
           }}>

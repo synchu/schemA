@@ -99,7 +99,7 @@ $stats-font-size-factor: 0.9;
     .navigation {
         flex: 0 0 auto;
         position: relative;
-        max-width: 40rem;
+        // max-width: 264px;
         width: 264px;
         navtitle {
             border: 0 none;
@@ -216,9 +216,9 @@ $stats-font-size-factor: 0.9;
     color: $base-color;
     bottom: 0;
     position: fixed;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
     right: 0;
-    width: calc(100% - 265px);
+    // width: calc(100% - 265px);
     link {
         abbr {
             text-transform: none;

@@ -11,6 +11,7 @@ import { FileDropzone } from '../components/Dropzone'
 import Logo from '../../../components/Logo'
 import { validators } from '../modules/validateData'
 import { checkAmpItemExists } from '../modules/filesTableData'
+import UploadDialogHelp from '../../../components/HelpContents/UploadDialogHelp'
 
 import classes from './UploadItem.scss'
 
@@ -245,7 +246,8 @@ const selector = formValueSelector('UploadItem')
 // es-lint react/prop-types on
 export class UploadItem extends Component {
   state = {
-    deletedItem: 0
+    deletedItem: 0,
+    helpVisible: false
   }
   static propTypes = {
     validateEmail: React.PropTypes.func,
@@ -287,10 +289,6 @@ export class UploadItem extends Component {
     startProgress: PropTypes.func,
     progress: PropTypes.number,
     profile: PropTypes.object
-  }
-
-  constructor (props) {
-    super(props)
   }
 
   componentDidMount = () => {
@@ -359,6 +357,23 @@ export class UploadItem extends Component {
       this.props.change('contributor', this.props.profile.name)
     }
   }
+  
+  toggleHelp = () => {
+    this.setState({...this.state, helpVisible: !this.state.helpVisible})
+  }
+
+  getCardTitle = () => {
+    return(
+      <span>
+       Edit/Create amp item
+           <IconButton
+             className={classes.helpButton}
+             icon='help'
+             title='Help'
+             onClick={this.toggleHelp} />
+      </span>
+    )
+  }
 
   render () {
     const { handleSubmit, pristine, reset,
@@ -380,7 +395,10 @@ export class UploadItem extends Component {
     <form onSubmit={handleSubmit(data => (this.localHandleSubmit(data, this.props)))} className={classes.container} >
       <div>
         <Card className={classes['ampitemcard']} raised >
-          <CardTitle title='Edit/Create amp item' theme={classes} />
+          <CardTitle title={this.getCardTitle()} theme={classes} />
+
+          {this.state.helpVisible && <UploadDialogHelp toggleHelp={this.toggleHelp} />}
+
           <span style={{ display: 'flex', flexFlow: 'row wrap' }}>
             <Field name='brand' label='Brand'
               component={renderAutocompleteField}

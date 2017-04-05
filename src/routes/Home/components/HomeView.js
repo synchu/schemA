@@ -145,12 +145,6 @@ export class HomeView extends Component {
           <span title='Click to view items'>
             <strong>{model[1]}</strong>
           </span>
-          {false && <span className={classes.modelstats}>
-            {renderStatItem(model, 2, 'No. of schematics', 'developer_board')}
-            {renderStatItem(model, 4, 'No. of layouts', 'collections')}
-            {renderStatItem(model, 3, 'No. of photos', 'photo')}
-            {renderStatItem(model, 5, 'No. of other docs', 'attachment')}
-          </span>}
         </Chip>
 }
         {this.state.modelsAsList && <ListItem
@@ -193,8 +187,8 @@ export class HomeView extends Component {
             : 'subject'}
             rightIcon={showStats
               ? <span className={classes.brandstats}>
-                {renderStatItem(b, 1, 'No. of schematics', 'developer_board')}
-                {renderStatItem(b, 3, 'No. of layouts', 'collections')}
+                {/* renderStatItem(b, 1, 'No. of schematics', 'developer_board')*/}
+                {/* renderStatItem(b, 3, 'No. of layouts', 'collections')*/}
                 {/* renderStatItem(b, 2, 'No. of photos', 'photo')*/}
                 {/* renderStatItem(b, 4, 'No. of other docs', 'attachment')*/}
               </span>
@@ -455,14 +449,6 @@ export class HomeView extends Component {
             {...this.props} />
           <div className={cn(classes.content, navbarPinned ? classes.expanded : '')}>
             <div className={cn(classes.autoRow)}>
-              <div
-                style={{
-                  display: 'flex',
-                  color: 'blue'
-                }}>
-                THIS IS STILL A TEST!A lot of features may not yet work or may not work as
-                expected, including the file links.
-              </div>
               <div>
                 {
                     isAuthenticated &&

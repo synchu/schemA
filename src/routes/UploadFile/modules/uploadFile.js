@@ -5,7 +5,7 @@ import {getTableData, newVersionRow, initNewBrand, maxDataId, getLastBid} from '
 import fetch from 'isomorphic-fetch'
 import {formValueSelector} from 'redux-form/immutable'
 import {updateField, insertRecord, deleteRecord} from '../../../utils/updateDb'
-import {deepCompareFiles} from './utils'
+import {deepCompareFiles, findInObj} from './uploadUtils'
 import {mReq, __API__} from '../../../utils/utils'
 import _ from 'lodash'
 
@@ -144,17 +144,6 @@ export const loadBrandsDropdown = () => {
     }
     return dispatch(fetchBrandsDropdown())
   }
-}
-
-const findInObj = (object, value) => {
-  for (var property in object) {
-    if (object.hasOwnProperty(property)) {
-      if (object[property] === value) {
-        return true
-      }
-    }
-  }
-  return false
 }
 
 export const setBrand = (value, change, array) => {

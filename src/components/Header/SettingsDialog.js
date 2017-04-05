@@ -35,7 +35,7 @@ export const SettingsDialog = (props) => {
         checked={currentSettings.showStats}
         label='Show stats'
         onChange={(e) => handleSettings(e, 'stats')} />
-      <p>Toggles brand statistics display in Models selection pane</p>
+      <p>Toggles brand statistics display in Models selection pane. <i>Temporarily disabled</i></p>
       <Switch
         theme={classes}
         checked={currentSettings.typesAsPictures}
