@@ -32,7 +32,7 @@ export const deleteRecord = (recId: Number): void => {
     console.error('Delete record id is incorrect')
     return
   }
-  console.log(__API__ + '/schematics/' + recId)
+  // console.log(__API__ + '/schematics/' + recId)
   fetch(mReq(__API__ + '/schematics/' + recId), {
     method: 'DELETE'/*,
     headers: {

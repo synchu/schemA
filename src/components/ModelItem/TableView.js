@@ -43,12 +43,6 @@ export class TableView extends Component {
     typesAsPictures: PropTypes.bool
   }
 
-  constructor (props) {
-    super(props)
-    this.makeTableSource = this.makeTableSource.bind(this)
-    this.renderTabView = this.renderTabView.bind(this)
-  }
-
   makeTableSource = () => {
     const {itemData, tabIcon, typesAsPictures} = this.props
 
@@ -98,6 +92,8 @@ export class TableView extends Component {
           href: i.photo,
           version: a.version
         })
+        // get data: URIs for SchemA uploaded files
+        getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.updateId)
       })
     })
     this.setState({ ...this.state, tableData: tableSource })
@@ -169,7 +165,7 @@ export class TableView extends Component {
             }
             <td>
               <TTFontIcon value={i.type === PHOTO
-                ? <img src={this.state[i.updateId]} alt={i.photoName} height='36' width='36' />
+                ? <img src={i.uploadname ? this.state[i.updateId] : i.href} alt={i.photoName} height='36' width='36' />
                 : i.icon}
                 tooltip={i.type} title={i.type} className={classes.actionIcons} />
             </td>
@@ -195,18 +191,9 @@ export class TableView extends Component {
     this.makeTableSource()
   }
 
-  componentDidMount = () => {
-    const {tableData} = this.state
-    if (!tableData[0]) {
-      return
-    }
-    tableData.filter(b => b.type === PHOTO).map(i => {
-      getFile(i.href, i.uploadname, 'inline', this.customSetState, i.updateId)
-    })
-  }
-
   render () {
     const { itemData } = this.props
+    // console.log('renderTabView', this.state)
     return (
       <div key={itemData.version}>
         {(this.state.tableData) && this.renderTabView()}

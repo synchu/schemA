@@ -422,7 +422,7 @@ const ir = (bid: Number, brand: String, model: String, version: String,
  /**
  * Submits form to the database. Updates and creates records where necessary.
  *
- * @param {Array} existingRecords - array of schematics record objects
+ * @param {Array} existingRecords - array of amplifier item record objects
  * @param {Number} maxDataId - current max data_id key within the current brand
  * @returns void
  */
@@ -441,7 +441,8 @@ export const submitToDB = (existingRecords, maxDataId) => {
     var newDataId = parseInt(maxDataId < 0 ? -maxDataId : maxDataId) + 1
 
     dispatch(increaseProgress(20))
-
+     
+    // verify that we have existing records
     if (existingRecords[0]) {
       // descriptions processing start
       let descriptionDBRecord = existingRecords.filter(i => i.type.trim().toLowerCase() === 'description')
@@ -455,16 +456,19 @@ export const submitToDB = (existingRecords, maxDataId) => {
         }
         dispatch(increaseProgress(60))
       } else {
-        // new description record var newDataId =
-        // parseInt(maxDataId(existingRecords).data_id) + 1
-        insertRecord(ir(bid, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId)
+        // new description record create and increase newDataId, should there are any new file items to be inserted
+        insertRecord(ir(bid, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId++)
 
         // descriptions processing end
         dispatch(increaseProgress(60))
       }
+      // obtain file items from the DB
       let filesRecords: Array<Object> = existingRecords.filter(i => i.type.trim().toLowerCase() !== 'description')
+      // obtain file items from the on-screen form
       let filesForm: Array<Object> = selector(getState(), 'files')
+      // compare the above and obtain what needs to be updated
       let dbUpdates: Object = deepCompareFiles(filesForm, filesRecords)
+      // first update the changed values
       if (dbUpdates.changes) {
         dbUpdates.changes.map(i => updateField(i.field, i.value, undefined, {id: i.id}))
       }
@@ -487,11 +491,12 @@ export const submitToDB = (existingRecords, maxDataId) => {
       }
       dispatch(increaseProgress(80))
     } else {
+      // There are no existing records, so we are creating a new brand
       // obtain last brand id
       dispatch(increaseProgress(60))
       getLastBid()
       .then(lastBid => {
-        console.log(lastBid)
+        // console.log(lastBid)
         if (!insertRecord(ir(lastBid + 1, brand, model, version, 'Description', description, contributor, '', 0, ''), newDataId++)) {
           console.warn('Description did not make it to the DB')
         }

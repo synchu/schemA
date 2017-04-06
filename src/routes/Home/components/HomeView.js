@@ -380,6 +380,7 @@ export class HomeView extends Component {
           pinned={navbarPinned}
           active={navbarActive}
           theme={classes}
+          className={classes.navDrawer}
           clipped
           // width='normal'
           ref='navdrawer'>
@@ -458,9 +459,7 @@ export class HomeView extends Component {
                         isAdmin={this.isAdmin()} />
                 }
               </div>
-              <div className={classes.flexRightAuto}>
-                <h4>{selectedBrand} - {selectedModel}</h4>
-              </div>
+            
               <div style={{
                 flexFlow: 'row wrap',
                 alignSelf: 'flex-start'

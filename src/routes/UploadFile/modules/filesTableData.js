@@ -120,10 +120,10 @@ export const maxDataId = (data: Array) => (data.reduce((a, b) => a.data_id > b.d
  * for the particular amp brand, model and version.
  * Accepts either app state (using UploadItem form selector to extract the params) or
  * brand, model, version params. undefined must be passed as state, if brand, model, version params are used.
- * @param {*} state - app state: Object or undefined
- * @param {*} pBrand - amp brand: String
- * @param {*} pModel - amp model: String
- * @param {*} pVersion - amp version: String
+ * @param {Object} state - app state: Object or undefined
+ * @param {String} pBrand - amp brand: String
+ * @param {String} pModel - amp model: String
+ * @param {String} pVersion - amp version: String
  */
 export const checkAmpItemExists = (state: Object, pBrand = '', pModel = '', pVersion = '',
                                    dispatchCallback = undefined) => {
