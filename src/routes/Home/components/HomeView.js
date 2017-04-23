@@ -160,13 +160,11 @@ export class HomeView extends Component {
     )
   }
 
-
   renderBrands = (b) => {
     const {selectedBrand, models, filteredModels, isFetchingModels} = this.props
     const {modelsAsList, showStats} = this.state
 
     const key = 5
-
 
     if (b[0] === selectedBrand) {
       this.singleModel = false
@@ -308,6 +306,28 @@ export class HomeView extends Component {
     }
   }
 
+  componentWillMount = () => {
+    const {params, selectBrand} = this.props
+    if (params) {
+      let {brand, model, version} = params
+      if (brand) {
+        console.log('componentWillMount: params called: ', params)
+        this.props.toggleSearching()
+        selectBrand(brand)
+        // localStorage.setItem('selected_brand', brand)
+        this.props.loadModels()
+        this.props.selectModel(model)
+        // localStorage.setItem('selected_model', model)
+        this.props.loadItem()
+        setTimeout(() => {
+          let element = document.getElementById(version.trim())
+          if (element) {
+            element.scrollIntoViewIfNeeded({block: 'start', behavior: 'smooth'})
+          }
+        }, 1500)
+      }
+    }
+  }
   componentDidUpdate = (prevProps) => {
     const selectedBrandLocal = localStorage.getItem('selected_brand')
     var target = document.getElementById(selectedBrandLocal)
@@ -315,7 +335,6 @@ export class HomeView extends Component {
       target.scrollIntoViewIfNeeded({block: 'start', behavior: 'smooth'})
     }
   }
-
 
   localSetNavbarActive = () => {
     const {navbarActive, setNavbarActive} = this.props
@@ -459,7 +478,7 @@ export class HomeView extends Component {
                         isAdmin={this.isAdmin()} />
                 }
               </div>
-            
+
               <div style={{
                 flexFlow: 'row wrap',
                 alignSelf: 'flex-start'
@@ -510,7 +529,7 @@ export class HomeView extends Component {
                   <a href='termsofuse.html' target='_blank'> terms of use </a>
                 </div>
                 <div>
-                  <span>Reach us at 
+                  <span>Reach us at
                     <a href='http://diyguitaramps.prophpbb.com/' target='_blank'> diyGuitarAmps.com</a>
                   </span>
                 </div>

@@ -141,6 +141,7 @@ export class TableView extends Component {
     let scText = this.sortTable.bind(this, 'text')
     let scBy = this.sortTable.bind(this, 'by')
     let TTFontIcon = Tooltip(FontIcon)
+    let x = 0
     return (
       <table className={classnames('table', 'table-stripped', 'table-condensed')}>
         <thead className={classes.tableHeader}>
@@ -157,7 +158,7 @@ export class TableView extends Component {
         </thead>
         <tbody>
         {this.state.tableData.map((i) => {
-          return (<tr key={i.key}>
+          return (<tr key={i.key} id={x === 0 ? i.version : i.version + x++}>
             {cardsAsList &&
               <td>
                 {i.version}

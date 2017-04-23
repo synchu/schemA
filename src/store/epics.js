@@ -7,9 +7,10 @@ export const selectModelEpic = (action$, store) => {
     .ofType(MODELS_SUCCESS)
     .debounceTime(100)
     .map((action) => {
-     // console.log('models_success')
+     console.log('models_success', action)
      // console.log(store.getState().Home)
       if (store.getState().Home && !store.getState().Home.searching) {
+        console.log('in epic if', action)
         return ({
           type: SELECT_MODEL,
           selectedModel: action.models.length === 1

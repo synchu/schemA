@@ -60,7 +60,7 @@ export const createRoutes = (store, auth) => {
   homeReducer(store)
 
   return {
-    path: '/',
+    path: '/(/:brand/:model/:version)',
     component: CoreLayout,
     indexRoute: Home,
     onEnter: authRequired,
