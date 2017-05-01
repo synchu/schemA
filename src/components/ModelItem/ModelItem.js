@@ -72,13 +72,13 @@ export const getTabIcon = (iconName:string, typesAsPictures:boolean):string => {
  */
 export class ModelItem extends Component {
   static propTypes = {
-    items: PropTypes.array,
     cardsAsList: PropTypes.bool,
-    loadItem: PropTypes.func,
+    isAdmin: PropTypes.bool,
     isAuthenticated: PropTypes.bool,
-    typesAsPictures: PropTypes.bool,
-    isAdmin: PropTypes.bool
+    loadItem: PropTypes.func,
+    typesAsPictures: PropTypes.bool
   }
+
   constructor (props) {
     super(props)
     this.handleClick = this
@@ -157,14 +157,17 @@ export class ModelItem extends Component {
         ? itemData.photos[0].photoName
         : itemData.version} />)
     } else if (media !== '') {
-      return (this.makeDownloadLink({href: media, text: media, icon: 'file_download', activeLinkClass: classes.activeRoute}))
+      return (this.makeDownloadLink({href: media,
+        text: media, icon: 'file_download',
+        activeLinkClass: classes.activeRoute}))
     } else {
       return (
         <strong
           style={{
             padding: '1rem',
             marginBottom: 'auto'
-          }}>
+          }}
+        >
           <strong>No photos or layouts to display yet. Please, contact us, if you would
             like to contribute.
           </strong>
@@ -229,10 +232,13 @@ export class ModelItem extends Component {
   openPhotoLibrary = (itemData) => {}
 
   /**
- * makeTabLabel - generates labels for the card tabs, <br /> used to force IE render
- * tab label on a new line on larger screen devices
- * @memberOf ModelItem
- */
+   * makeTabLabel - generates labels for the card tabs, <br /> used to force IE render
+   * tab label on a new line on larger screen devices
+   * 
+   * 
+   * @memberof ModelItem
+   * @returns label of the item card tab
+   */
   makeTabLabel = (text, stats, icon) => {
     return (
       <span>
@@ -435,7 +441,8 @@ export class ModelItem extends Component {
       icon='cancel'
       title='Cancel edit'
       className={classes.actionButtons}
-      onClick={this.handleCancelClick(field)} />)
+      onClick={this.handleCancelClick(field)}
+            />)
   }
 
   handleSaveClick = (field, itemData) => (e) => {

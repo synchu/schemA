@@ -1,13 +1,13 @@
 import 'rxjs'
 import {loadItem, SELECT_MODEL, MODELS_SUCCESS} from '../routes/Home/modules/Home'
-import {SET_FILES} from '../routes/UploadFile/modules/uploadFile'
+// import {SET_FILES} from '../routes/UploadFile/modules/uploadFile'
 
 export const selectModelEpic = (action$, store) => {
   return action$
     .ofType(MODELS_SUCCESS)
     .debounceTime(100)
     .map((action) => {
-     console.log('models_success', action)
+    //  console.log('models_success', action)
      // console.log(store.getState().Home)
       if (store.getState().Home && !store.getState().Home.searching) {
         console.log('in epic if', action)
