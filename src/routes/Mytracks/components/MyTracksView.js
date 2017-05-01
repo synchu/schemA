@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { List, Navigation } from 'react-toolbox'
 import Input from 'react-toolbox/lib/input'
 import SongItem from '../../../components/SongItem'

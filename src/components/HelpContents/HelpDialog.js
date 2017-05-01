@@ -1,4 +1,5 @@
-import React, {PropTypes, Component} from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
 import {SearchContent, SideNavigation, TopMenuContent,
 AppSettingsContent, GeneralContent} from '../HelpContents/HelpContents'

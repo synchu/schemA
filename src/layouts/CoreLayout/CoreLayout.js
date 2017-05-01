@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react'
 import { connect } from 'react-redux'
 import classes from './CoreLayout.scss'
@@ -15,9 +16,9 @@ export let CoreLayout = (props) => {
 }
 
 CoreLayout.propTypes = {
-  children: React.PropTypes.element.isRequired,
-  isAuthenticated: React.PropTypes.bool,
-  dispatch: React.PropTypes.func
+  children: PropTypes.element.isRequired,
+  isAuthenticated: PropTypes.bool,
+  dispatch: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react'
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Button, Link, Checkbox, Navigation } from 'react-toolbox'
 import { Card, CardTitle, CardActions } from 'react-toolbox/lib/card'
 import Input from 'react-toolbox/lib/input'
@@ -47,7 +48,7 @@ export const checkField = ({ input, label }) => (
 )
 
 renderField.propTypes = {
-  input: React.PropTypes.object,
+  input: PropTypes.object,
   label: PropTypes.string,
   type: PropTypes.string,
   meta: PropTypes.object,
@@ -55,7 +56,7 @@ renderField.propTypes = {
 }
 
 checkField.propTypes = {
-  input: React.PropTypes.object,
+  input: PropTypes.object,
   label: PropTypes.string,
   checked: PropTypes.bool
 }
@@ -128,17 +129,17 @@ export const SignUpView = (props) => {
 }
 
 SignUpView.propTypes = {
-  validateEmail: React.PropTypes.func.isRequired,
-  dispatch: React.PropTypes.func,
-  errorMessage: React.PropTypes.string,
-  isAuthenticated: React.PropTypes.bool,
-  emailValid: React.PropTypes.bool,
-  message: React.PropTypes.string,
-  user: React.PropTypes.object,
-  username: React.PropTypes.string,
-  password: React.PropTypes.string,
-  userEmail: React.PropTypes.string,
-  fields: React.PropTypes.array,
+  validateEmail: PropTypes.func.isRequired,
+  dispatch: PropTypes.func,
+  errorMessage: PropTypes.string,
+  isAuthenticated: PropTypes.bool,
+  emailValid: PropTypes.bool,
+  message: PropTypes.string,
+  user: PropTypes.object,
+  username: PropTypes.string,
+  password: PropTypes.string,
+  userEmail: PropTypes.string,
+  fields: PropTypes.array,
   handleSubmit: PropTypes.func,
   reset: PropTypes.func,
   pristine: PropTypes.bool,

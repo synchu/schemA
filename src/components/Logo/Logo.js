@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react'
 import classes from './Logo.scss'
 
@@ -69,11 +70,11 @@ export class Logo extends React.Component {
 
 Logo.propTypes = {
   // default width 723
-  width: React.PropTypes.string.isRequired,
+  width: PropTypes.string.isRequired,
   // default height 182
-  height: React.PropTypes.string.isRequired,
+  height: PropTypes.string.isRequired,
   // scale prop:
-  scale: React.PropTypes.string.isRequired
+  scale: PropTypes.string.isRequired
 }
 
 export default Logo

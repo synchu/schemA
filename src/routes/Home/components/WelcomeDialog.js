@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react'
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Dialog, Switch, Button } from 'react-toolbox'
 import classes from './HomeView.scss'
 

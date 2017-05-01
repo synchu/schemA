@@ -1,4 +1,5 @@
-import React, {PropTypes, Component} from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {Dialog, Button, Tabs, Tab} from 'react-toolbox'
 import {InlineContent, EditCreateContent, UploadGeneralContent} from '../HelpContents/HelpContents'
 import classes from './HelpDialog.scss'

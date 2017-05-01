@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {Avatar, IconButton} from 'react-toolbox'
 import classes from './Profile.scss'
 import cn from 'classnames'

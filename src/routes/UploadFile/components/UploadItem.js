@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Button, Table, Card, CardTitle, AppBar,
   CardActions, Autocomplete, IconButton,
  TableHead, TableRow, TableCell, ProgressBar} from 'react-toolbox'
@@ -250,16 +251,16 @@ export class UploadItem extends Component {
     helpVisible: false
   }
   static propTypes = {
-    validateEmail: React.PropTypes.func,
-    dispatch: React.PropTypes.func,
-    errorMessage: React.PropTypes.string,
-    isAuthenticated: React.PropTypes.bool,
-    emailValid: React.PropTypes.bool,
-    message: React.PropTypes.string,
-    user: React.PropTypes.object,
-    username: React.PropTypes.string,
-    password: React.PropTypes.string,
-    fields: React.PropTypes.array,
+    validateEmail: PropTypes.func,
+    dispatch: PropTypes.func,
+    errorMessage: PropTypes.string,
+    isAuthenticated: PropTypes.bool,
+    emailValid: PropTypes.bool,
+    message: PropTypes.string,
+    user: PropTypes.object,
+    username: PropTypes.string,
+    password: PropTypes.string,
+    fields: PropTypes.array,
     handleSubmit: PropTypes.func,
     pristine: PropTypes.bool,
     reset: PropTypes.func,

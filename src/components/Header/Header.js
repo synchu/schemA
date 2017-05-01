@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {IndexLink, Link} from 'react-router'
 import {IconButton, AppBar, Autocomplete, Snackbar} from 'react-toolbox'
 import Logo from '../Logo'

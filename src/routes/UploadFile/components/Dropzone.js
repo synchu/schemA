@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import PropTypes from 'prop-types';
+import React from 'react';
 import classes from './Dropzone.scss'
 import Dropzone from 'react-dropzone'
 import {pFileReader} from '../../../utils/utils'
@@ -15,7 +16,7 @@ export class FileDropzone extends React.Component {
   }
 
   static propTypes = {
-    uploadedFiles: React.PropTypes.object,
+    uploadedFiles: PropTypes.object,
     table: PropTypes.bool,
     processFiles: PropTypes.func,
     rkey: PropTypes.number,

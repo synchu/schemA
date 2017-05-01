@@ -1,4 +1,6 @@
-import React, {Component, PropTypes} from 'react'
+/* flow */
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {
   Tab,
   Switch,
@@ -12,7 +14,6 @@ import {
   IconButton,
   Input
 } from 'react-toolbox'
-import {Link} from 'react-router'
 import classes from './ModelItem.scss'
 import MediaQuery from 'react-responsive'
 import TableView from './TableView'
@@ -31,20 +32,22 @@ const makeField = (itemDataVersion, fieldName) => (itemDataVersion + '_' + field
 /**
  * Generates state stored variable for the changed form field value.
  * @param {String} itemDataVersion - indicates version for the particular amp.
+ * @returns indicator of whether the currently loaded version is changed
  */
 const mc = (itemDataVersion) => (itemDataVersion + '_changed')
 
 /**
  * Check whether param passed is image file, by inspecting its extension
- * @param {string} media
+ * @param {string} media name of the media file
+ * @returns true if the file extension matches media type file
  */
 const isImageByExt = (media:string):boolean => (media ? media.toLowerCase().match(/jpg|png|jpeg|bmp|gif/) : false)
 
  /**
  * Get each tab icon. Depending on the app settings it can be either font icon or text
- * @param {any} iconName
- * @param {any} typesAsPictures
- * @returns
+ * @param {any} iconName name of the icon to return
+ * @param {any} typesAsPictures return either icon or string indicator of the file type
+ * @returns {string} icon to display
  */
 export const getTabIcon = (iconName:string, typesAsPictures:boolean):string => {
   let tabIcon =
@@ -68,7 +71,6 @@ export const getTabIcon = (iconName:string, typesAsPictures:boolean):string => {
  * to display the data.
  */
 export class ModelItem extends Component {
-  state = {}
   static propTypes = {
     items: PropTypes.array,
     cardsAsList: PropTypes.bool,
@@ -77,12 +79,23 @@ export class ModelItem extends Component {
     typesAsPictures: PropTypes.bool,
     isAdmin: PropTypes.bool
   }
-
   constructor (props) {
     super(props)
     this.handleClick = this
       .handleClick
       .bind(this)
+  }
+
+  state = {}
+
+  componentDidMount = () => {
+    const {itemObjects} = this.state
+    if (!itemObjects[0]) {
+      return
+    }
+    itemObjects.map(a => a.photos.map(i => {
+      getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.updateId)
+    }))
   }
 
   handleClick = (e) => {
@@ -112,7 +125,7 @@ export class ModelItem extends Component {
     uploadname/*,
     ...other*/
   } = linkData
-
+    // console.log('href:', href, 'uploadname:', uploadname)
     return (
       <DownloadLink key={href + uploadname} icon={icon} text={text} existingFile={href} uploadname={uploadname} />
     )
@@ -519,16 +532,6 @@ export class ModelItem extends Component {
   customSetState = (value, stateObject) => {
     // console.log('customSetState:', stateObject, value.target.result)
     this.setState({...this.state, [stateObject]: value.target.result})
-  }
-
-  componentDidMount = () => {
-    const {itemObjects} = this.state
-    if (!itemObjects[0]) {
-      return
-    }
-    itemObjects.map(a => a.photos.map(i => {
-      getFile(i.photo, i.uploadname, 'inline', this.customSetState, i.updateId)
-    }))
   }
 
   render () {
