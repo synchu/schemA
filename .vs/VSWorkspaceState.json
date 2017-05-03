@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\routes",
+    "\\src\\routes\\UploadFile",
+    "\\src\\routes\\UploadFile\\components"
+  ],
+  "SelectedNode": "\\src\\routes\\UploadFile\\components\\UploadItem.js",
+  "PreviewInSolutionExplorer": false
+}

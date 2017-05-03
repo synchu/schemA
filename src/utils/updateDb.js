@@ -24,7 +24,8 @@ export const getDBFieldName = (cardField) => {
 
 /**
  * Deletes a file item fron the database, provided the app user has the appropriate permissions.
- * Function is provided for completeness purposes. Generally, items deletion must happen via direct DB maintenance by an admin.
+ * Function is provided for completeness purposes.
+ * Generally, items deletion must happen via direct DB maintenance by an admin.
  * @param {Number} recId - Record id number to delete
  */
 export const deleteRecord = (recId: Number): void => {
@@ -45,7 +46,7 @@ export const deleteRecord = (recId: Number): void => {
           .then(json => {
             console.log(json)
             if (json === null) {
-              console.log('Nothing deleted! Check with application admin. Permissions might be set wrong.')
+              console.log('Nothing deleted! Check with application admin as you might need additional permissions!')
             }
             return true
           })
@@ -59,6 +60,7 @@ export const deleteRecord = (recId: Number): void => {
  * Inserts a new record into the amplifier database. Both params are mandatory.
  * @param {*} recData - Record data to be inserted
  * @param {*} newDataId - New record data_id - i.e. max(data_id) + 1 within the brand
+ * @returns {boolean} true or false, if no record has been inserted
  */
 export const insertRecord = (recData: Object, newDataId: Number) => {
   if (!recData) {
@@ -177,13 +179,14 @@ const handleErrors = (response) => {
 }
 
 /**
-/* Updates a field in the database either from the inline ediding or Edit/Create item form
-/* TODO: unify source data records
-/* @param {*} field - field name
-/* @param {*} value - new field value
-/* @param {*} itemData - ModelItem (inline) editing data
-/* @param {*} recData - Edit/Create item form
-/*/
+* Updates a field in the database either from the inline ediding or Edit/Create item form
+* TODO: unify source data records
+* @param {*} field - field name
+* @param {*} value - new field value
+* @param {*} itemData - ModelItem (inline) editing data
+* @param {*} recData - Edit/Create item form
+* @returns {boolean} true or false, if the filed has been updated
+*/
 export const updateField = (field, value, itemData, recData = undefined, cb = undefined) => {
   const f = getDBFieldName(field)
   let multiRecUpdate = false

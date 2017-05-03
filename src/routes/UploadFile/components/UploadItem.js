@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
 import { Button, Table, Card, CardTitle, AppBar,
   CardActions, Autocomplete, IconButton,
  TableHead, TableRow, TableCell, ProgressBar} from 'react-toolbox'
@@ -32,23 +32,23 @@ const validate = values => {
   return errors
 }
 
-
 const renderField = ({ input, label, type, icon, meta: { touched, error, warning }, ...custom }) => {
   return (
       <div>
         <Input {...input} label={label} type={type}
-          icon={icon} error={touched ? error : ''} style={{ width: '80%' }} {...custom} />
+          icon={icon} error={touched ? error : ''} style={{ width: '80%' }} {...custom}
+        />
         {touched && ((error && <span>{error}</span>) || (warning && <span>{warning}</span>))}
       </div>
   )
 }
 
 renderField.propTypes = {
+  icon: PropTypes.string,
   input: PropTypes.object,
   label: PropTypes.string,
-  type: PropTypes.string,
-  icon: PropTypes.string,
-  meta: PropTypes.object
+  meta: PropTypes.object,
+  type: PropTypes.string
 }
 
 const renderAutocompleteField = ({ input, label, type, icon, required, source, theme, disabled,
@@ -94,7 +94,7 @@ const renderInputTableCell = ({ input, label, icon, meta: { touched, error, warn
       <Input {...input} label={label} icon={icon} error={touched ? error : ''} style={{ width: '80%' }}
         className={custom.className}
         multiline={custom.multiline}
-        />
+      />
         {touched && ((error && <span>{error}</span>) || (warning && <span>{warning}</span>))}
     </TableCell>
   )
@@ -171,7 +171,8 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
              fields.map((item, idx) => {
                return (
                  <TableRow key={idx}
-                   style={filesData[idx] && (filesData[idx].id < 0) ? {backgroundColor: 'lavender'} : {}}>
+                   style={filesData[idx] && (filesData[idx].id < 0) ? {backgroundColor: 'lavender'} : {}}
+                 >
                    <Field name={`${item}.version`} component={renderTableCell} />
                    <TableCell>
                      <Field
@@ -182,13 +183,13 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                        returnSelection={changeItemType}
                        change={change}
                        field={`${item}.type`}
-                      />
+                     />
                     </TableCell>
                     <Field name={`${item}.data`} component={renderTableCell} />
                     <Field name={`${item}.filename`} component={renderInputTableCell}
                       className={classes.tableDisplayName}
                       multiline
-                      />
+                    />
                     <TableCell>
                       <Field
                         component={FileDropzone}
@@ -207,7 +208,8 @@ const renderTableRows = ({fields}, filesData, {...custom}) => {
                         uploadFile={filesData[idx].uploadname}
                         existingId={filesData[idx].id}
                         multiple
-                        table />
+                        table
+                      />
                     </TableCell>
                     <TableCell onClick={() => (handleDeleteClick(idx, filesData[idx] ? filesData[idx].id : 0))} >
                     {filesData[idx] && filesData[idx].delete}
@@ -358,20 +360,21 @@ export class UploadItem extends Component {
       this.props.change('contributor', this.props.profile.name)
     }
   }
-  
+
   toggleHelp = () => {
     this.setState({...this.state, helpVisible: !this.state.helpVisible})
   }
 
   getCardTitle = () => {
-    return(
+    return (
       <span>
        Edit/Create amp item
            <IconButton
              className={classes.helpButton}
              icon='help'
              title='Help'
-             onClick={this.toggleHelp} />
+             onClick={this.toggleHelp}
+           />
       </span>
     )
   }
@@ -384,14 +387,15 @@ export class UploadItem extends Component {
       <div>
       <AppBar fixed flat type='horizontal' theme={classes}>
       <IndexLink to='/' activeClassName={classes.activeRoute}>
-            <div className={classes.logo}>
-              <Logo
-                title='SchemA - the ultimate tube amps schematics archive'
-                width='782'
-                height='182'
-                scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString()} />
-            </div>
-          </IndexLink>
+        <div className={classes.logo}>
+            <Logo
+              title='SchemA - the ultimate tube amps schematics archive'
+              width='782'
+              height='182'
+              scale={(0.2 * Math.max(0.35, screen.width / 1980)).toString()}
+            />
+        </div>
+      </IndexLink>
       </AppBar>
     <form onSubmit={handleSubmit(data => (this.localHandleSubmit(data, this.props)))} className={classes.container} >
       <div>
@@ -413,7 +417,7 @@ export class UploadItem extends Component {
               onBlur={this.handleChange}
               onFocus={this.handleFocus}
               warn={validators.minLength2}
-              />
+            />
             <Field name='model' label='Model'
               component={renderAutocompleteField}
               required
@@ -427,7 +431,7 @@ export class UploadItem extends Component {
               }
               onBlur={this.handleModelChange}
               onFocus={this.handleFocus}
-              />
+            />
             <Field name='version' label='Version'
               component={renderAutocompleteField}
               required
@@ -441,35 +445,41 @@ export class UploadItem extends Component {
               }
               onBlur={this.handleVersionChange}
               onFocus={this.handleFocus}
-              />
+            />
           </span>
           <Field name='description' component={renderField}
             type='text'
             label='Description' required
             icon='description'
-            multiline />
+            multiline
+          />
           <Field name='contributor' component={renderField}
             type='text'
             label='Contributor' required
             icon='control_point'
             onFocus={this.handleFocus}
-            />
+          />
           <div style={{display: 'flex', flexFlow: 'row nowrap', flex: '0 1 auto', alignItems: 'flex-start', justifyContent: 'flex-end'}}>
           {this.props.deletedFilesData && (this.props.deletedFilesData.length > 0) &&
-            <IconButton icon='undo' title='Undo file item delete' onClick={this.handleUndoFileDelete}
-               />}
-            <IconButton icon='playlist_add' title='Add file item' disabled={!brand || !model || !version} onClick={this.handleAddTableRow}
+            <IconButton icon='undo' title='Undo file item delete'
+              onClick={this.handleUndoFileDelete}
+            />
+          }
+            <IconButton icon='playlist_add' title='Add file item' disabled={!brand || !model || !version}
+              onClick={this.handleAddTableRow}
             />
           </div>
           <FieldArray name='files' component={renderTable} props={this.props} filesData={this.props.filesData}
             handleDeleteClick={this.handleDeleteClick}
             change={this.props.change}
-             />
+          />
           <CardActions className={classes['actions']}>
             <Button type='submit' label='Save' raised default
-              disabled={submitting} />
+              disabled={submitting}
+            />
             <Button type='button' label='Cancel' title='Clear the form'
-              disabled={pristine || submitting} onClick={reset} />
+              disabled={pristine || submitting} onClick={reset}
+            />
             {
               (progress > 0) &&
                 <div style={{display: 'flex', flexDirection: 'column'}}>
